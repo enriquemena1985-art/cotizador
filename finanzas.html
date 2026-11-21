@@ -352,6 +352,7 @@ body.sin-sesion main,body.sin-sesion .mini,body.sin-sesion .cond,body.sin-sesion
 .quien[hidden]{display:none}
 .quien span{font-size:13px;color:var(--on-night-muted);margin-right:auto}
 .quien b{color:var(--on-night);font-weight:600}
+.quien i{font-style:normal;white-space:nowrap}
 .btn.chico{padding:7px 11px;font-size:13px}
 a.btn{text-decoration:none;display:inline-flex;align-items:center}
 a.btn[hidden]{display:none}
@@ -386,7 +387,7 @@ select.ctl{appearance:auto}
       <button type="button" class="btn pri" id="b-pdf">Descargar PDF</button>
     </div>
     <div class="quien solo-vendedor" id="quien" hidden>
-      <span>Usuario: <b id="q-nombre">—</b></span>
+      <span>Usuario: <b id="q-nombre">—</b> · <i id="q-ver"></i></span>
       <a class="btn sec chico" href="index.html">Cotizador de vendedores</a>
       <button type="button" class="btn sec chico" id="b-clave">Cambiar contraseña</button>
       <button type="button" class="btn sec chico" id="b-salir">Salir</button>
@@ -750,7 +751,8 @@ select.ctl{appearance:auto}
 
 <!-- En la página publicada queda en null. Para una demostración sin conexión del cotizador: {"config":{…}}. Para pruebas: {"api":"http://localhost:…/"}. -->
 <script id="tc-remoto" type="application/json">null</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- El generador de PDF viene de un servidor externo. La huella (integrity) hace que el navegador lo rechace si el archivo no es exactamente el esperado. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 /* Tasa Compartida · motor de cálculo, versión 3.
    Fuente única del cálculo: la usan la página de Finanzas y la página del vendedor. Funciones puras, sin pantalla.
@@ -984,7 +986,7 @@ return {SUG:SUG, FER_SUG:FER_SUG, CLAVES_INT:CLAVES_INT, norm:norm, ivaDe:ivaDe,
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
 var M = window.TCMotor;   /* motor de cálculo: el mismo archivo en la página de Finanzas y en la del vendedor */
-var VERSION = 'Versión 3.1 · 21-11-2026';
+var VERSION = 'Versión 3.2 · 21-11-2026';
 var LS_VEND = 'tc_vendedor_v1';
 var CLAVES_INT = M.CLAVES_INT;
 
@@ -1256,12 +1258,12 @@ function pintaChips(){
 }
 function pintaFranja(par, tasa, borr){
   var l = [], fin = A.esFin;
-  if (!A.listo) l.push(A.lento ? ['', 'No se pudo leer la tasa del día todavía. Revisá la conexión: la página sigue intentando.'] : ['info', 'Leyendo la tasa del día…']);
+  if (!A.listo) l.push(A.lento ? ['', 'No se pudo leer la tasa del día todavía. Revisá la conexión: la página vuelve a intentar sola en unos minutos. Para probar ahora, tocá «Actualizar» en Mis cotizaciones.'] : ['info', 'Leyendo la tasa del día…']);
   if (A.modo==='sinacceso') l.push(['', 'No se pudo leer la configuración del sistema. Revisá la conexión: la página vuelve a intentar sola.']);
   if (A.listo && A.modo!=='sinacceso'){
     if (!pubOk()) l.push(fin && A.editable ? ['info', A.previa ? 'Esta es la versión 3 del cotizador. Revisá los gastos del banco y los impuestos en el módulo de Finanzas y publicá para habilitar a los vendedores.'
         : 'Todavía no hay tasa publicada. Revisá los valores sugeridos del módulo de Finanzas y publicá para habilitar a los vendedores.']
-      : ['', 'Finanzas todavía no publicó la tasa del día. Sin tasa no se pueden emitir cotizaciones.']);
+      : ['', 'Finanzas todavía no publicó la tasa del día. Sin tasa no se pueden emitir cotizaciones. Para volver a consultar, tocá «Actualizar» en Mis cotizaciones.']);
     else if (borr) l.push(['info', 'Estás simulando con cambios sin publicar. Los vendedores siguen viendo los valores publicados, y no se pueden emitir cotizaciones hasta publicar o descartar.']);
     else if (tasa.nivel==='bloqueo') l.push(['', 'La tasa vigente se publicó el '+fFecha(tasa.pub)+' y ya no vale. '+(fin ? 'Publicá la tasa de hoy para habilitar la emisión.' : 'Pedile a Finanzas que publique la tasa de hoy para poder emitir.')]);
     else if (tasa.nivel==='aviso') l.push(['warn', 'La tasa vigente es la del '+fFecha(tasa.pub)+'. '+(fin ? 'Todavía no publicaste la de hoy.' : 'Finanzas todavía no confirmó la de hoy.')]);
@@ -1901,9 +1903,13 @@ function publicar(){
     if (j.ok!==true || !j.config || j.config.v!==3){ if (!caida(j)) toast(sinRed(j) || j.mensaje || 'No se pudo publicar. Probá de nuevo.', true); return; }
     A.pub = j.config; A.int = j.interno && typeof j.interno==='object' ? j.interno : int; A.previa = null; tocado = false; tnaVista = p.tna;
     var h = new Date(j.config.publicada);
-    A.sync = 'Publicada a las '+p2(h.getHours())+':'+p2(h.getMinutes())+' hs por '+(j.publicadaPor || (S && S.usuario) || 'Finanzas')+'. Desde ahora ninguna cotización se puede emitir con los valores anteriores.';
+    /* El sistema avisa a los cotizadores abiertos que hay una publicación nueva. Si ese aviso falla, la tasa igual quedó publicada:
+       los vendedores la reciben al ingresar, al emitir o al tocar «Actualizar», y ninguna cotización sale con la tasa anterior. */
+    var avisoFallo = j.aviso===false;
+    A.sync = 'Publicada a las '+p2(h.getHours())+':'+p2(h.getMinutes())+' hs por '+(j.publicadaPor || (S && S.usuario) || 'Finanzas')+'. Desde ahora ninguna cotización se puede emitir con los valores anteriores.'
+      + (avisoFallo ? ' Atención: no se pudo avisar a los cotizadores que ya estaban abiertos'+(j.avisoError ? ' ('+String(j.avisoError).slice(0,80)+')' : '')+'. Esos vendedores verán la tasa nueva al ingresar, al emitir o al tocar «Actualizar». Si se repite, avisá a quien mantiene el sistema.' : '');
     ponerParamsForm(parPublicado()); cambio(); pintar();
-    toast('Tasa del día publicada: '+fPct(p.tna/100)+' TNA.');
+    toast('Tasa del día publicada: '+fPct(p.tna/100)+' TNA.'+(avisoFallo ? ' No se pudo avisar a los cotizadores abiertos: mirá el detalle en el módulo.' : ''), avisoFallo);
   });
 }
 function descartar(){ tocado = false; ponerParamsForm(parPublicado() || sugeridosDesde(A.previa)); cambio(); pintar(); toast('Se descartaron los cambios sin publicar.'); }
@@ -2041,6 +2047,7 @@ function iniciar(){
   });
   /* sesión */
   $('ing-ver').textContent = VERSION;
+  $('q-ver').textContent = VERSION.split(' · ')[0]; $('q-ver').title = VERSION;
   $('ing-form').addEventListener('submit', alEnviarIngreso);
   $('ing-cancelar').addEventListener('click', cierraIngreso);
   $('ing-salir').addEventListener('click', salir);
