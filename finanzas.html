@@ -1,0 +1,2050 @@
+<!DOCTYPE html>
+<html lang="es">
+<head>
+<meta charset="utf-8">
+<meta name="viewport" content="width=device-width,initial-scale=1,viewport-fit=cover">
+<meta name="claude:viewport-fit-sides" content="cover">
+<title>Cotizador Tasa Compartida</title>
+<meta name="robots" content="noindex,nofollow">
+<link rel="stylesheet" href="https://fonts.googleapis.com/css2?family=Archivo:wdth,wght@62..125,100..900&family=IBM+Plex+Mono:wght@400;500;600&display=swap">
+<style>
+/* Layout: mesa de cotización en dos columnas. A la izquierda el vendedor carga la operación en cuatro pasos;
+   a la derecha, la hoja de cotización que ve el cliente y, debajo, lo que solo ve Finanzas: costo para la empresa y módulo de parámetros. */
+:root{
+  --bg:#E7ECF2; --panel:#FFFFFF; --panel-2:#F3F6FA; --ink:#0A1220; --ink-2:#2F4057; --muted:#5F7187; --line:#D2DBE5;
+  --navy:#0B2545; --on-navy:#FFFFFF;
+  --night:#060B14; --night-2:#0F1926; --night-line:#22324A; --on-night:#EAF2FA; --on-night-muted:#93A7BD;
+  --blue:#1458C8; --on-blue:#FFFFFF; --sky:#8FD3F7; --on-sky:#062B45; --sky-soft:#DDEFFB; --sky-ink:#0A3554;
+  --ok:#17794E; --ok-soft:#DFF3EA; --warn:#96600C; --warn-soft:#FCF1DC; --bad:#B93426; --bad-soft:#FBE7E4;
+  --ok-n:#4CC38A; --warn-n:#E0A84A; --bad-n:#F0796B;
+  --f-display:"Archivo","Arial Narrow",system-ui,sans-serif;
+  --f-text:"Archivo",system-ui,-apple-system,"Segoe UI",Roboto,sans-serif;
+  --f-mono:"IBM Plex Mono",ui-monospace,"SFMono-Regular",Menlo,Consolas,monospace;
+  color-scheme:light;
+  padding-top:env(safe-area-inset-top,0px); padding-bottom:env(safe-area-inset-bottom,0px);
+}
+@media (prefers-color-scheme: dark){
+  :root:not([data-theme="light"]){
+    --bg:#03060B; --panel:#0B121D; --panel-2:#101A28; --ink:#E8EFF7; --ink-2:#C0CDDC; --muted:#8799AE; --line:#1F2C3E;
+    --navy:#12305C; --on-navy:#FFFFFF;
+    --night:#0A111C; --night-2:#121D2C; --night-line:#26374F; --on-night:#EAF2FA; --on-night-muted:#93A7BD;
+    --blue:#4C8FF0; --on-blue:#031022; --sky:#8FD3F7; --on-sky:#062B45; --sky-soft:#0F2A40; --sky-ink:#C6E8FB;
+    --ok:#4CC38A; --ok-soft:#0E2F22; --warn:#E0A84A; --warn-soft:#33250B; --bad:#F0796B; --bad-soft:#3A1512;
+    color-scheme:dark;
+  }
+}
+:root[data-theme="dark"]{
+  --bg:#03060B; --panel:#0B121D; --panel-2:#101A28; --ink:#E8EFF7; --ink-2:#C0CDDC; --muted:#8799AE; --line:#1F2C3E;
+  --navy:#12305C; --on-navy:#FFFFFF;
+  --night:#0A111C; --night-2:#121D2C; --night-line:#26374F; --on-night:#EAF2FA; --on-night-muted:#93A7BD;
+  --blue:#4C8FF0; --on-blue:#031022; --sky:#8FD3F7; --on-sky:#062B45; --sky-soft:#0F2A40; --sky-ink:#C6E8FB;
+  --ok:#4CC38A; --ok-soft:#0E2F22; --warn:#E0A84A; --warn-soft:#33250B; --bad:#F0796B; --bad-soft:#3A1512;
+  color-scheme:dark;
+}
+*{box-sizing:border-box}
+[hidden]{display:none!important}
+html{scroll-padding-top:env(safe-area-inset-top,0px);-webkit-text-size-adjust:100%}
+body{margin:0;background:var(--bg);color:var(--ink);font-family:var(--f-text);font-size:15px;line-height:1.45}
+.gut{padding-left:max(16px,env(safe-area-inset-left,0px));padding-right:max(16px,env(safe-area-inset-right,0px))}
+h1,h2,h3,p,dl,dd,ul,ol{margin:0}
+button,input,select,textarea{font:inherit;color:inherit}
+:focus-visible{outline:2px solid var(--blue);outline-offset:2px}
+
+/* ---------- barra superior ---------- */
+.top{background:var(--night);color:var(--on-night);border-bottom:3px solid var(--blue)}
+.top-in{max-width:1320px;margin:0 auto;padding-block:16px;display:flex;flex-wrap:wrap;gap:14px 28px;align-items:center;justify-content:space-between}
+.marca{display:flex;align-items:center;gap:12px;min-width:0}
+.marca svg{flex:none}
+.marca-t{display:flex;flex-direction:column;gap:1px;min-width:0}
+.marca-t b{font-family:var(--f-display);font-stretch:125%;font-weight:800;font-size:21px;letter-spacing:.03em;text-transform:uppercase;line-height:1.1}
+.marca-t span{font-size:13px;color:var(--on-night-muted)}
+.cond{display:flex;flex-wrap:wrap;gap:8px}
+.cond div{display:flex;flex-direction:column;gap:1px;padding:6px 12px;border:1px solid var(--night-line);border-radius:4px;background:var(--night-2)}
+.cond span{font-size:11px;letter-spacing:.06em;text-transform:uppercase;color:var(--on-night-muted)}
+.cond strong{font-family:var(--f-mono);font-weight:600;font-size:14px;color:var(--sky)}
+.cond em{font-style:normal;font-size:11.5px;color:var(--on-night-muted)}
+.cond .al em{color:var(--warn-n)}
+.cond .mal em{color:var(--bad-n)}
+.acc{display:flex;flex-wrap:wrap;gap:8px}
+.btn{font-weight:600;font-size:14px;padding:10px 16px;border-radius:4px;border:1px solid transparent;cursor:pointer;white-space:nowrap;line-height:1.2}
+.btn.pri{background:var(--blue);color:var(--on-blue)}
+.btn.sec{background:transparent;color:var(--on-night);border-color:var(--night-line)}
+.btn.sec[aria-pressed="true"]{background:var(--sky);color:var(--on-sky);border-color:var(--sky)}
+.btn:disabled{opacity:.45;cursor:not-allowed}
+.top .btn:focus-visible,.interno .btn:focus-visible{outline-color:var(--sky)}
+
+/* ---------- estado de la tasa y del modo de uso ---------- */
+.franja{max-width:1320px;margin:0 auto;padding-top:16px;display:flex;flex-direction:column;gap:8px}
+
+/* ---------- mesa ---------- */
+.mesa{max-width:1320px;margin:0 auto;padding-block:24px 56px;display:grid;grid-template-columns:minmax(300px,400px) minmax(0,1fr);gap:24px;align-items:start}
+.salida{display:flex;flex-direction:column;gap:20px;min-width:0}
+@media (max-width:920px){.mesa{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- carga del vendedor ---------- */
+.carga{background:var(--panel);border:1px solid var(--line);border-radius:6px;display:flex;flex-direction:column;min-width:0}
+.ejemplo{background:var(--sky-soft);color:var(--sky-ink);font-size:13px;padding:9px 18px;border-bottom:1px solid var(--line);border-radius:6px 6px 0 0}
+.paso{padding:18px 18px 20px;display:flex;flex-direction:column;gap:14px;border-bottom:1px solid var(--line)}
+.paso:last-child{border-bottom:0}
+.paso h2{font-family:var(--f-display);font-stretch:112%;font-weight:700;font-size:13px;letter-spacing:.12em;text-transform:uppercase;display:flex;gap:10px;align-items:baseline}
+.paso h2 i{font-style:normal;font-family:var(--f-mono);font-weight:500;color:var(--blue);font-size:12px;letter-spacing:0}
+.fila{display:grid;grid-template-columns:repeat(2,minmax(0,1fr));gap:12px}
+.campo{display:flex;flex-direction:column;gap:5px;min-width:0}
+.rot{font-size:12px;font-weight:600;color:var(--ink-2);letter-spacing:.02em}
+.ctl{height:40px;width:100%;min-width:0;border:1px solid var(--line);background:var(--panel-2);border-radius:4px;padding:0 11px;font-size:15px;color:var(--ink)}
+.ctl::placeholder{color:var(--muted)}
+textarea.ctl{height:auto;min-height:104px;padding:9px 11px;line-height:1.45;resize:vertical;font-family:var(--f-mono);font-size:12.5px}
+.cifra{display:flex;align-items:center;height:40px;border:1px solid var(--line);background:var(--panel-2);border-radius:4px;min-width:0}
+.cifra:focus-within{outline:2px solid var(--blue);outline-offset:2px}
+.cifra span{flex:none;padding:0 2px 0 11px;color:var(--muted);font-family:var(--f-mono);font-size:14px}
+.cifra span.fin{padding:0 11px 0 2px}
+.cifra input{flex:1;min-width:0;width:100%;height:100%;border:0;background:transparent;text-align:right;font-family:var(--f-mono);font-weight:500;font-size:15px;padding:0 9px 0 4px;font-variant-numeric:tabular-nums}
+.cifra input:focus{outline:none}
+.chips{display:flex;flex-wrap:wrap;gap:6px}
+.chip{font-family:var(--f-mono);font-weight:500;font-size:12px;padding:5px 10px;border:1px solid var(--line);background:transparent;color:var(--ink-2);border-radius:999px;cursor:pointer}
+.chip[aria-pressed="true"]{background:var(--sky-soft);border-color:var(--sky);color:var(--sky-ink);font-weight:600}
+.seg{position:relative;display:grid;grid-auto-flow:column;grid-auto-columns:1fr;border:1px solid var(--line);border-radius:4px;overflow:hidden;background:var(--panel-2)}
+.seg input{position:absolute;opacity:0;pointer-events:none}
+.seg label{padding:10px 8px;text-align:center;font-size:13px;font-weight:600;color:var(--ink-2);cursor:pointer;border-left:1px solid var(--line);line-height:1.2}
+.seg label:first-of-type{border-left:0}
+.seg input:checked + label{background:var(--navy);color:var(--on-navy)}
+.seg input:focus-visible + label{outline:2px solid var(--blue);outline-offset:-3px}
+.saldo{display:flex;justify-content:space-between;align-items:baseline;gap:12px;flex-wrap:wrap;padding:10px 12px;background:var(--navy);color:var(--on-navy);border-radius:4px;font-size:13px}
+.saldo b{font-family:var(--f-mono);font-weight:600;font-size:17px;font-variant-numeric:tabular-nums}
+.nota{font-size:12.5px;color:var(--muted)}
+.nota b{color:var(--ink-2)}
+.estado{font-size:13px;padding:9px 12px;border-radius:4px;border:1px solid var(--line);background:var(--panel-2);color:var(--ink-2)}
+.estado.ok{background:var(--ok-soft);border-color:var(--ok);color:var(--ok)}
+.estado.warn{background:var(--warn-soft);border-color:var(--warn);color:var(--warn)}
+.estado.bad{background:var(--bad-soft);border-color:var(--bad);color:var(--bad)}
+.bloque{display:flex;flex-direction:column;gap:14px}
+
+/* ---------- avisos ---------- */
+.avisos{display:flex;flex-direction:column;gap:8px}
+.avisos:empty{display:none}
+.aviso{padding:10px 14px;border-radius:4px;font-size:14px;font-weight:500;border:1px solid var(--bad);background:var(--bad-soft);color:var(--bad)}
+.aviso.info{border-color:var(--sky);background:var(--sky-soft);color:var(--sky-ink)}
+.aviso.warn{border-color:var(--warn);background:var(--warn-soft);color:var(--warn)}
+
+/* ---------- hoja de cotización ---------- */
+.hoja{background:var(--panel);border:1px solid var(--line);border-radius:6px;overflow:hidden;box-shadow:0 22px 44px -32px rgba(6,11,20,.6)}
+.hoja-cab{background:var(--night);color:var(--on-night);padding:20px 24px;display:flex;flex-wrap:wrap;gap:12px 24px;justify-content:space-between;align-items:flex-end;border-bottom:3px solid var(--blue)}
+.hoja-cab .marca-t b{font-size:24px}
+.cot{display:flex;flex-direction:column;align-items:flex-end;gap:1px;min-width:0}
+.cot span{font-size:11px;letter-spacing:.08em;text-transform:uppercase;color:var(--sky)}
+.cot strong{font-family:var(--f-mono);font-weight:600;font-size:17px;white-space:nowrap}
+.cot em{font-style:normal;font-size:12.5px;color:var(--on-night-muted)}
+.hoja-val{background:var(--sky-soft);color:var(--sky-ink);padding:9px 24px;font-size:13px;display:flex;flex-wrap:wrap;gap:4px 22px;justify-content:space-between}
+.hoja-val b{font-family:var(--f-mono);font-weight:600}
+.hoja-cuerpo{padding:22px 24px 26px;display:flex;flex-direction:column;gap:24px}
+.sin-t{font-family:var(--f-display);font-stretch:112%;font-weight:700;font-size:20px;text-wrap:balance}
+.sec{display:flex;flex-direction:column;gap:10px;min-width:0}
+.sec-t{font-family:var(--f-display);font-stretch:112%;font-weight:700;font-size:12px;letter-spacing:.14em;text-transform:uppercase;color:var(--blue)}
+.datos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));gap:14px 20px}
+.datos div{display:flex;flex-direction:column;gap:2px;min-width:0}
+.datos dt{font-size:11.5px;letter-spacing:.05em;text-transform:uppercase;color:var(--muted)}
+.datos dd{font-weight:600;font-size:15px;overflow-wrap:anywhere}
+.datos dd.vacio{color:var(--muted);font-weight:400}
+.resumen{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.resumen div{padding:14px 16px;display:flex;flex-direction:column;gap:3px;border-left:1px solid var(--line);min-width:0}
+.resumen div:first-child{border-left:0}
+.resumen span{font-size:12px;color:var(--muted)}
+.resumen strong{font-family:var(--f-mono);font-weight:600;font-size:20px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.resumen .fin{background:var(--navy);color:var(--on-navy);border-left-color:var(--navy)}
+.resumen .fin span{color:var(--sky)}
+.reparto{background:var(--night);color:var(--on-night);border:1px solid var(--night-line);border-radius:4px;padding:20px 22px;gap:14px}
+.reparto-h{display:flex;flex-wrap:wrap;justify-content:space-between;align-items:baseline;gap:6px 16px}
+.reparto-h h3{font-family:var(--f-display);font-stretch:118%;font-weight:800;font-size:28px;line-height:1.1;text-wrap:balance}
+.reparto-h span{font-size:13px;color:var(--on-night-muted)}
+.reparto-h span b{font-family:var(--f-mono);color:var(--sky)}
+.reparto-pie{font-size:14px;color:var(--on-night-muted)}
+.reparto-pie b{font-family:var(--f-mono);font-weight:600;font-size:16px;color:var(--sky);white-space:nowrap}
+.barra{display:flex;min-height:52px;border-radius:4px;overflow:hidden}
+.reparto .barra{min-height:62px}
+.reparto .barra b{font-size:22px}
+.barra div{display:flex;flex-direction:column;justify-content:center;gap:1px;padding:8px 14px;min-width:0}
+.barra small{font-size:11px;letter-spacing:.08em;text-transform:uppercase;font-weight:600;white-space:nowrap;overflow:hidden;text-overflow:ellipsis}
+.barra b{font-family:var(--f-mono);font-weight:600;font-size:18px;white-space:nowrap}
+.barra .cli{background:var(--blue);color:var(--on-blue)}
+.barra .agn{background:var(--sky);color:var(--on-sky);align-items:flex-end;text-align:right}
+.cheques{display:grid;grid-template-columns:repeat(auto-fill,minmax(215px,1fr));gap:12px}
+.cheques.uno{grid-template-columns:minmax(0,1fr)}
+.cheque{display:grid;grid-template-columns:40px minmax(0,1fr);border:1px solid var(--line);border-radius:4px;min-width:0;
+  background:repeating-linear-gradient(135deg,transparent 0 9px,color-mix(in srgb,var(--sky) 20%,transparent) 9px 10px),var(--panel-2)}
+.talon{border-right:1px dashed var(--muted);display:flex;align-items:center;justify-content:center;font-family:var(--f-mono);font-weight:600;font-size:12px;letter-spacing:.08em;color:var(--blue);writing-mode:vertical-rl;transform:rotate(180deg)}
+.ch{padding:11px 13px 12px;display:flex;flex-direction:column;gap:3px;min-width:0}
+.ch small{font-size:10.5px;letter-spacing:.1em;text-transform:uppercase;color:var(--muted);font-weight:600}
+.ch strong{font-family:var(--f-mono);font-weight:600;font-size:20px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.ch span{font-size:13px;color:var(--ink-2)}
+.ch-d{display:grid;grid-template-columns:auto minmax(0,1fr);gap:1px 10px;margin:6px 0 0;padding-top:6px;border-top:1px dashed var(--line);font-family:var(--f-mono);font-size:11.5px;color:var(--muted)}
+.ch-d dd{text-align:right;color:var(--ink-2);font-variant-numeric:tabular-nums}
+.cheques.uno .ch-d{max-width:280px}
+.cheques.uno .ch strong{font-size:28px}
+.tot-ch{display:flex;justify-content:space-between;flex-wrap:wrap;gap:6px 16px;font-size:14px;color:var(--ink-2);padding-top:2px}
+.tot-ch b{font-family:var(--f-mono);font-weight:600;color:var(--ink)}
+.costos{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:4px}
+.costos div{padding:14px 16px;display:flex;flex-direction:column;gap:3px;border-left:1px solid var(--line);min-width:0}
+.costos div:first-child{border-left:0}
+.costos span{font-size:12px;color:var(--muted)}
+.costos strong{font-family:var(--f-mono);font-weight:600;font-size:19px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.costos em{font-style:normal;font-size:12px;color:var(--ink-2)}
+.costos .ahorro strong{color:var(--blue)}
+.desglose{display:grid;grid-template-columns:minmax(0,1fr) auto;font-size:14px;border:1px solid var(--line);border-radius:4px;padding:2px 16px}
+.desglose dt,.desglose dd{padding:8px 0;border-top:1px solid var(--line)}
+.desglose dt:first-of-type,.desglose dt:first-of-type + dd{border-top:0}
+.desglose dt{color:var(--ink-2)}
+.desglose dd{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;padding-left:20px}
+.tasas{display:grid;grid-template-columns:repeat(3,minmax(0,1fr));border:1px solid var(--line);border-radius:4px;overflow:hidden}
+.tasas div{padding:12px 16px;display:flex;flex-direction:column;gap:2px;border-left:1px solid var(--line);min-width:0}
+.tasas div:first-child{border-left:0}
+.tasas span{font-size:12px;color:var(--muted)}
+.tasas strong{font-family:var(--f-mono);font-weight:600;font-size:19px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.tasas em{font-style:normal;font-size:12px;color:var(--ink-2)}
+.tasas .cft{background:var(--navy);color:var(--on-navy);border-left-color:var(--navy)}
+.tasas .cft span,.tasas .cft em{color:var(--sky)}
+.total-op{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 16px;padding:14px 16px;background:var(--panel-2);border:1px solid var(--line);border-radius:4px}
+.total-op span{font-weight:600}
+.total-op strong{font-family:var(--f-mono);font-weight:600;font-size:22px;font-variant-numeric:tabular-nums}
+.especial{padding:11px 14px;border:1px solid var(--warn);background:var(--warn-soft);color:var(--warn);border-radius:4px;font-weight:500;font-size:14px}
+.caduca{padding:11px 14px;border:1px solid var(--sky);background:var(--sky-soft);color:var(--sky-ink);border-radius:4px;font-weight:600;font-size:14px}
+.caduca b{font-family:var(--f-mono)}
+.ley{padding-left:18px;display:flex;flex-direction:column;gap:5px;font-size:12.5px;color:var(--muted);max-width:92ch}
+@media (max-width:700px){
+  .datos{grid-template-columns:repeat(2,minmax(0,1fr))}
+  .resumen,.costos,.tasas{grid-template-columns:minmax(0,1fr)}
+  .resumen div,.costos div,.tasas div{border-left:0;border-top:1px solid var(--line)}
+  .resumen div:first-child,.costos div:first-child,.tasas div:first-child{border-top:0}
+  .hoja-cab,.hoja-val{padding-left:16px;padding-right:16px}
+  .hoja-cuerpo{padding:18px 16px 22px}
+  .cot{align-items:flex-start}
+  .barra b{font-size:15px;white-space:normal}
+  .reparto{padding:16px}
+  .reparto-h h3{font-size:24px}
+  .reparto .barra b{font-size:17px}
+}
+@media (max-width:420px){.datos{grid-template-columns:minmax(0,1fr)}}
+
+/* ---------- uso interno: costo para la empresa, módulo de Finanzas, registro ---------- */
+.interno{background:var(--night);color:var(--on-night);border:1px solid var(--night-line);border-radius:6px;padding:20px 24px 22px;display:flex;flex-direction:column;gap:18px;min-width:0}
+.int-cab{display:flex;flex-wrap:wrap;gap:6px 14px;align-items:baseline;justify-content:space-between}
+.int-cab h2{font-family:var(--f-display);font-stretch:112%;font-weight:700;font-size:13px;letter-spacing:.14em;text-transform:uppercase;color:var(--sky)}
+.int-cab span{font-size:12.5px;color:var(--on-night-muted)}
+.int-kpi{display:flex;flex-wrap:wrap;gap:10px 28px;align-items:flex-end}
+.int-kpi .v{display:flex;flex-direction:column;gap:2px}
+.int-kpi .v span{font-size:12px;color:var(--on-night-muted)}
+.int-kpi .v strong{font-family:var(--f-mono);font-weight:600;font-size:30px;line-height:1.1;font-variant-numeric:tabular-nums}
+.int-kpi .m{display:flex;flex-wrap:wrap;gap:8px}
+.int-kpi .m div{display:flex;flex-direction:column;gap:1px;padding:6px 12px;border:1px solid var(--night-line);border-radius:4px;background:var(--night-2)}
+.int-kpi .m span{font-size:11px;letter-spacing:.05em;text-transform:uppercase;color:var(--on-night-muted)}
+.int-kpi .m b{font-family:var(--f-mono);font-weight:600;font-size:15px;color:var(--sky)}
+.libro{display:grid;grid-template-columns:minmax(0,1fr) auto;font-size:14px}
+.libro dt,.libro dd{padding:7px 0;border-top:1px solid var(--night-line)}
+.libro dt{color:var(--on-night-muted)}
+.libro dd{font-family:var(--f-mono);font-variant-numeric:tabular-nums;text-align:right;white-space:nowrap;padding-left:20px}
+.libro .res{color:var(--on-night);font-weight:600}
+.libro dd.res{color:var(--sky);font-size:16px}
+.rep-int{display:flex;flex-direction:column;gap:6px}
+.rep-int p{font-size:12.5px;color:var(--on-night-muted)}
+.rep-int .barra{min-height:30px}
+.rep-int .barra div{padding:4px 10px}
+.rep-int .barra b{font-size:13px}
+.interno .rot{color:var(--on-night-muted)}
+.interno .ctl,.interno .cifra{background:var(--night-2);border-color:var(--night-line);color:var(--on-night)}
+.interno .ctl::placeholder{color:var(--on-night-muted)}
+.interno .cifra span{color:var(--on-night-muted)}
+.interno .cifra:focus-within,.interno .ctl:focus-visible{outline-color:var(--sky)}
+.fin-tasa{display:grid;grid-template-columns:minmax(0,1fr) auto;gap:10px 16px;align-items:end;padding:16px;border:1px solid var(--night-line);border-radius:4px;background:var(--night-2)}
+.fin-tasa .cifra{height:48px;background:var(--night);max-width:340px}
+.fin-tasa .cifra input{font-size:22px;font-weight:600;color:var(--sky)}
+.fin-tasa .btn{height:48px}
+.fin-estado{grid-column:1/-1;font-size:13px;color:var(--on-night-muted)}
+.borr{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding:11px 14px;border:1px solid var(--sky);border-radius:4px;font-size:13.5px;color:var(--sky)}
+.param{border-top:1px solid var(--night-line);padding-top:14px}
+.param summary{cursor:pointer;font-weight:600;font-size:14px;color:var(--on-night)}
+.param summary .pill{margin-left:8px;vertical-align:1px}
+.param summary:focus-visible{outline-color:var(--sky)}
+.param-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(230px,1fr));gap:12px 16px;padding-top:14px}
+.param-g .ancho{grid-column:1/-1}
+.param-n{font-size:12.5px;color:var(--on-night-muted);padding-top:12px;max-width:80ch}
+.param-pie{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding-top:14px}
+.param-pie p{font-size:12.5px;color:var(--on-night-muted);max-width:70ch}
+.marca-ok{display:flex;gap:9px;align-items:flex-start;font-size:13.5px;color:var(--on-night);cursor:pointer}
+.marca-ok input{width:17px;height:17px;margin:2px 0 0;flex:none;accent-color:var(--sky)}
+.pill{display:inline-flex;align-items:center;font-size:10.5px;font-weight:700;letter-spacing:.07em;text-transform:uppercase;padding:3px 8px;border-radius:999px;border:1px solid currentColor;white-space:nowrap;line-height:1.3}
+.pill.ok{color:var(--ok-n)}
+.pill.warn{color:var(--warn-n)}
+.pill.bad{color:var(--bad-n)}
+.pill.gris{color:var(--on-night-muted)}
+.reg{display:flex;flex-direction:column;gap:10px}
+.param .reg{padding-top:14px}
+.reg-vacio{font-size:13.5px;color:var(--on-night-muted)}
+.reg-item{border:1px solid var(--night-line);border-radius:4px;background:var(--night-2);padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
+.reg-cab{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between}
+.reg-cab b{font-family:var(--f-mono);font-weight:600;font-size:14px}
+.reg-dat{font-size:14px;font-weight:600;overflow-wrap:anywhere}
+.reg-num{font-size:12.5px;color:var(--on-night-muted);overflow-wrap:anywhere}
+.reg-nota{font-size:13px;color:var(--sky)}
+.reg-al{display:flex;flex-wrap:wrap;gap:6px}
+.reg-ac{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:4px}
+.reg-ac .ctl{flex:1 1 220px;height:38px;font-size:14px}
+.reg-ac .btn{padding:9px 13px}
+
+/* ---------- modo cliente y roles ---------- */
+body.cliente .solo-vendedor,body.cliente .avisos{display:none}
+body.cliente .mesa{grid-template-columns:minmax(0,1fr);max-width:940px}
+body:not(.finanzas) .solo-finanzas{display:none!important}
+
+/* ---------- mensajes ---------- */
+.toast{position:fixed;left:50%;transform:translateX(-50%);bottom:calc(20px + env(safe-area-inset-bottom,0px));max-width:min(560px,calc(100vw - 32px));background:var(--night);color:var(--on-night);border:1px solid var(--night-line);border-radius:4px;padding:11px 16px;font-size:14px;z-index:20;box-shadow:0 12px 30px -12px rgba(0,0,0,.6)}
+.toast.bad{border-color:var(--bad)}
+
+/* ---------- resumen fijo en pantallas angostas, mientras la hoja queda fuera de vista ---------- */
+.mini{position:fixed;left:0;right:0;bottom:0;z-index:15;display:flex;align-items:center;justify-content:space-between;gap:12px;background:var(--night);color:var(--on-night);border-top:2px solid var(--blue);
+  padding:10px max(16px,env(safe-area-inset-right,0px)) calc(10px + env(safe-area-inset-bottom,0px)) max(16px,env(safe-area-inset-left,0px))}
+.mini div{display:flex;flex-direction:column;min-width:0}
+.mini span{font-size:12px;color:var(--on-night-muted)}
+.mini b{font-family:var(--f-mono);font-weight:600;font-size:17px;white-space:nowrap}
+@media (min-width:921px){.mini{display:none}}
+@media (max-width:920px){.toast{bottom:calc(84px + env(safe-area-inset-bottom,0px))}}
+@media (max-width:560px){.fin-tasa{grid-template-columns:minmax(0,1fr)}.interno{padding:16px}}
+
+@media print{
+  :root,:root[data-theme="dark"],:root:not([data-theme="light"]){
+    --bg:#FFFFFF; --panel:#FFFFFF; --panel-2:#F3F6FA; --ink:#0A1220; --ink-2:#2F4057; --muted:#5F7187; --line:#D2DBE5;
+    --navy:#0B2545; --night:#060B14; --blue:#1458C8; --on-blue:#FFFFFF; --sky-soft:#DDEFFB; --sky-ink:#0A3554; color-scheme:light;
+  }
+  .top,.franja,.carga,.interno,.avisos,.vista,.toast,.mini{display:none!important}
+  .mesa{display:block;padding:0;max-width:none}
+  .hoja{border:0;box-shadow:none;border-radius:0}
+  .hoja,.hoja *{-webkit-print-color-adjust:exact;print-color-adjust:exact}
+}
+@media (prefers-reduced-motion:no-preference){.btn,.chip,.seg label{transition:background-color .12s,color .12s,border-color .12s}}
+/* ---------- versión 3: vista con y sin impuestos, pago aparte, ayudas de carga ---------- */
+.campo small{font-size:12px;color:var(--muted);line-height:1.35}
+.vista{display:flex;flex-wrap:wrap;gap:10px 18px;align-items:center;background:var(--panel);border:1px solid var(--line);border-radius:6px;padding:10px 14px}
+.vista .seg{flex:0 0 auto;min-width:min(100%,300px)}
+.vista p{flex:1 1 260px;font-size:13px;color:var(--ink-2);text-wrap:pretty}
+.sin-banda{padding:11px 14px;border:1px solid var(--warn);background:var(--warn-soft);color:var(--warn);border-radius:4px;font-weight:600;font-size:14px}
+.hoja.sin-imp .hoja-val{background:var(--warn-soft);color:var(--warn)}
+.hoy{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 16px;padding:12px 16px;border:1px solid var(--sky);background:var(--sky-soft);color:var(--sky-ink);border-radius:4px;font-size:14px;font-weight:500}
+.hoy strong{font-family:var(--f-mono);font-weight:600;font-size:19px;font-variant-numeric:tabular-nums;white-space:nowrap}
+.desglose dt.sub,.desglose dd.sub{font-weight:600;color:var(--ink)}
+.desglose dt.imp{padding-left:14px}
+.param-g{align-items:end}
+.param-g .ancho{align-self:stretch}
+/* ---------- ingreso con usuario y contraseña ---------- */
+body.sin-sesion main,body.sin-sesion .mini,body.sin-sesion .cond,body.sin-sesion .top .acc,body.sin-sesion .franja,body.sin-sesion .quien{display:none}
+.ingreso{max-width:460px;margin:0 auto;padding:40px 16px 64px}
+.ingreso[hidden]{display:none}
+.ing-caja{background:var(--night);color:var(--on-night);border:1px solid var(--night-line);border-top:3px solid var(--blue);border-radius:6px;padding:26px 24px 24px;display:flex;flex-direction:column;gap:14px}
+.ing-caja h1{font-family:var(--f-display);font-stretch:112%;font-weight:700;font-size:21px;line-height:1.2}
+.ing-n{font-size:13.5px;color:var(--on-night-muted);line-height:1.45}
+.ing-caja .rot{color:var(--on-night-muted)}
+.ing-caja .ctl{background:var(--night-2);border-color:var(--night-line);color:var(--on-night);height:44px}
+.ing-caja .ctl:focus-visible{outline-color:var(--sky)}
+.ing-caja .campo[hidden]{display:none}
+.ing-msg{font-size:13.5px;font-weight:500;padding:9px 12px;border-radius:4px;border:1px solid var(--bad-n);color:var(--bad-n)}
+.ing-msg.ok{border-color:var(--ok-n);color:var(--ok-n)}
+.ing-caja .acc{justify-content:flex-end;padding-top:4px}
+.ing-caja .btn.pri{min-width:150px;height:44px}
+.ing-pie{font-size:12px;color:var(--on-night-muted)}
+.quien{flex-basis:100%;display:flex;flex-wrap:wrap;gap:8px 10px;align-items:center;justify-content:flex-end;border-top:1px solid var(--night-line);padding-top:12px}
+.quien[hidden]{display:none}
+.quien span{font-size:13px;color:var(--on-night-muted);margin-right:auto}
+.quien b{color:var(--on-night);font-weight:600}
+.btn.chico{padding:7px 11px;font-size:13px}
+a.btn{text-decoration:none;display:inline-flex;align-items:center}
+a.btn[hidden]{display:none}
+/* ---------- usuarios (módulo de Finanzas) ---------- */
+.usu-form{border:1px solid var(--night-line);border-radius:4px;background:var(--night-2);padding:4px 14px 14px;margin-top:14px}
+.usu-form[hidden]{display:none}
+.usu-form .ctl{background:var(--night)}
+.con-btn{display:flex;gap:8px}
+.con-btn .ctl{flex:1 1 auto;font-family:var(--f-mono)}
+.con-btn .btn{flex:none}
+select.ctl{appearance:auto}
+.usu-aviso{font-family:var(--f-mono);font-size:13.5px;overflow-wrap:anywhere}
+</style>
+</head>
+<body class="sin-sesion">
+
+<header class="top">
+  <div class="top-in gut">
+    <div class="marca">
+      <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="16" height="32" fill="#1F6FE5"/><rect x="17" y="1" width="16" height="32" fill="#8FD3F7"/><rect x="1" y="1" width="32" height="32" fill="none" stroke="#EAF2FA" stroke-width="1.5"/></svg>
+      <div class="marca-t"><b>Tasa Compartida</b><span>Grupo AGN · Cotizador de financiación con cheques</span></div>
+    </div>
+    <div class="cond solo-vendedor" aria-label="Condiciones del día">
+      <div id="c-caja"><span>Tasa del día</span><strong id="c-tna">—</strong><em id="c-pub">Leyendo…</em></div>
+      <div><span>Paga el cliente</span><strong id="c-cli">—</strong></div>
+      <div><span>Bonifica Grupo AGN</span><strong id="c-emp">—</strong></div>
+    </div>
+    <div class="acc">
+      <button type="button" class="btn sec solo-vendedor solo-finanzas" id="b-fin">Finanzas</button>
+      <button type="button" class="btn sec solo-vendedor" id="b-nueva">Nueva cotización</button>
+      <button type="button" class="btn sec" id="b-cliente" aria-pressed="false">Mostrar al cliente</button>
+      <button type="button" class="btn pri" id="b-pdf">Descargar PDF</button>
+    </div>
+    <div class="quien solo-vendedor" id="quien" hidden>
+      <span>Usuario: <b id="q-nombre">—</b></span>
+      <a class="btn sec chico" href="index.html">Cotizador de vendedores</a>
+      <button type="button" class="btn sec chico" id="b-clave">Cambiar contraseña</button>
+      <button type="button" class="btn sec chico" id="b-salir">Salir</button>
+    </div>
+  </div>
+</header>
+
+<div class="ingreso" id="ingreso" hidden>
+  <form class="ing-caja" id="ing-form" novalidate>
+    <h1 id="ing-tit">Ingresá con tu usuario</h1>
+    <p class="ing-n" id="ing-n">El usuario y la contraseña te los da Finanzas.</p>
+    <div class="campo" id="ing-c-usuario"><label class="rot" for="ing-usuario">Usuario</label><input class="ctl" id="ing-usuario" type="text" autocomplete="username" autocapitalize="none" spellcheck="false" maxlength="40"></div>
+    <div class="campo" id="ing-c-clave"><label class="rot" for="ing-clave" id="ing-l-clave">Contraseña</label><input class="ctl" id="ing-clave" type="password" autocomplete="current-password" maxlength="72"></div>
+    <div class="campo" id="ing-c-nueva" hidden><label class="rot" for="ing-nueva">Contraseña nueva</label><input class="ctl" id="ing-nueva" type="password" autocomplete="new-password" maxlength="72"></div>
+    <div class="campo" id="ing-c-repite" hidden><label class="rot" for="ing-repite">Repetí la contraseña nueva</label><input class="ctl" id="ing-repite" type="password" autocomplete="new-password" maxlength="72"></div>
+    <p class="ing-msg" id="ing-msg" role="alert" hidden></p>
+    <div class="acc">
+      <button type="button" class="btn sec" id="ing-salir" hidden>Salir</button>
+      <button type="button" class="btn sec" id="ing-cancelar" hidden>Cancelar</button>
+      <button type="submit" class="btn pri" id="ing-ok">Ingresar</button>
+    </div>
+    <p class="ing-pie">Tasa Compartida · Grupo AGN · Módulo de Finanzas: solo usuarios de Finanzas</p>
+  </form>
+</div>
+
+<div class="franja gut solo-vendedor" id="franja" role="status" hidden></div>
+
+<main class="mesa gut">
+  <form class="carga solo-vendedor" id="carga" autocomplete="off" novalidate>
+    <div class="ejemplo" id="ejemplo">Datos de ejemplo cargados. Reemplazalos por los de tu operación.</div>
+
+    <section class="paso">
+      <h2><i>01</i>Operación</h2>
+      <div class="fila">
+        <div class="campo"><label class="rot" for="unidad">Unidad de negocio</label>
+          <select class="ctl" id="unidad">
+            <option>Vehículos 0 km</option><option>Vehículos usados</option><option>Camiones y utilitarios</option><option>Planes de ahorro</option>
+            <option>Repuestos y accesorios</option><option>Servicio y posventa</option><option>Inmobiliaria</option><option>Agro</option><option>Otra</option>
+          </select></div>
+        <div class="campo"><label class="rot" for="empresa">Empresa que factura</label>
+          <input class="ctl" id="empresa" type="text" list="empresas" value="AG NAUM S.A.">
+          <datalist id="empresas"><option value="AG NAUM S.A."></option><option value="AG NOA"></option><option value="AG MOTORS"></option><option value="AG S.R.L."></option><option value="SANGON"></option></datalist></div>
+      </div>
+      <div class="campo"><label class="rot" for="detalle">Unidad o producto</label>
+        <input class="ctl" id="detalle" type="text" list="unidades" value="Pick-up 4x4 automática (ejemplo)" placeholder="Modelo, versión, servicio o producto">
+        <datalist id="unidades"></datalist></div>
+      <div class="fila">
+        <div class="campo"><label class="rot" for="cliente">Cliente</label><input class="ctl" id="cliente" type="text" placeholder="Nombre o razón social"></div>
+        <div class="campo"><label class="rot" for="doc">CUIT o DNI</label><input class="ctl" id="doc" type="text" inputmode="numeric" placeholder="Opcional"></div>
+      </div>
+      <div class="fila">
+        <div class="campo"><label class="rot" for="vendedor">Vendedor</label><input class="ctl" id="vendedor" type="text" placeholder="Sale de tu usuario" readonly></div>
+      </div>
+      <div class="campo"><label class="rot" for="precio">Importe total a pagar</label>
+        <div class="cifra"><span>$</span><input id="precio" type="text" inputmode="numeric" value="48.500.000"></div>
+        <small>La unidad más prenda, patente y los demás gastos de la operación.</small></div>
+    </section>
+
+    <section class="paso">
+      <h2><i>02</i>Anticipo</h2>
+      <div class="fila">
+        <div class="campo"><label class="rot" for="antPct">Porcentaje del importe</label>
+          <div class="cifra"><input id="antPct" type="text" inputmode="decimal" value="30"><span class="fin">%</span></div></div>
+        <div class="campo"><label class="rot" for="antMonto">Importe</label>
+          <div class="cifra"><span>$</span><input id="antMonto" type="text" inputmode="numeric" value="14.550.000"></div></div>
+      </div>
+      <div class="chips" data-para="antPct" aria-label="Anticipos frecuentes">
+        <button type="button" class="chip" data-v="0">Sin anticipo</button><button type="button" class="chip" data-v="20">20%</button><button type="button" class="chip" data-v="30">30%</button><button type="button" class="chip" data-v="40">40%</button><button type="button" class="chip" data-v="50">50%</button>
+      </div>
+      <p class="saldo">Saldo a financiar con cheques <b id="f-saldo">$ 33.950.000</b></p>
+    </section>
+
+    <section class="paso">
+      <h2><i>03</i>Cheques</h2>
+      <div class="seg" role="radiogroup" aria-label="Cantidad de cheques">
+        <input type="radio" name="modo" id="modo-cuotas" value="cuotas" checked><label for="modo-cuotas">En cuotas</label>
+        <input type="radio" name="modo" id="modo-uno" value="uno"><label for="modo-uno">Un solo cheque</label>
+      </div>
+      <div class="bloque" id="blk-cuotas">
+        <div class="fila">
+          <div class="campo"><label class="rot" for="cuotas">Cantidad de cheques</label>
+            <div class="cifra"><input id="cuotas" type="text" inputmode="numeric" value="3"><span class="fin">cheques</span></div></div>
+          <div class="campo"><label class="rot" for="primer">Primer vencimiento</label>
+            <div class="cifra"><span>a</span><input id="primer" type="text" inputmode="numeric" value="30"><span class="fin">días</span></div></div>
+        </div>
+        <div class="chips" data-para="cuotas" aria-label="Cantidades frecuentes">
+          <button type="button" class="chip" data-v="2">2</button><button type="button" class="chip" data-v="3">3</button><button type="button" class="chip" data-v="4">4</button><button type="button" class="chip" data-v="6">6</button><button type="button" class="chip" data-v="9">9</button><button type="button" class="chip" data-v="12">12</button>
+        </div>
+        <div class="campo"><label class="rot" for="frec">Frecuencia de los vencimientos</label>
+          <select class="ctl" id="frec"><option value="30">Cada 30 días</option><option value="mes">El mismo día de cada mes</option><option value="15">Cada 15 días</option></select></div>
+        <div class="campo"><span class="rot" id="rot-tipo">Importe de los cheques</span>
+          <div class="seg" role="radiogroup" aria-labelledby="rot-tipo">
+            <input type="radio" name="tipo" id="tipo-iguales" value="iguales" checked><label for="tipo-iguales">Todos iguales</label>
+            <input type="radio" name="tipo" id="tipo-capital" value="capital"><label for="tipo-capital">Capital fijo + interés</label>
+          </div></div>
+      </div>
+      <div class="bloque" id="blk-uno" hidden>
+        <div class="fila">
+          <div class="campo"><label class="rot" for="plazo">Plazo del cheque</label>
+            <div class="cifra"><span>a</span><input id="plazo" type="text" inputmode="numeric" value="60"><span class="fin">días</span></div></div>
+          <div class="campo"><label class="rot" for="fechaUno">Fecha de pago</label><input class="ctl" id="fechaUno" type="date"></div>
+        </div>
+        <div class="chips" data-para="plazo" aria-label="Plazos frecuentes">
+          <button type="button" class="chip" data-v="30">30</button><button type="button" class="chip" data-v="45">45</button><button type="button" class="chip" data-v="60">60</button><button type="button" class="chip" data-v="90">90</button><button type="button" class="chip" data-v="120">120</button><button type="button" class="chip" data-v="180">180</button>
+        </div>
+      </div>
+      <div class="campo"><span class="rot" id="rot-origen">Origen de los cheques</span>
+        <div class="seg" role="radiogroup" aria-labelledby="rot-origen">
+          <input type="radio" name="origen" id="origen-propios" value="propios" checked><label for="origen-propios">Propios del cliente</label>
+          <input type="radio" name="origen" id="origen-terceros" value="terceros"><label for="origen-terceros">De terceros</label>
+        </div></div>
+      <div class="campo"><span class="rot" id="rot-forma">Cómo se paga el costo financiero</span>
+        <div class="seg" role="radiogroup" aria-labelledby="rot-forma">
+          <input type="radio" name="forma" id="forma-dentro" value="dentro" checked><label for="forma-dentro">Dentro de los cheques</label>
+          <input type="radio" name="forma" id="forma-aparte" value="aparte"><label for="forma-aparte">Aparte, con el anticipo</label>
+        </div>
+        <small id="f-forma"></small></div>
+      <p class="nota">Las fechas que caen en sábado, domingo o feriado se corren al día hábil siguiente. El cálculo suma <b id="f-clearing">1 día hábil</b> de acreditación bancaria a cada cheque.</p>
+    </section>
+
+    <section class="paso">
+      <h2><i>04</i>Verificación Nosis</h2>
+      <div class="seg" role="radiogroup" aria-label="Resultado de Nosis">
+        <input type="radio" name="nosis" id="nosis-pend" value="pendiente" checked><label for="nosis-pend">Pendiente</label>
+        <input type="radio" name="nosis" id="nosis-apto" value="apto"><label for="nosis-apto">Apto</label>
+        <input type="radio" name="nosis" id="nosis-no" value="no"><label for="nosis-no">No apto</label>
+      </div>
+      <p class="estado warn" id="f-nosis">Podés cotizar, pero no recibas cheques hasta tener el Nosis del cliente en estado apto.</p>
+    </section>
+  </form>
+
+  <div class="salida">
+    <div class="avisos" id="avisos" role="status"></div>
+
+    <div class="hoja" id="sin-tasa" hidden>
+      <div class="hoja-cuerpo"><p class="sin-t" id="sin-tasa-t">Leyendo la tasa del día…</p><p class="nota">La cotización se arma con la tasa que publica Finanzas. Sin esa tasa no se pueden calcular los cheques.</p></div>
+    </div>
+
+    <div class="vista" id="vista" hidden>
+      <div class="seg" role="radiogroup" aria-label="Vista de la cotización">
+        <input type="radio" name="vista" id="vista-con" value="con" checked><label for="vista-con">Con impuestos</label>
+        <input type="radio" name="vista" id="vista-sin" value="sin"><label for="vista-sin">Sin impuestos</label>
+      </div>
+      <p id="vista-t"></p>
+    </div>
+
+    <article class="hoja" id="hoja">
+      <header class="hoja-cab">
+        <div class="marca">
+          <svg width="40" height="40" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="16" height="32" fill="#1F6FE5"/><rect x="17" y="1" width="16" height="32" fill="#8FD3F7"/><rect x="1" y="1" width="32" height="32" fill="none" stroke="#EAF2FA" stroke-width="1.5"/></svg>
+          <div class="marca-t"><b>Grupo AGN</b><span>Tasa Compartida · Financiación con cheques</span></div>
+        </div>
+        <div class="cot"><span>Cotización N°</span><strong id="o-numero">COT</strong><em id="o-empresa">AG NAUM S.A.</em></div>
+      </header>
+      <div class="hoja-val"><span>Emitida <b id="o-emision">—</b></span><span>Válida por 24 horas · vence <b id="o-vence">—</b></span></div>
+
+      <div class="hoja-cuerpo">
+        <p class="sin-banda" id="o-sin" hidden>Vista sin impuestos, solo para comparar. No es una cotización válida y no se puede descargar.</p>
+
+        <dl class="datos">
+          <div><dt>Cliente</dt><dd id="o-cliente" class="vacio">A completar</dd></div>
+          <div><dt>CUIT o DNI</dt><dd id="o-doc" class="vacio">—</dd></div>
+          <div><dt>Vendedor</dt><dd id="o-vendedor" class="vacio">A completar</dd></div>
+          <div><dt>Unidad de negocio</dt><dd id="o-unidad">Vehículos 0 km</dd></div>
+          <div><dt>Unidad o producto</dt><dd id="o-detalle">—</dd></div>
+          <div><dt>Cheques a la orden de</dt><dd id="o-orden">AG NAUM S.A.</dd></div>
+        </dl>
+
+        <div class="resumen">
+          <div><span>Importe total a pagar</span><strong id="o-precio">$ 0</strong></div>
+          <div><span id="o-ant-rot">Anticipo</span><strong id="o-ant">$ 0</strong></div>
+          <div class="fin"><span>Saldo a financiar con cheques</span><strong id="o-saldo">$ 0</strong></div>
+        </div>
+        <div class="hoy" id="o-hoy" hidden><span id="o-hoy-t">—</span><strong id="o-hoy-v">$ 0</strong></div>
+
+        <section class="sec reparto" id="s-reparto">
+          <div class="reparto-h"><h3 id="o-lema">Usted paga la mitad de la tasa</h3><span>Tasa de descuento de cheques de referencia: <b id="o-tna">—</b></span></div>
+          <div class="barra" id="o-barra">
+            <div class="cli" id="o-b-cli"><small>Usted paga</small><b id="o-rc">—</b></div>
+            <div class="agn" id="o-b-agn"><small>Bonifica Grupo AGN</small><b id="o-ra">—</b></div>
+          </div>
+          <p class="reparto-pie">En esta operación Grupo AGN le bonifica <b id="o-ahorro2">$ 0</b> de costo financiero.</p>
+        </section>
+
+        <section class="sec" id="s-cheques">
+          <span class="sec-t">Sus cheques</span>
+          <div class="cheques" id="o-cheques"></div>
+          <p class="tot-ch"><span id="o-nch">—</span><span>Total en cheques <b id="o-totch">$ 0</b></span></p>
+        </section>
+
+        <section class="sec" id="s-costos">
+          <span class="sec-t">Costo financiero</span>
+          <div class="costos">
+            <div><span>Costo financiero total</span><strong id="o-costo">$ 0</strong><em id="o-costo-pct">—</em></div>
+            <div class="ahorro"><span>Bonificación de Grupo AGN</span><strong id="o-ahorro">$ 0</strong><em>respecto de la tasa de referencia</em></div>
+            <div><span>Plazo promedio</span><strong id="o-plazo">—</strong><em id="o-plazo-sub">incluye la acreditación bancaria</em></div>
+          </div>
+          <dl class="desglose" id="o-desglose"></dl>
+          <div class="tasas">
+            <div><span>Tasa nominal anual que paga</span><strong id="o-tnac">—</strong><em>adelantada, sobre el importe del cheque</em></div>
+            <div><span>Tasa efectiva anual (TEA)</span><strong id="o-tea">—</strong><em>solo interés</em></div>
+            <div class="cft"><span>Costo financiero total efectivo anual</span><strong id="o-cft">—</strong><em id="o-cft-sub">con gastos e impuestos</em></div>
+          </div>
+          <p class="nota" id="o-sistema">—</p>
+          <div class="total-op"><span id="o-total-rot">Total de la operación (anticipo + cheques)</span><strong id="o-total">$ 0</strong></div>
+        </section>
+
+        <section class="sec">
+          <p class="especial" id="o-especial" hidden></p>
+          <p class="caduca">Esta cotización caduca a las 24 horas de su emisión: vence el <b id="o-vence2">—</b>.</p>
+          <ol class="ley" id="o-ley"></ol>
+        </section>
+      </div>
+    </article>
+
+    <aside class="interno solo-vendedor solo-finanzas" id="interno" aria-label="Costo para la empresa">
+      <div class="int-cab"><h2>Costo para la empresa</h2><span>Solo lo ve Finanzas. No se muestra al cliente ni sale en el PDF</span></div>
+      <div class="int-kpi">
+        <div class="v"><span>Costo total de la bonificación</span><strong id="i-costo">$ 0</strong></div>
+        <div class="m">
+          <div><span>Del importe</span><b id="i-pct-precio">—</b></div>
+          <div><span>Del saldo financiado</span><b id="i-pct-saldo">—</b></div>
+          <div><span>TNA equivalente</span><b id="i-tna">—</b></div>
+          <div><span>Nosis</span><b id="i-nosis">Pendiente</b></div>
+        </div>
+      </div>
+      <dl class="libro" id="i-libro"></dl>
+      <div class="rep-int">
+        <p id="i-rep-t">Cómo se reparte lo que cobra el banco</p>
+        <div class="barra"><div class="cli" id="i-b-cli"><b id="i-rep-cli">—</b></div><div class="agn" id="i-b-agn"><b id="i-rep-agn">—</b></div></div>
+      </div>
+    </aside>
+
+
+    <section class="interno solo-vendedor solo-finanzas" id="finanzas" aria-label="Módulo de Finanzas">
+      <div class="int-cab"><h2>Módulo de Finanzas</h2><span id="fin-modo">Solo lo ve Finanzas</span></div>
+
+      <div class="fin-tasa">
+        <div class="campo"><label class="rot" for="p-tna">Tasa de descuento de cheques del día</label>
+          <div class="cifra"><input id="p-tna" type="text" inputmode="decimal" value="28,39"><span class="fin">% TNA adelantada</span></div></div>
+        <button type="button" class="btn pri" id="b-publicar">Publicar tasa de hoy</button>
+        <p class="fin-estado" id="fin-estado">—</p>
+        <p class="fin-estado" id="fin-sync" hidden></p>
+      </div>
+      <div class="borr" id="fin-borr" hidden>
+        <span id="fin-borr-t">Hay cambios sin publicar. Los vendedores siguen viendo los valores publicados.</span>
+        <div class="acc"><button type="button" class="btn sec" id="b-descartar">Descartar</button><button type="button" class="btn pri" id="b-publicar2">Publicar cambios</button></div>
+      </div>
+
+      <details class="param" id="g-reparto" open>
+        <summary>Bonificaciones</summary>
+        <div class="param-g">
+          <div class="campo"><label class="rot" for="p-bonif">Parte de la tasa que bonifica Grupo AGN</label><div class="cifra"><input id="p-bonif" type="text" inputmode="decimal" value="50"><span class="fin">%</span></div></div>
+          <div class="campo"><label class="rot" for="p-gastosagn">Parte de los gastos del banco que bonifica Grupo AGN</label><div class="cifra"><input id="p-gastosagn" type="text" inputmode="decimal" value="0"><span class="fin">%</span></div></div>
+          <div class="campo"><label class="rot" for="p-margen">Margen adicional de la empresa, sobre el saldo</label><div class="cifra"><input id="p-margen" type="text" inputmode="decimal" value="0"><span class="fin">%</span></div></div>
+        </div>
+        <p class="param-n" id="fin-reparto-t">—</p>
+      </details>
+
+      <details class="param" id="g-banco" open>
+        <summary>Gastos del banco</summary>
+        <div class="param-g">
+          <div class="campo"><label class="rot" for="p-sellos">Sellos, por los días de cada cheque</label><div class="cifra"><input id="p-sellos" type="text" inputmode="decimal" value="4"><span class="fin">% anual</span></div></div>
+          <div class="campo"><label class="rot" for="p-comision">Comisión, una vez sobre el cheque</label><div class="cifra"><input id="p-comision" type="text" inputmode="decimal" value="0,7"><span class="fin">%</span></div></div>
+          <div class="campo"><label class="rot" for="p-otros">Otros gastos, una vez sobre el cheque</label><div class="cifra"><input id="p-otros" type="text" inputmode="decimal" value="0"><span class="fin">%</span></div></div>
+          <div class="campo"><label class="rot" for="p-metodo">Cómo descuenta el banco</label>
+            <select class="ctl" id="p-metodo"><option value="adelantada">Tasa adelantada (sobre el importe del cheque)</option><option value="vencida">Tasa vencida (sobre el valor actual)</option></select></div>
+          <div class="campo"><label class="rot" for="p-clearing">Días hábiles de acreditación</label><div class="cifra"><input id="p-clearing" type="text" inputmode="numeric" value="1"><span class="fin">días</span></div></div>
+          <div class="campo"><label class="rot" for="p-ivabanco">IVA del banco sobre el interés</label><div class="cifra"><input id="p-ivabanco" type="text" inputmode="decimal" value="10,5"><span class="fin">%</span></div></div>
+          <div class="campo"><label class="rot" for="p-percivabanco">Percepción de IVA del banco</label><div class="cifra"><input id="p-percivabanco" type="text" inputmode="decimal" value="1,5"><span class="fin">%</span></div></div>
+        </div>
+        <p class="param-n">Cargá lo que el banco cobra de verdad en la liquidación. Sellos, comisión y otros gastos son costo y se reparten con el cliente según la bonificación de gastos. El IVA y la percepción del banco son crédito fiscal: bajan lo que se acredita, pero no cuentan como costo. La comisión de 0,7% sale de la planilla de Impuestos y falta confirmarla con el banco.</p>
+      </details>
+
+      <details class="param" id="g-imp" open>
+        <summary>Impuestos de la factura de intereses</summary>
+        <div class="param-g">
+          <div class="campo"><label class="rot" for="p-iva">IVA de la factura de intereses</label><div class="cifra"><input id="p-iva" type="text" inputmode="decimal" value="10,5"><span class="fin">%</span></div></div>
+          <div class="campo"><label class="rot" for="p-iibb">Ingresos Brutos, sobre el neto facturado</label><div class="cifra"><input id="p-iibb" type="text" inputmode="decimal" value="8,9243"><span class="fin">%</span></div></div>
+          <div class="campo"><label class="rot" for="p-tem">TEM, sobre el neto facturado</label><div class="cifra"><input id="p-tem" type="text" inputmode="decimal" value="1,180625"><span class="fin">%</span></div></div>
+          <div class="campo"><label class="rot" for="p-debcred">Débitos y créditos no computable, sobre lo cobrado</label><div class="cifra"><input id="p-debcred" type="text" inputmode="decimal" value="0,402"><span class="fin">%</span></div></div>
+          <div class="campo"><label class="rot" for="p-perciibb">Percepción de Ingresos Brutos al cliente</label><div class="cifra"><input id="p-perciibb" type="text" inputmode="decimal" value="0"><span class="fin">%</span></div></div>
+        </div>
+        <p class="param-n">Estos impuestos los paga el cliente dentro del costo financiero y son los que desaparecen en la vista "Sin impuestos". Los valores cargados salen de la planilla de Impuestos: Ingresos Brutos es el promedio por Convenio Multilateral, TEM es 1,25% por el coeficiente de Tucumán, y débitos y créditos es 0,6% menos el 33% computable. El IVA de 10,5% para todas las unidades es provisorio, hasta que el asesor impositivo confirme la alícuota.</p>
+      </details>
+
+      <details class="param" id="g-pol">
+        <summary>Política comercial</summary>
+        <div class="param-g">
+          <div class="campo"><label class="rot" for="p-plazosinval">Plazo sin validación especial</label><div class="cifra"><span>hasta</span><input id="p-plazosinval" type="text" inputmode="numeric" value="180"><span class="fin">días</span></div></div>
+          <div class="campo"><label class="rot" for="p-plazomax">Plazo máximo de un cheque</label><div class="cifra"><input id="p-plazomax" type="text" inputmode="numeric" value="360"><span class="fin">días</span></div></div>
+          <div class="campo"><label class="rot" for="p-cuotassinval">Cheques sin validación especial</label><div class="cifra"><span>hasta</span><input id="p-cuotassinval" type="text" inputmode="numeric" value="12"><span class="fin">cheques</span></div></div>
+          <div class="campo"><label class="rot" for="p-cuotasmax">Máximo de cheques por operación</label><div class="cifra"><input id="p-cuotasmax" type="text" inputmode="numeric" value="24"><span class="fin">cheques</span></div></div>
+          <div class="campo"><label class="rot" for="p-anticipomin">Anticipo mínimo sin validación especial</label><div class="cifra"><input id="p-anticipomin" type="text" inputmode="decimal" value="0"><span class="fin">%</span></div></div>
+          <div class="campo"><label class="rot" for="p-vigencia">Días hábiles que vale la tasa publicada</label><div class="cifra"><input id="p-vigencia" type="text" inputmode="numeric" value="1"><span class="fin">días</span></div></div>
+          <label class="marca-ok ancho" for="p-exigir"><input type="checkbox" id="p-exigir" checked><span>Exigir que la cotización quede registrada antes de entregar el PDF al vendedor</span></label>
+        </div>
+        <p class="param-n">Lo que supera estos valores no se bloquea: la cotización sale marcada para validación de Finanzas. Si la tasa publicada es más vieja que los días hábiles indicados, los vendedores no pueden emitir hasta que se publique la de hoy. Con el registro exigido, el vendedor no obtiene el PDF si la cotización no pudo registrarse.</p>
+      </details>
+
+      <details class="param" id="g-listas">
+        <summary>Unidades habilitadas y feriados</summary>
+        <div class="param-g">
+          <div class="campo ancho"><label class="rot" for="p-unidades">Unidades habilitadas para Tasa Compartida, una por línea. Vacío: todas</label><textarea class="ctl" id="p-unidades" spellcheck="false" placeholder="Ejemplo: Ranger XLT 4x4 AT stock 2026"></textarea></div>
+          <div class="campo ancho"><label class="rot" for="p-feriados">Feriados bancarios, una fecha por línea (dd-mm-aaaa)</label><textarea class="ctl" id="p-feriados" spellcheck="false"></textarea></div>
+        </div>
+        <p class="param-n" id="fin-fer-t">—</p>
+      </details>
+
+      <details class="param" id="g-legal">
+        <summary>Textos legales de la cotización <span class="pill warn" id="fin-legal-p">Borrador sin validar</span></summary>
+        <div class="param-g">
+          <div class="campo ancho"><label class="rot" for="p-textos">Un párrafo por línea. Se reemplazan solos: {empresa}, {plazoSinVal}, {plazoMax}, {cuotasSinVal}, {clearing}</label><textarea class="ctl" id="p-textos" style="min-height:220px"></textarea></div>
+          <label class="marca-ok ancho" for="p-legalok"><input type="checkbox" id="p-legalok"><span>Textos validados por el asesor legal</span></label>
+        </div>
+        <div class="param-pie"><p>Estos textos salen en pantalla y en el PDF que firma el cliente. La leyenda de caducidad a las 24 horas se agrega siempre.</p><button type="button" class="btn sec" id="b-textos-sug">Cargar textos sugeridos</button></div>
+      </details>
+
+      <details class="param" id="g-reg">
+        <summary>Cotizaciones emitidas</summary>
+        <div class="param-pie"><p id="reg-t">Abrí esta sección para ver las cotizaciones registradas.</p>
+          <div class="acc"><button type="button" class="btn sec" id="b-reg-act">Actualizar</button><button type="button" class="btn sec" id="b-reg-csv">Descargar planilla</button></div></div>
+        <div class="reg" id="reg"></div>
+      </details>
+
+      <details class="param" id="g-usu">
+        <summary>Usuarios</summary>
+        <div class="param-pie"><p id="usu-t">Abrí esta sección para ver quiénes pueden entrar al sistema y dar de alta vendedores u otros usuarios de Finanzas.</p>
+          <div class="acc"><button type="button" class="btn sec" id="b-usu-act">Actualizar</button><button type="button" class="btn sec" id="b-usu-nuevo">Nuevo usuario</button></div></div>
+        <div class="borr" id="usu-aviso" hidden>
+          <span class="usu-aviso" id="usu-aviso-t"></span>
+          <div class="acc"><button type="button" class="btn sec" id="b-usu-copiar">Copiar</button><button type="button" class="btn pri" id="b-usu-ok">Listo</button></div>
+        </div>
+        <div class="usu-form" id="usu-form" hidden>
+          <div class="param-g">
+            <div class="campo"><label class="rot" for="u-usuario">Usuario (con el que ingresa)</label><input class="ctl" id="u-usuario" type="text" autocapitalize="none" autocomplete="off" spellcheck="false" maxlength="30" placeholder="nombre.apellido"></div>
+            <div class="campo"><label class="rot" for="u-nombre">Nombre y apellido</label><input class="ctl" id="u-nombre" type="text" autocomplete="off" maxlength="80" placeholder="Como sale en la cotización"></div>
+            <div class="campo"><label class="rot" for="u-correo">Correo, para los avisos</label><input class="ctl" id="u-correo" type="email" autocomplete="off" maxlength="120" placeholder="Opcional"></div>
+            <div class="campo"><label class="rot" for="u-rol">Acceso</label><select class="ctl" id="u-rol"><option value="vendedor">Vendedor</option><option value="finanzas">Finanzas</option></select></div>
+            <div class="campo"><label class="rot" for="u-clave" id="u-clave-l">Contraseña provisoria</label><div class="con-btn"><input class="ctl" id="u-clave" type="text" autocomplete="off" spellcheck="false" maxlength="72"><button type="button" class="btn sec" id="b-usu-gen">Generar</button></div></div>
+            <label class="marca-ok" for="u-activo"><input type="checkbox" id="u-activo" checked><span>Usuario activo: puede ingresar</span></label>
+          </div>
+          <div class="param-pie"><p id="usu-form-t">—</p><div class="acc"><button type="button" class="btn sec" id="b-usu-cancelar">Cancelar</button><button type="button" class="btn pri" id="b-usu-guardar">Guardar usuario</button></div></div>
+        </div>
+        <div class="reg" id="usu"></div>
+      </details>
+
+      <div class="param-pie">
+        <p id="fin-pie">—</p>
+        <button type="button" class="btn sec" id="b-reset">Cargar valores sugeridos</button>
+      </div>
+    </section>
+  </div>
+</main>
+
+<div class="mini solo-vendedor" id="mini" hidden>
+  <div><span id="m-rot">Cheques</span><b id="m-val">$ 0</b></div>
+  <button type="button" class="btn pri" id="b-ver">Ver cotización</button>
+</div>
+<div class="toast" id="toast" role="status" aria-live="polite" hidden></div>
+
+<!-- En la página publicada queda en null. Para una demostración sin conexión del cotizador: {"config":{…}}. Para pruebas: {"api":"http://localhost:…/"}. -->
+<script id="tc-remoto" type="application/json">null</script>
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<script>
+/* Tasa Compartida · motor de cálculo, versión 3.
+   Fuente única del cálculo: la usan la página de Finanzas y la página del vendedor. Funciones puras, sin pantalla.
+   Modelo: el cliente paga su parte de lo que el banco cobra sobre cada cheque (tasa, sellos, comisión) y, sobre la factura
+   de intereses, Ingresos Brutos, TEM, la parte no computable de débitos y créditos e IVA (modelo de Impuestos, nov-2026).
+   El costo financiero puede ir dentro de los cheques o cobrarse aparte, con el anticipo.
+   Todos los gastos y los impuestos son valores que carga Finanzas; el IVA de la factura de intereses es uno solo para todas las unidades.
+   Lo marcado FIN (lo que liquida el banco y lo que absorbe la empresa) sólo se incluye en la página de Finanzas. */
+(function (raiz, fabrica) {
+  if (typeof module === 'object' && module.exports) module.exports = fabrica();
+  else raiz.TCMotor = fabrica();
+})(typeof self !== 'undefined' ? self : this, function () {
+'use strict';
+
+/* Valores sugeridos: Finanzas los ve precargados la primera vez y decide qué publica. No son la tasa vigente. */
+var FER_SUG = ['2026-11-23','2026-12-07','2026-12-08','2026-12-25','2027-01-01','2027-02-08','2027-02-09','2027-03-24','2027-03-25','2027-03-26','2027-04-02','2027-05-25','2027-06-21','2027-07-09','2027-08-16','2027-10-11','2027-12-08'];
+var SUG = {tna:28.39, bonif:50, gastosAGN:0, sellos:4, comision:0.7, otros:0, clearing:1, metodo:'adelantada',
+  iibb:8.9243, tem:1.180625, debcred:0.402, iva:10.5, percIIBB:0, margen:0,
+  plazoSinVal:180, plazoMax:360, cuotasSinVal:12, cuotasMax:24, anticipoMin:0, vigencia:1, exigirRegistro:true,
+  unidades:[], feriados:FER_SUG, textos:[], legalOk:false,
+  ivaBanco:10.5, percIvaBanco:1.5};
+/* Lo que sólo necesita Finanzas para ver cuánto acredita el banco: no viaja a la página del vendedor. */
+var CLAVES_INT = ['ivaBanco','percIvaBanco'];
+
+var p2 = function(n){ return String(n).padStart(2,'0'); };
+var acota = function(v,a,b){ return Math.min(b,Math.max(a,v)); };
+var num = function(v,def){ v = Number(v); return isFinite(v) ? v : def; };
+var lista = function(a,max,largo){ return (Array.isArray(a)?a:[]).map(function(s){ return String(s).trim().slice(0,largo); }).filter(Boolean).slice(0,max); };
+var suma = function(a){ return a.reduce(function(s,x){ return s+x; },0); };
+
+/* ---------- fechas (mediodía local, sin saltos de hora) y días hábiles ---------- */
+var masDias = function(d,n){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n,12); };
+var masMeses = function(d,n){ var t=new Date(d.getFullYear(),d.getMonth()+n,1,12); var ult=new Date(t.getFullYear(),t.getMonth()+1,0).getDate(); t.setDate(Math.min(d.getDate(),ult)); return t; };
+var difDias = function(a,b){ return Math.round((b-a)/864e5); };
+var aIso = function(d){ return d.getFullYear()+'-'+p2(d.getMonth()+1)+'-'+p2(d.getDate()); };
+var deIso = function(s){ var m=/^(\d{4})-(\d{2})-(\d{2})$/.exec(s||''); return m?new Date(+m[1],+m[2]-1,+m[3],12):null; };
+var diaDe = function(d){ return new Date(d.getFullYear(), d.getMonth(), d.getDate(), 12); };
+var isoValida = function(s){ var d=deIso(s); return !!d && aIso(d)===s; };
+function mapaFer(l){ var m={}; (l||[]).forEach(function(s){ m[s]=1; }); return m; }
+function esHabil(d, fer){ var w=d.getDay(); return w!==0 && w!==6 && !fer[aIso(d)]; }
+function habilDesde(d, fer){ var x=d, i=0; while(!esHabil(x,fer) && i<40){ x=masDias(x,1); i++; } return x; }
+function habilHasta(d, fer){ var x=d, i=0; while(!esHabil(x,fer) && i<40){ x=masDias(x,-1); i++; } return x; }
+function masHabiles(d, n, fer){ var x=d; for(var i=0;i<n;i++) x=habilDesde(masDias(x,1),fer); return x; }
+function habilesEntre(a, b, fer){ var n=0, x=masDias(a,1), i=0; while(x<=b && i<800){ if(esHabil(x,fer)) n++; x=masDias(x,1); i++; } return n; }
+/* Plazo que usa el banco: fecha de pago corrida a día hábil, más los días hábiles de acreditación.
+   La fecha se corre al día hábil siguiente; si con eso el cheque pasa el plazo máximo, se corre al día hábil anterior. */
+function plazoCalculo(hoy, fecha, par){
+  var fer = mapaFer(par.feriados), fp = habilDesde(fecha, fer);
+  if (par.plazoMax && difDias(hoy,fp) > par.plazoMax && difDias(hoy,fecha) <= par.plazoMax) fp = habilHasta(fecha, fer);
+  var ac = masHabiles(fp, par.clearing, fer);
+  return {fecha:fp, corrida:fp.getTime()!==fecha.getTime(), dias:difDias(hoy,fp), acred:ac, t:difDias(hoy,ac)};
+}
+
+/* ---------- parámetros: saneo de lo que llega del formulario o de los datos publicados ---------- */
+function norm(p){
+  p = p || {};
+  var o = {};
+  o.tna = acota(num(p.tna,SUG.tna),0,500);
+  o.bonif = acota(num(p.bonif,SUG.bonif),0,100);
+  o.gastosAGN = acota(num(p.gastosAGN,0),0,100);
+  o.sellos = acota(num(p.sellos,0),0,50);
+  o.comision = acota(num(p.comision,0),0,10);
+  o.otros = acota(num(p.otros,0),0,10);
+  o.clearing = Math.round(acota(num(p.clearing,1),0,5));
+  o.metodo = p.metodo==='vencida' ? 'vencida' : 'adelantada';
+  o.iibb = acota(num(p.iibb,0),0,30);
+  o.tem = acota(num(p.tem,0),0,10);
+  o.debcred = acota(num(p.debcred,0),0,5);
+  o.iva = acota(num(p.iva,SUG.iva),0,30);
+  o.percIIBB = acota(num(p.percIIBB,0),0,20);
+  o.margen = acota(num(p.margen,0),0,50);
+  o.plazoMax = Math.round(acota(num(p.plazoMax,360)||360,1,360));
+  o.plazoSinVal = Math.round(acota(num(p.plazoSinVal,180)||180,1,o.plazoMax));
+  o.cuotasMax = Math.round(acota(num(p.cuotasMax,24)||24,1,60));
+  o.cuotasSinVal = Math.round(acota(num(p.cuotasSinVal,12)||12,1,o.cuotasMax));
+  o.anticipoMin = acota(num(p.anticipoMin,0),0,100);
+  o.vigencia = Math.round(acota(num(p.vigencia,1),0,10));
+  o.exigirRegistro = p.exigirRegistro===undefined ? true : !!p.exigirRegistro;
+  o.unidades = lista(p.unidades,300,120);
+  o.feriados = lista(p.feriados,500,10).filter(isoValida).sort();
+  o.textos = lista(p.textos,30,1500);
+  o.legalOk = !!p.legalOk;
+  o.ivaBanco = acota(num(p.ivaBanco,0),0,30);
+  o.percIvaBanco = acota(num(p.percIvaBanco,0),0,10);
+  return o;
+}
+function ivaDe(par){ return par.iva/100; }
+
+/* ---------- lo que liquida el banco por un cheque de importe N ---------- */
+function liquidaBanco(N, tau, par){
+  var d = par.tna/100, fi = par.metodo==='vencida' ? d*tau/(1+d*tau) : d*tau;
+  var intB = N*fi, selB = N*(par.sellos/100)*tau, comB = N*(par.comision/100), otrB = N*((par.otros||0)/100);
+  var ivaB = intB*(par.ivaBanco||0)/100, percB = intB*(par.percIvaBanco||0)/100;
+  return {intB:intB, selB:selB, comB:comB, otrB:otrB, ivaB:ivaB, percB:percB, netoB:N-intB-selB-comB-otrB-ivaB-percB};
+}
+function tasaEfectiva(S, flujos){
+  var tot = suma(flujos.map(function(x){ return x.monto; }));
+  if (!(S>0) || tot <= S+0.5) return 0;
+  var f = function(i){ return flujos.reduce(function(s,x){ return s + x.monto/Math.pow(1+i, x.dias/365); },0) - S; };
+  var lo = 0, hi = 1, k;
+  for (k=0; k<40 && f(hi)>0; k++) hi *= 2;
+  for (k=0; k<80; k++){ var mid=(lo+hi)/2; if (f(mid)>0) lo=mid; else hi=mid; }
+  return (lo+hi)/2;
+}
+
+/* ---------- plan de cheques ----------
+   S: saldo a financiar. base: [{tau, dias, t, ...}] un elemento por cheque (tau = días de cálculo / 365).
+   o: {tipo:'iguales'|'capital', forma:'dentro'|'aparte', iva:0.21, sinImpuestos:bool, bT, bG}
+   Factura de intereses, neto R. Con el costo dentro de los cheques, por cada cheque de importe N y capital K:
+     N = K + R·f                      (f = 1 + IVA + percepción: lo que el cliente paga por cada peso de factura)
+     R = p·N + margen·K + (IIBB + TEM)·R + debcred·R·f     (p = parte del cliente del costo del banco por peso de cheque)
+   de donde N = K·(D0 + f·margen) / (D0 − f·p), con D0 = 1 − IIBB − TEM − debcred·f.
+   Con el costo aparte los cheques llevan sólo capital y R = (Σ p·K + margen·S) / D0, que se paga el día de la venta.
+   sinImpuestos saca IIBB, TEM, débitos y créditos, IVA y percepción: queda sólo lo que cobra el banco. */
+function planCheques(S, base, par, o){
+  o = o || {};
+  var d = par.tna/100, sel = par.sellos/100, com = par.comision/100, otr = (par.otros||0)/100, mg = (par.margen||0)/100, si = !!o.sinImpuestos;
+  var bT = o.bT!==undefined ? o.bT : par.bonif/100, bG = o.bG!==undefined ? o.bG : par.gastosAGN/100;
+  var iva = si ? 0 : (o.iva||0), pib = si ? 0 : (par.percIIBB||0)/100;
+  var iibb = si ? 0 : par.iibb/100, tem = si ? 0 : par.tem/100, dc = si ? 0 : par.debcred/100;
+  var f = 1 + iva + pib, D0 = 1 - iibb - tem - dc*f, n = base.length, aparte = o.forma==='aparte';
+  if (!n) return {ok:true, n:0, filas:[], totalCheques:0, neto:0, iva:0, perc:0, pagoAparte:0, costo:0, interes:0, gastos:0, iibb:0, tem:0, debcred:0, margen:0,
+    gSellos:0, gComision:0, gOtros:0,
+    intB:0, selB:0, comB:0, otrB:0, credB:0, netoB:0, costoBanco:0, absorbido:0,
+    bancoCliente:0, forma:aparte?'aparte':'dentro', f:f, ivaT:iva};
+  if (!(D0 > 0.05)) return null;
+  var fs = base.map(function(b){
+    var fi = par.metodo==='vencida' ? d*b.tau/(1+d*b.tau) : d*b.tau, fs0 = sel*b.tau, fg = fs0 + com + otr;
+    return {fi:fi, fg:fg, fs:fs0, p:(1-bT)*fi + (1-bG)*fg};
+  });
+  var K = [], N = [], acum = 0, k, c, R;
+  if (aparte){
+    for (k=0;k<n;k++){ c = k<n-1 ? Math.round(S/n) : S-acum; acum+=c; K.push(c); N.push(c); }
+    R = (suma(fs.map(function(x,i){ return x.p*N[i]; })) + mg*S)/D0;
+  } else {
+    var q = fs.map(function(x){ return D0 - f*x.p; }), numer = D0 + f*mg;
+    if (q.some(function(x){ return !(x > 0.05); })) return null;
+    if (o.tipo==='capital' || n===1){
+      for (k=0;k<n;k++){ c = k<n-1 ? Math.round(S/n) : S-acum; acum+=c; K.push(c); N.push(Math.round(c*numer/q[k])); }
+    } else {
+      var cuota = Math.round(S*numer / suma(q));
+      for (k=0;k<n;k++){ c = k<n-1 ? Math.round(cuota*q[k]/numer) : S-acum; acum+=c; K.push(c); N.push(cuota); }
+    }
+    R = (suma(N) - S)/f;
+  }
+  var totalCheques = suma(N);
+  /* factura de intereses en pesos: neto, IVA y percepción cierran contra lo que efectivamente paga el cliente */
+  var neto = Math.round(R), ivaI, percI, pagoAparte;
+  if (aparte){ ivaI = Math.round(neto*iva); percI = Math.round(neto*pib); pagoAparte = neto+ivaI+percI; }
+  else { var extra = totalCheques - S; ivaI = Math.round(R*iva); percI = extra - neto - ivaI; if (pib===0){ ivaI += percI; percI = 0; } pagoAparte = 0; }
+  /* de qué está hecho el neto de la factura */
+  var intCli = suma(fs.map(function(x,i){ return (1-bT)*x.fi*N[i]; })), gasCli = suma(fs.map(function(x,i){ return (1-bG)*x.fg*N[i]; }));
+  var iibbI = Math.round(iibb*R), temI = Math.round(tem*R), dcI = Math.round(dc*R*f), mgI = Math.round(mg*S), gasI = Math.round(gasCli);
+  var intI = neto - gasI - iibbI - temI - dcI - mgI;
+  /* los gastos del cliente, abiertos por concepto: sellos, comisión y otros gastos del banco */
+  var gSel = Math.round(suma(fs.map(function(x,i){ return (1-bG)*x.fs*N[i]; }))), gCom = Math.round((1-bG)*com*totalCheques), gOtr = gasI - gSel - gCom;
+  if (!otr){ gCom += gOtr; gOtr = 0; }
+  /* lo que liquida el banco sobre los cheques y lo que absorbe la empresa */
+  var intB = 0, selB = 0, comB = 0, otrB = 0, credB = 0, netoB = 0, netoAcum = 0;
+  var filas = base.map(function(b,i){
+    var lb = liquidaBanco(N[i], b.tau, par), bruto = N[i]-K[i], netoK = aparte ? 0 : bruto/f;
+    intB += lb.intB; selB += lb.selB; comB += lb.comB; otrB += lb.otrB; credB += lb.ivaB+lb.percB; netoB += lb.netoB;
+    var nI = aparte ? 0 : (i<n-1 ? Math.round(netoK) : neto - netoAcum); netoAcum += nI;
+    return {fecha:b.fecha, nominal:b.nominal, corrida:b.corrida, dias:b.dias, acred:b.acred, t:b.t, tau:b.tau, capital:K[i], cheque:N[i],
+      neto:nI, imp:bruto-nI, interesCli:(1-bT)*fs[i].fi*N[i]};
+  });
+  return {ok:true, n:n, forma:aparte?'aparte':'dentro', f:f, ivaT:iva, pib:pib, filas:filas, totalCheques:totalCheques,
+    netoExacto:R, neto:neto, iva:ivaI, perc:percI, pagoAparte:pagoAparte, costo:(totalCheques-S)+pagoAparte,
+    interes:intI, gastos:gasI, gSellos:gSel, gComision:gCom, gOtros:gOtr, iibb:iibbI, tem:temI, debcred:dcI, margen:mgI,
+    intB:intB, selB:selB, comB:comB, otrB:otrB, credB:credB, netoB:netoB, costoBanco:intB+selB+comB+otrB, absorbido:bT*intB + bG*(selB+comB+otrB),
+    bancoCliente:intCli+gasCli};
+}
+
+/* ---------- cálculo completo de una operación ----------
+   op:  {precio, anticipo, modo:'uno'|'cuotas', plazo, cuotas, primer, frec:'30'|'15'|'mes', tipo:'iguales'|'capital',
+         forma:'dentro'|'aparte'}
+   par: el que devuelve norm(). hoy: fecha de emisión (mediodía local). */
+function calcular(op, par, hoy){
+  var P = op.precio, A0 = Math.min(op.anticipo, P), S = Math.max(0, P - A0), d = par.tna/100, k;
+  var nominales = [];
+  if (S > 0){
+    if (op.modo==='uno') nominales.push(masDias(hoy, op.plazo));
+    else { var f0 = masDias(hoy, op.primer), paso = op.frec==='15' ? 15 : 30;
+      for (k=0;k<op.cuotas;k++) nominales.push(op.frec==='mes' ? masMeses(f0,k) : masDias(f0,paso*k)); }
+  }
+  var base = nominales.map(function(f){ var b = plazoCalculo(hoy, f, par); b.nominal = f; b.tau = b.t/365; return b; });
+  var forma = op.forma==='aparte' ? 'aparte' : 'dentro', iva = ivaDe(par);
+  var o = {tipo:op.tipo, forma:forma, iva:iva};
+  var con = planCheques(S, base, par, o);
+  var sin = con ? planCheques(S, base, par, {tipo:op.tipo, forma:forma, iva:iva, sinImpuestos:true}) : null;
+  var plena = con ? planCheques(S, base, par, {tipo:op.tipo, forma:forma, iva:iva, bT:0, bG:0}) : null;
+  var plenaSin = sin ? planCheques(S, base, par, {tipo:op.tipo, forma:forma, iva:iva, sinImpuestos:true, bT:0, bG:0}) : null;
+  var valido = !!con && !!sin, n = base.length;
+  if (!valido) con = planCheques(S, [], par, o);
+  var capDias = suma(con.filas.map(function(x){ return x.capital*x.t; }));
+  var anual = function(x){ return capDias>0 ? x/(capDias/365) : 0; };
+  var costoEmpresa = con.absorbido - (con.margen||0);
+  /* tasas para el cliente: lo que recibe hoy (saldo menos lo que paga aparte) contra los cheques en su fecha de pago */
+  var recibe = S - con.pagoAparte;
+  var fl = function(g){ return con.filas.map(function(x){ return {dias:x.dias, monto:g(x)}; }); };
+  var intTot = suma(con.filas.map(function(x){ return x.interesCli; }));
+  var tea = forma==='aparte' ? tasaEfectiva(S - intTot, fl(function(x){ return x.capital; }))
+                             : tasaEfectiva(S, fl(function(x){ return x.capital + x.interesCli; }));
+  return {P:P, A:A0, S:S, n:valido?n:0, valido:valido, forma:forma, ivaT:iva,
+    rb:d, rc:d*(1-par.bonif/100), sh:1-par.bonif/100, gsh:1-par.gastosAGN/100,
+    filas:con.filas, totalCheques:con.totalCheques, pagoAparte:con.pagoAparte, pagoHoy:A0+con.pagoAparte,
+    costoCliente:con.costo, totalOperacion:A0+con.totalCheques+con.pagoAparte,
+    neto:con.neto, iva:con.iva, perc:con.perc, facturaTotal:con.neto+con.iva+con.perc,
+    interes:con.interes, gastos:con.gastos, gSellos:con.gSellos, gComision:con.gComision, gOtros:con.gOtros,
+    iibb:con.iibb, tem:con.tem, debcred:con.debcred, margen:con.margen,
+    impuestosFactura:con.iibb+con.tem+con.debcred+con.iva+con.perc,
+    sin: sin ? {filas:sin.filas, totalCheques:sin.totalCheques, pagoAparte:sin.pagoAparte, pagoHoy:A0+sin.pagoAparte, costo:sin.costo, neto:sin.neto, interes:sin.interes, gastos:sin.gastos,
+      totalOperacion:A0+sin.totalCheques+sin.pagoAparte, ahorro: plenaSin ? Math.max(0, plenaSin.costo - sin.costo) : 0} : null,
+    impuestos: sin ? con.costo - sin.costo : 0,
+    ahorro: plena ? Math.max(0, plena.costo - con.costo) : 0,
+    intB:con.intB, selB:con.selB, comB:con.comB, otrB:con.otrB||0, credB:con.credB, netoB:con.netoB, costoBanco:con.costoBanco||0, bancoCliente:con.bancoCliente||0,
+    absorbido:con.absorbido, costoEmpresa:costoEmpresa, tnaEmpresa:anual(costoEmpresa),
+    tnaEquivalente: S>0 && capDias>0 ? (con.netoExacto||0)/(capDias/365) : 0,
+    tea:tea, cft:tasaEfectiva(recibe, fl(function(x){ return x.cheque; })),
+    cftSin: sin ? tasaEfectiva(S - sin.pagoAparte, sin.filas.map(function(x){ return {dias:x.dias, monto:x.cheque}; })) : 0,
+    plazoProm: S>0 ? capDias/S : 0};
+}
+
+return {SUG:SUG, FER_SUG:FER_SUG, CLAVES_INT:CLAVES_INT, norm:norm, ivaDe:ivaDe, plazoCalculo:plazoCalculo, liquidaBanco:liquidaBanco,
+  tasaEfectiva:tasaEfectiva, planCheques:planCheques, calcular:calcular,
+  fechas:{masDias:masDias, masMeses:masMeses, difDias:difDias, aIso:aIso, deIso:deIso, diaDe:diaDe, isoValida:isoValida, mapaFer:mapaFer, esHabil:esHabil, habilesEntre:habilesEntre}};
+});
+</script>
+<script>
+(function(){
+'use strict';
+var $ = function(id){ return document.getElementById(id); };
+var M = window.TCMotor;   /* motor de cálculo: el mismo archivo en la página de Finanzas y en la del vendedor */
+var VERSION = 'Versión 3 · 21-11-2026';
+var LS_VEND = 'tc_vendedor_v1';
+var CLAVES_INT = M.CLAVES_INT;
+
+/* Textos legales sugeridos. Son un borrador hasta que los valide el asesor legal. */
+var TEXTOS_SUG = [
+  'Validez. Esta cotización vale 24 horas desde su emisión. Vencido ese plazo, los importes y la tasa deben cotizarse de nuevo. No es factura ni reserva de la unidad o producto cotizado.',
+  'Aprobación. La operación queda sujeta al análisis de riesgo crediticio y a la aprobación de Administración y Finanzas de Grupo AGN, que puede pedir otras condiciones de anticipo, plazo, cantidad u origen de los cheques, o no aceptarla. El cliente autoriza a consultar sus antecedentes en bases de información crediticia.',
+  'Cheques. Se reciben cheques de pago diferido o ECHEQ a la orden de {empresa}. Condición habitual: hasta {plazoSinVal} días de plazo y hasta {cuotasSinVal} cheques por operación. Plazos mayores, con un máximo de {plazoMax} días, más cheques o cheques de terceros requieren validación expresa de Finanzas. Los cheques de terceros deben ser endosados por el cliente, que responde por su pago.',
+  'Costo financiero. Incluye el interés a la tasa bonificada, los sellos y gastos bancarios de la negociación de los cheques y los impuestos que se detallan, y se factura al cliente. Se calcula hasta la fecha de acreditación de cada cheque: la fecha de pago, corrida al día hábil siguiente si cae en sábado, domingo o feriado, más {clearing} día(s) hábil(es). Puede estar incluido en el importe de los cheques o pagarse aparte, junto con el anticipo, el día de la operación: la cotización indica la forma elegida. La tasa bonificada rige solo para esta cotización.',
+  'Cancelación de la deuda. La entrega de los cheques no cancela la deuda ni la reemplaza por otra: cada importe se considera pagado cuando el cheque se acredita. Grupo AGN puede endosar, ceder o descontar los cheques en entidades financieras.',
+  'Cheque rechazado. Si un cheque es rechazado por cualquier motivo, el cliente debe pagar su importe dentro de las 48 horas hábiles de ser notificado, más los gastos y multas bancarias y los intereses que correspondan desde la fecha de pago del cheque. Si no lo hace queda en mora sin necesidad de intimación, pierde la bonificación de tasa sobre el saldo pendiente, y Grupo AGN puede exigir el pago inmediato de los cheques aún no vencidos e iniciar las acciones previstas en la Ley 24.452.',
+  'Jurisdicción. Para cualquier controversia son competentes los tribunales ordinarios de San Miguel de Tucumán. Si el cliente es consumidor final, los de su domicilio real.',
+  'El cliente recibe copia de esta cotización y declara conocer y aceptar sus condiciones.'
+];
+
+/* ---------- formato ---------- */
+var p2 = function(n){ return String(n).padStart(2,'0'); };
+var fInt = function(n){ var v=Math.round(Math.abs(n)); return (n<0&&v>0?'-':'') + String(v).replace(/\B(?=(\d{3})+(?!\d))/g,'.'); };
+var f$ = function(n){ return '$ ' + fInt(n); };
+var fPct = function(x,d){ d = d===undefined?2:d; var k=Math.pow(10,d); return (Math.round(x*100*k+1e-7)/k).toFixed(d).replace('.',',') + '%'; };
+var fNum = function(v){ return String(v).replace('.',','); };
+var fFecha = function(d){ return p2(d.getDate())+'-'+p2(d.getMonth()+1)+'-'+d.getFullYear(); };
+var fFechaHora = function(d){ return fFecha(d)+' '+p2(d.getHours())+':'+p2(d.getMinutes())+' hs'; };
+var soloDig = function(s){ return String(s).replace(/\D/g,''); };
+var nEnt = function(el){ return Number(soloDig(el.value)) || 0; };
+var nDec = function(el){ var s=String(el.value).trim(); if(s.indexOf(',')>=0) s=s.replace(/\./g,'').replace(',','.'); var v=parseFloat(s); return isFinite(v)?v:0; };
+var acota = function(v,a,b){ return Math.min(b,Math.max(a,v)); };
+var num = function(v,def){ v = Number(v); return isFinite(v) ? v : def; };
+var lista = function(a,max,largo){ return (Array.isArray(a)?a:[]).map(function(s){ return String(s).trim().slice(0,largo); }).filter(Boolean).slice(0,max); };
+
+/* ---------- lo que viene del motor ---------- */
+var FM = M.fechas, masDias = FM.masDias, difDias = FM.difDias, aIso = FM.aIso, deIso = FM.deIso, diaDe = FM.diaDe, isoValida = FM.isoValida, mapaFer = FM.mapaFer, habilesEntre = FM.habilesEntre;
+var norm = M.norm, calcular = M.calcular, liquidaBanco = M.liquidaBanco;
+var hoy0 = function(){ var d=new Date(); return new Date(d.getFullYear(),d.getMonth(),d.getDate(),12); };
+
+/* ---------- estado ---------- */
+/* A: de dónde salen la tasa y los parámetros, y qué puede hacer quien mira.
+   Finanzas: 'n8n' = configuración leída del sistema. Vendedor: 'web' = tasa publicada; demo = valores de ejemplo incluidos en el archivo. */
+var A = {modo:'', listo:false, lento:false, esFin:false, editable:false, pub:null, int:null, previa:null, demo:false, sync:'', mias:[], reg:null, usu:null};
+var numero = nuevoNumero(), emitidaFija = null, rev = 0, ultimo = null, editado = false, toastT = null, miniOk = false, hojaLejos = false;
+var tocado = false, parStr = null, ferMal = 0, unidadesStr = null, regHechos = {}, tnaVista = null, vista = 'con';
+function nuevoNumero(){
+  var d = new Date(), r = (Math.random().toString(36)+'000').slice(2,5).toUpperCase();
+  return 'COT-'+String(d.getFullYear()).slice(2)+p2(d.getMonth()+1)+p2(d.getDate())+'-'+p2(d.getHours())+p2(d.getMinutes())+'-'+r;
+}
+function guarda(k,v){ try{ localStorage.setItem(k, JSON.stringify(v)); }catch(e){} }
+function trae(k){ try{ var v=localStorage.getItem(k); return v?JSON.parse(v):null; }catch(e){ return null; } }
+var radio = function(nombre){ var el=document.querySelector('input[name="'+nombre+'"]:checked'); return el?el.value:''; };
+var copia = function(a,b){ var o={}, k; for(k in a) if(Object.prototype.hasOwnProperty.call(a,k)) o[k]=a[k]; for(k in (b||{})) if(Object.prototype.hasOwnProperty.call(b,k)) o[k]=b[k]; return o; };
+/* Una cotización descargada queda con su número y su hora de emisión. Si después cambian las condiciones, se abre un número nuevo:
+   así dos documentos con importes distintos nunca comparten número. */
+function cambio(){ rev++; if (emitidaFija){ numero = nuevoNumero(); emitidaFija = null; } }
+function miniPinta(){ $('mini').hidden = !(miniOk && hojaLejos); }
+var SUG = copia(M.SUG, {textos:TEXTOS_SUG});
+/* Sólo vale una publicación hecha con este modelo de cálculo (versión 3). */
+function pubOk(){ return !!(A.pub && A.pub.v===3); }
+
+/* ---------- sesión: cada persona entra con su usuario y su contraseña. n8n valida, registra y responde ---------- */
+var API = 'https://menaenriquedaniel.app.n8n.cloud/webhook/', LS_SES = 'tc3_sesion';
+var REM = null; try{ REM = JSON.parse(($('tc-remoto') || {}).textContent || 'null'); }catch(e){ REM = null; }
+if (REM && typeof REM==='object' && typeof REM.api==='string' && /^https:\/\/|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(REM.api)) API = REM.api;
+/* S: la sesión abierta {token, vence, usuario, nombre, rol, debe}. Vale 12 horas y es la misma para el cotizador y para el módulo de Finanzas. */
+var S = null, ingModo = 'ingresar', claveEscrita = '', arrancado = false, configIngreso = null, hayConfigIngreso = false;
+function sesionGuardada(){
+  var x = trae(LS_SES);
+  return x && typeof x==='object' && /^[a-f0-9]{64}$/.test(String(x.token||'')) && Number(x.vence) > Date.now()+60000 && x.usuario ? x : null;
+}
+/* Todo pedido a n8n es un POST simple (texto con JSON adentro): el navegador no necesita consulta previa al servidor. */
+function llama(ruta, datos){
+  var ctl = ('AbortController' in window) ? new AbortController() : null, reloj = ctl ? setTimeout(function(){ ctl.abort(); }, 25000) : null;
+  var cuerpo = copia(datos || {}, S && !(datos && datos.accion==='ingresar') ? {token:S.token} : {});
+  return fetch(API+ruta, {method:'POST', headers:{'Content-Type':'text/plain;charset=UTF-8'}, body:JSON.stringify(cuerpo), signal:ctl ? ctl.signal : undefined})
+    .then(function(x){ return x.text(); })
+    .then(function(t){ clearTimeout(reloj); var j = null; try{ j = JSON.parse(t); }catch(e){} return j && typeof j==='object' ? j : {ok:false, motivo:'red'}; },
+          function(){ clearTimeout(reloj); return {ok:false, motivo:'red'}; })
+    .then(function(j){
+      if (j.ok!==true && S && j.motivo==='sesion') cierraLocal('La sesión venció. Ingresá de nuevo.');
+      else if (j.ok!==true && S && j.motivo==='cambiar' && ingModo!=='cambiar'){ S.debe = true; guarda(LS_SES, S); abreIngreso('cambiar'); }
+      return j;
+    });
+}
+var sinRed = function(j){ return j.motivo==='red' ? 'No hay conexión con el sistema. Revisá internet y probá de nuevo.' : ''; };
+var caida = function(j){ return j.motivo==='sesion' || j.motivo==='cambiar'; };
+function ingMsg(t, bien){ var m = $('ing-msg'); m.hidden = !t; m.textContent = t || ''; m.className = 'ing-msg'+(bien ? ' ok' : ''); }
+/* modo: 'ingresar', 'cambiar' (obligatorio: contraseña provisoria) o 'cambiar-vol' (porque la persona quiere). */
+function abreIngreso(modo, msg, bien){
+  ingModo = modo;
+  var cambia = modo!=='ingresar', obliga = modo==='cambiar';
+  document.body.classList.add('sin-sesion');
+  $('ing-tit').textContent = !cambia ? 'Ingresá con tu usuario' : obliga ? 'Elegí tu contraseña' : 'Cambiar contraseña';
+  $('ing-n').textContent = !cambia ? 'El usuario y la contraseña te los da Finanzas.'
+    : (obliga ? 'La contraseña que te dieron es provisoria. Para seguir, elegí una propia. ' : '')+'Mínimo 8 caracteres, con letras y números.';
+  $('ing-c-usuario').hidden = cambia;
+  $('ing-c-clave').hidden = obliga && !!claveEscrita;
+  $('ing-l-clave').textContent = cambia ? 'Contraseña actual' : 'Contraseña';
+  $('ing-c-nueva').hidden = !cambia; $('ing-c-repite').hidden = !cambia;
+  $('ing-cancelar').hidden = modo!=='cambiar-vol'; $('ing-salir').hidden = !obliga;
+  $('ing-ok').textContent = cambia ? 'Guardar contraseña' : 'Ingresar'; $('ing-ok').disabled = false;
+  ['ing-clave','ing-nueva','ing-repite'].forEach(function(id){ $(id).value = ''; });
+  ingMsg(msg, bien);
+  $('ingreso').hidden = false;
+  try{ (cambia ? ($('ing-c-clave').hidden ? $('ing-nueva') : $('ing-clave')) : ($('ing-usuario').value ? $('ing-clave') : $('ing-usuario'))).focus(); }catch(e){}
+}
+function cierraIngreso(){ $('ingreso').hidden = true; document.body.classList.remove('sin-sesion'); claveEscrita = ''; ingModo = 'ingresar'; }
+function pintaQuien(){
+  $('quien').hidden = !S; $('q-nombre').textContent = S ? (S.nombre || S.usuario) : '—';
+}
+function cierraLocal(msg, bien){
+  S = null; try{ localStorage.removeItem(LS_SES); }catch(e){}
+  pintaQuien(); abreIngreso('ingresar', msg || '', bien);
+}
+function salir(){
+  if (S) llama('tc-sesion', {accion:'salir'});
+  cierraLocal('Saliste del sistema.', true);
+}
+var claveFloja = function(c, usuario){ return c.length<8 || c.length>72 || !/[A-Za-zÁÉÍÓÚáéíóúÑñ]/.test(c) || !/\d/.test(c) || (!!usuario && c.toLowerCase().indexOf(String(usuario).toLowerCase())>=0); };
+function alEnviarIngreso(e){
+  e.preventDefault();
+  var b = $('ing-ok'); if (b.disabled) return;
+  if (ingModo==='ingresar'){
+    var u = $('ing-usuario').value.trim().toLowerCase(), c = $('ing-clave').value;
+    if (!u || !c){ ingMsg('Escribí tu usuario y tu contraseña.'); return; }
+    b.disabled = true; ingMsg('');
+    llama('tc-sesion', {accion:'ingresar', usuario:u, clave:c}).then(function(j){
+      b.disabled = false;
+      if (j.ok!==true || !j.token){ ingMsg(sinRed(j) || j.mensaje || 'No se pudo ingresar. Probá de nuevo.'); return; }
+      if (j.rol!=='finanzas'){ ingMsg('Tu usuario no tiene acceso al módulo de Finanzas. Para cotizar entrá al cotizador de vendedores.'); return; }
+      S = {token:String(j.token), vence:Number(j.vence), usuario:String(j.usuario), nombre:String(j.nombre || j.usuario), rol:String(j.rol), debe:!!j.debeCambiar};
+      guarda(LS_SES, S); configIngreso = j.config || null; hayConfigIngreso = true;
+      if (S.debe){ claveEscrita = c; pintaQuien(); abreIngreso('cambiar'); return; }
+      alEntrar(configIngreso, true);
+    });
+    return;
+  }
+  var obligada = ingModo==='cambiar', act = claveEscrita || $('ing-clave').value, n1 = $('ing-nueva').value, n2 = $('ing-repite').value;
+  if (!act){ ingMsg('Escribí tu contraseña actual.'); return; }
+  if (claveFloja(n1, S && S.usuario)){ ingMsg('La contraseña nueva debe tener al menos 8 caracteres, con letras y números, y no puede contener tu usuario.'); return; }
+  if (n1!==n2){ ingMsg('Las dos contraseñas nuevas no coinciden.'); return; }
+  if (n1===act){ ingMsg('La contraseña nueva tiene que ser distinta de la actual.'); return; }
+  b.disabled = true; ingMsg('');
+  llama('tc-sesion', {accion:'cambiar_clave', clave:act, nueva:n1}).then(function(j){
+    b.disabled = false;
+    if (j.ok!==true){
+      if (j.motivo==='sesion') return;
+      if (j.motivo==='clave' && claveEscrita){ claveEscrita = ''; abreIngreso(ingModo, j.mensaje); return; }
+      ingMsg(sinRed(j) || j.mensaje || 'No se pudo cambiar la contraseña. Probá de nuevo.'); return;
+    }
+    if (S){ S.debe = false; guarda(LS_SES, S); }
+    if (obligada || !arrancado) alEntrar(configIngreso, hayConfigIngreso); else cierraIngreso();
+    toast('Contraseña cambiada. Desde ahora ingresás con la nueva.');
+  });
+}
+/* Con la sesión abierta arranca todo lo demás: la tasa, los datos y, en Finanzas, los parámetros. */
+function alEntrar(config, deServidor){
+  cierraIngreso();
+  $('vendedor').value = S.nombre || S.usuario;
+  pintaQuien();
+  if (!arrancado){ arrancado = true; iniciarDatos(config, deServidor); }
+  else {
+    iniciarDatos();
+  }
+  cambio(); pintar();
+}
+
+/* ---------- parámetros: publicado y vigente ---------- */
+function parPublicado(){ return pubOk() ? norm(copia(A.pub, A.int)) : null; }
+function listaTxt(id){ return $(id).value.split(/\r?\n/).map(function(s){ return s.trim(); }).filter(Boolean); }
+function leeFeriados(){
+  var ok=[], mal=0;
+  $('p-feriados').value.split(/[\s,;]+/).forEach(function(s){
+    if(!s) return;
+    var m=/^(\d{1,2})[-\/](\d{1,2})[-\/](\d{4})$/.exec(s), iso = m ? m[3]+'-'+p2(+m[2])+'-'+p2(+m[1]) : s;
+    if (isoValida(iso)){ if(ok.indexOf(iso)<0) ok.push(iso); } else mal++;
+  });
+  ferMal = mal; return ok;
+}
+function leerParamsForm(){
+  return {tna:nDec($('p-tna')), bonif:nDec($('p-bonif')), gastosAGN:nDec($('p-gastosagn')), margen:nDec($('p-margen')),
+    sellos:nDec($('p-sellos')), comision:nDec($('p-comision')), otros:nDec($('p-otros')), metodo:$('p-metodo').value, clearing:nEnt($('p-clearing')),
+    ivaBanco:nDec($('p-ivabanco')), percIvaBanco:nDec($('p-percivabanco')),
+    iva:nDec($('p-iva')), iibb:nDec($('p-iibb')), tem:nDec($('p-tem')), debcred:nDec($('p-debcred')), percIIBB:nDec($('p-perciibb')),
+    plazoSinVal:nEnt($('p-plazosinval')), plazoMax:nEnt($('p-plazomax')), cuotasSinVal:nEnt($('p-cuotassinval')), cuotasMax:nEnt($('p-cuotasmax')),
+    anticipoMin:nDec($('p-anticipomin')), vigencia:nEnt($('p-vigencia')), exigirRegistro:$('p-exigir').checked,
+    unidades:listaTxt('p-unidades'), feriados:leeFeriados(), textos:listaTxt('p-textos'), legalOk:$('p-legalok').checked};
+}
+function ponerParamsForm(p){
+  $('p-tna').value=fNum(p.tna); $('p-bonif').value=fNum(p.bonif); $('p-gastosagn').value=fNum(p.gastosAGN); $('p-margen').value=fNum(p.margen);
+  $('p-sellos').value=fNum(p.sellos); $('p-comision').value=fNum(p.comision); $('p-otros').value=fNum(p.otros); $('p-metodo').value=p.metodo; $('p-clearing').value=p.clearing;
+  $('p-ivabanco').value=fNum(p.ivaBanco); $('p-percivabanco').value=fNum(p.percIvaBanco);
+  $('p-iva').value=fNum(p.iva); $('p-iibb').value=fNum(p.iibb); $('p-tem').value=fNum(p.tem); $('p-debcred').value=fNum(p.debcred); $('p-perciibb').value=fNum(p.percIIBB);
+  $('p-plazosinval').value=p.plazoSinVal; $('p-plazomax').value=p.plazoMax; $('p-cuotassinval').value=p.cuotasSinVal; $('p-cuotasmax').value=p.cuotasMax;
+  $('p-anticipomin').value=fNum(p.anticipoMin); $('p-vigencia').value=p.vigencia; $('p-exigir').checked=!!p.exigirRegistro;
+  $('p-unidades').value=p.unidades.join('\n');
+  $('p-feriados').value=p.feriados.map(function(s){ return fFecha(deIso(s)); }).join('\n');
+  $('p-textos').value=(p.textos.length ? p.textos : TEXTOS_SUG).join('\n');
+  $('p-legalok').checked=!!p.legalOk;
+}
+function parForm(){ return norm(leerParamsForm()); }
+/* Valores con los que arranca el formulario: los sugeridos y, si venía publicada la versión 2, su tasa, su política comercial y sus listas.
+   Gastos e impuestos arrancan siempre de los sugeridos, porque en la versión 3 cambió el modelo. */
+function sugeridosDesde(prev){
+  var o = copia(SUG, {});
+  if (prev && typeof prev==='object'){
+    ['tna','bonif','gastosAGN','sellos','clearing','metodo','plazoSinVal','plazoMax','cuotasSinVal','cuotasMax','anticipoMin','vigencia','unidades','feriados'].forEach(function(k){ if (prev[k]!==undefined && prev[k]!==null) o[k] = prev[k]; });
+    if (prev.legalOk && Array.isArray(prev.textos) && prev.textos.length){ o.textos = prev.textos; o.legalOk = true; }
+  }
+  return norm(o);
+}
+function hayBorrador(){
+  if (!A.editable || !A.listo) return false;
+  var pp = parPublicado(); if (!pp) return true;
+  return tocado && JSON.stringify(parForm()) !== JSON.stringify(pp);
+}
+/* Los vendedores calculan siempre con lo publicado. Finanzas, mientras edita, ve el efecto de sus cambios antes de publicarlos. */
+function parActual(){
+  if (!A.listo) return null;
+  var pp = parPublicado();
+  if (A.editable && (!pp || tocado)) return parForm();
+  return pp;
+}
+function estadoTasa(par, ahora){
+  var sin = {nivel:'sin', txt:'Sin publicar', pub:null, habiles:0};
+  if (A.demo) return {nivel:'ok', txt:'Valores de demostración', pub:ahora, habiles:0};
+  if (!par || !pubOk() || !A.pub.publicada) return sin;
+  var pub = new Date(A.pub.publicada); if (isNaN(pub.getTime())) return sin;
+  var h = habilesEntre(diaDe(pub), diaDe(ahora), mapaFer(par.feriados)), hoy = aIso(diaDe(pub))===aIso(diaDe(ahora));
+  var hm = p2(pub.getHours())+':'+p2(pub.getMinutes())+' hs';
+  return {nivel: h===0 ? 'ok' : (h>par.vigencia ? 'bloqueo' : 'aviso'), txt: hoy ? 'Publicada hoy '+hm : 'Publicada el '+fFecha(pub)+' '+hm, pub:pub, habiles:h};
+}
+function leerOp(par){
+  return {empresa:$('empresa').value.trim(), unidad:$('unidad').value, detalle:$('detalle').value.trim(), cliente:$('cliente').value.trim(),
+    doc:$('doc').value.trim(), vendedor:$('vendedor').value.trim(), precio:nEnt($('precio')), anticipo:nEnt($('antMonto')),
+    modo:radio('modo'), plazo:acota(nEnt($('plazo')),1,3650), cuotas:acota(nEnt($('cuotas'))||1,1,par.cuotasMax), primer:acota(nEnt($('primer')),1,3650),
+    frec:$('frec').value, tipo:radio('tipo'), forma:radio('forma')==='aparte'?'aparte':'dentro', origen:radio('origen'), nosis:radio('nosis')};
+}
+
+/* ---------- dibujo ---------- */
+function el(tag, cls, txt){ var e=document.createElement(tag); if(cls) e.className=cls; if(txt!==undefined) e.textContent=txt; return e; }
+function pone(id, txt, vacio){ var e=$(id); e.textContent = txt || vacio || '—'; e.classList.toggle('vacio', !txt); }
+function leyendas(r){
+  var par = r.par, base = par.textos.length ? par.textos : TEXTOS_SUG;
+  var v = {empresa:r.op.empresa || 'la empresa de Grupo AGN que factura', plazoSinVal:par.plazoSinVal, plazoMax:par.plazoMax, cuotasSinVal:par.cuotasSinVal, clearing:par.clearing};
+  return base.map(function(t){ return String(t).replace(/\{(\w+)\}/g, function(todo,k){ return v[k]!==undefined ? v[k] : todo; }); });
+}
+function pintaNosis(nosis){
+  var fn = $('f-nosis');
+  fn.className = 'estado '+(nosis==='apto'?'ok':nosis==='no'?'bad':'warn');
+  fn.textContent = nosis==='apto' ? 'Cliente apto: podés recibir los cheques una vez que Finanzas apruebe la operación.'
+    : nosis==='no' ? 'Cliente no apto: no ofrezcas financiación con cheques. La descarga del PDF queda bloqueada.'
+    : 'Podés cotizar, pero no recibas cheques hasta tener el Nosis del cliente en estado apto.';
+}
+function pintaChips(){
+  document.querySelectorAll('.chips').forEach(function(g){
+    var v = String(nDec($(g.dataset.para)));
+    g.querySelectorAll('.chip').forEach(function(c){ c.setAttribute('aria-pressed', String(c.dataset.v===v)); });
+  });
+}
+function pintaFranja(par, tasa, borr){
+  var l = [], fin = A.esFin;
+  if (!A.listo) l.push(A.lento ? ['', 'No se pudo leer la tasa del día todavía. Revisá la conexión: la página sigue intentando.'] : ['info', 'Leyendo la tasa del día…']);
+  if (A.modo==='sinacceso') l.push(['', 'No se pudo leer la configuración del sistema. Revisá la conexión: la página vuelve a intentar sola.']);
+  if (A.listo && A.modo!=='sinacceso'){
+    if (!pubOk()) l.push(fin && A.editable ? ['info', A.previa ? 'Esta es la versión 3 del cotizador. Revisá los gastos del banco y los impuestos en el módulo de Finanzas y publicá para habilitar a los vendedores.'
+        : 'Todavía no hay tasa publicada. Revisá los valores sugeridos del módulo de Finanzas y publicá para habilitar a los vendedores.']
+      : ['', 'Finanzas todavía no publicó la tasa del día. Sin tasa no se pueden emitir cotizaciones.']);
+    else if (borr) l.push(['info', 'Estás simulando con cambios sin publicar. Los vendedores siguen viendo los valores publicados, y no se pueden emitir cotizaciones hasta publicar o descartar.']);
+    else if (tasa.nivel==='bloqueo') l.push(['', 'La tasa vigente se publicó el '+fFecha(tasa.pub)+' y ya no vale. '+(fin ? 'Publicá la tasa de hoy para habilitar la emisión.' : 'Pedile a Finanzas que publique la tasa de hoy para poder emitir.')]);
+    else if (tasa.nivel==='aviso') l.push(['warn', 'La tasa vigente es la del '+fFecha(tasa.pub)+'. '+(fin ? 'Todavía no publicaste la de hoy.' : 'Finanzas todavía no confirmó la de hoy.')]);
+  }
+  var c = $('franja'); c.textContent = ''; c.hidden = !l.length;
+  l.forEach(function(x){ c.appendChild(el('div', 'aviso'+(x[0]?' '+x[0]:''), x[1])); });
+}
+function pintaCond(par, tasa){
+  var caja = $('c-caja'); caja.className = '';
+  if (!par){ $('c-tna').textContent='—'; $('c-cli').textContent='—'; $('c-emp').textContent='—'; $('c-pub').textContent = A.listo ? 'Sin publicar' : 'Leyendo…'; return; }
+  var d = par.tna/100, sh = 1-par.bonif/100;
+  $('c-tna').textContent = fPct(d)+' TNA';
+  $('c-cli').textContent = fPct(d*sh)+' TNA';
+  $('c-emp').textContent = fPct(d*(1-sh))+' TNA';
+  $('c-pub').textContent = hayBorrador() && A.pub ? 'Simulación sin publicar' : tasa.txt;
+  if (tasa.nivel==='aviso') caja.className = 'al'; else if (tasa.nivel==='bloqueo' || tasa.nivel==='sin') caja.className = 'mal';
+}
+function pintaFin(par, tasa, borr){
+  var sec = $('finanzas'); sec.hidden = !(A.esFin && A.editable);
+  if (sec.hidden) return;
+  var pct = function(x){ return fNum(Math.round(x*100)/100); };
+  $('fin-modo').textContent = 'Solo lo ve Finanzas';
+  $('fin-estado').textContent = !pubOk() ? 'Todavía no hay tasa publicada. Los vendedores no pueden cotizar.'
+    : tasa.txt+'. '+(tasa.nivel==='ok' ? 'Los vendedores cotizan con esta tasa y no pueden cambiarla.' : tasa.nivel==='aviso' ? 'Sigue vigente, pero conviene publicar la de hoy.' : 'Ya no vale: los vendedores no pueden emitir hasta que publiques la de hoy.');
+  var fs = $('fin-sync'); fs.hidden = !A.sync; fs.textContent = A.sync || '';
+  $('fin-borr').hidden = !(borr && pubOk());
+  var pf = parForm();
+  $('fin-reparto-t').textContent = 'El cliente paga el '+pct(100-pf.bonif)+'% de la tasa del banco ('+fPct(pf.tna/100*(1-pf.bonif/100))+' TNA) y el '+pct(100-pf.gastosAGN)+'% de los sellos, la comisión y los otros gastos del banco. Grupo AGN absorbe el resto.'
+    + (pf.margen>0 ? ' Además se le cobra un margen de '+fNum(pf.margen)+'% sobre el saldo financiado.' : '');
+  var fer = pf.feriados, ult = fer.length ? fFecha(deIso(fer[fer.length-1])) : '';
+  $('fin-fer-t').textContent = (fer.length ? fer.length+' feriados cargados, el último el '+ult+'. Después de esa fecha solo se corren sábados y domingos.' : 'Sin feriados cargados: solo se corren sábados y domingos.')
+    + (ferMal ? ' Hay '+ferMal+' fecha(s) que no se pudieron leer.' : '') + (pf.unidades.length ? ' '+pf.unidades.length+' unidades habilitadas.' : ' Sin listado de unidades: se puede cotizar cualquiera.');
+  var lp = $('fin-legal-p'); lp.textContent = pf.legalOk ? 'Validados' : 'Borrador sin validar'; lp.className = 'pill '+(pf.legalOk?'ok':'warn');
+  $('fin-pie').textContent = VERSION+'. Publicar guarda la tasa y todos los valores de este módulo, y deja constancia de fecha y hora.';
+}
+
+function pintar(){
+  if (emitidaFija && Date.now()-emitidaFija.getTime() >= 24*3600*1000){ numero = nuevoNumero(); emitidaFija = null; }
+  var par = parActual(), sp = par ? JSON.stringify(par) : '';
+  if (sp !== parStr){ if (parStr !== null) cambio(); parStr = sp; }
+  var ahora = emitidaFija || new Date(), hoy = diaDe(ahora), tasa = estadoTasa(par, new Date()), borr = hayBorrador();
+  document.body.classList.toggle('finanzas', !!A.esFin);
+  pintaFranja(par, tasa, borr); pintaCond(par, tasa);
+  pintaFin(par, tasa, borr); $('interno').hidden = !par;
+  var enCliente = document.body.classList.contains('cliente'), modo = radio('modo');
+  $('hoja').hidden = !par; $('sin-tasa').hidden = !!par;
+  $('blk-cuotas').hidden = modo!=='cuotas'; $('blk-uno').hidden = modo!=='uno';
+  pintaNosis(radio('nosis')); $('ejemplo').hidden = editado;
+  if (!par){
+    $('f-saldo').textContent = f$(Math.max(0, nEnt($('precio'))-nEnt($('antMonto'))));
+    $('sin-tasa-t').textContent = A.listo ? 'Todavía no hay tasa del día publicada' : 'Leyendo la tasa del día…';
+    $('avisos').textContent = ''; $('b-pdf').disabled = true; $('b-cliente').disabled = !enCliente; $('vista').hidden = true; $('f-forma').textContent = '';
+    pintaChips(); miniOk = false; miniPinta(); ultimo = null; return;
+  }
+  var op = leerOp(par), r = calcular(op, par, hoy); r.op=op; r.par=par; r.numero=numero; r.rev=rev;
+  var vence = new Date(ahora.getTime()+24*3600*1000);
+  var hay = r.n>0 && r.valido, aparte = r.forma==='aparte';
+
+  /* listado de unidades habilitadas */
+  var us = par.unidades.join('\n');
+  if (us !== unidadesStr){ unidadesStr = us; var dl = $('unidades'); dl.textContent=''; par.unidades.forEach(function(u){ var o=document.createElement('option'); o.value=u; dl.appendChild(o); }); }
+
+  /* avisos, validaciones de Finanzas y bloqueo */
+  var errores = [], notas = [], esp = [];
+  if (op.precio<=0) notas.push('Cargá el importe total a pagar para armar la cotización.');
+  if (op.anticipo>op.precio && op.precio>0) errores.push('El anticipo supera el importe de la operación.');
+  if (op.modo==='cuotas' && nEnt($('cuotas'))>par.cuotasMax) notas.push('Se cotizan '+par.cuotasMax+' cheques: es el máximo por operación.');
+  if (!r.valido) errores.push('Con esta tasa y este plazo no se pueden calcular los cheques. Acortá el plazo o consultá a Finanzas.');
+  var maxDias = 0;
+  r.filas.forEach(function(f,i){ maxDias = Math.max(maxDias, f.dias); if (f.dias>par.plazoMax) errores.push('El cheque '+(i+1)+' vence a '+f.dias+' días: supera el máximo de '+par.plazoMax+' días.'); });
+  if (op.nosis==='no') errores.push('Cliente no apto en Nosis: la financiación con cheques no está habilitada para esta operación.');
+  if (maxDias>par.plazoSinVal && maxDias<=par.plazoMax) esp.push('plazo mayor a '+par.plazoSinVal+' días');
+  if (r.n>par.cuotasSinVal) esp.push('más de '+par.cuotasSinVal+' cheques');
+  if (op.origen==='terceros' && r.n>0) esp.push('cheques de terceros');
+  if (par.anticipoMin>0 && r.P>0 && r.S>0 && r.A/r.P*100 < par.anticipoMin-1e-9) esp.push('anticipo menor al '+fNum(par.anticipoMin)+'%');
+  if (par.unidades.length && op.detalle && r.S>0){
+    var det = op.detalle.toLowerCase();
+    if (!par.unidades.some(function(u){ return u.toLowerCase()===det; })) esp.push('unidad fuera del listado habilitado');
+  }
+  if (esp.length) notas.push('Esta cotización necesita validación expresa de Finanzas: '+esp.join('; ')+'.');
+  var contado = op.precio>0 && r.S===0 && op.anticipo<=op.precio;
+  if (contado) notas.push('Operación de contado: no queda saldo para financiar con cheques.');
+  var sinTasa = tasa.nivel==='bloqueo' || borr || A.modo==='sinacceso';
+  r.especiales = esp;
+  r.alertas = esp.map(function(t){ return t.charAt(0).toUpperCase()+t.slice(1); })
+    .concat(op.nosis==='pendiente' ? ['Nosis pendiente'] : []).concat(tasa.nivel==='aviso' ? ['Tasa del '+fFecha(tasa.pub)] : []);
+  r.bloqueado = errores.length>0 || contado || op.precio<=0 || sinTasa;
+  var av = $('avisos'); av.textContent='';
+  errores.forEach(function(t){ av.appendChild(el('div','aviso',t)); });
+  notas.forEach(function(t){ av.appendChild(el('div','aviso info',t)); });
+  $('b-cliente').disabled = r.bloqueado && !enCliente;
+
+  /* formulario */
+  $('f-saldo').textContent = f$(r.S);
+  $('f-clearing').textContent = par.clearing===1 ? '1 día hábil' : par.clearing+' días hábiles';
+  $('f-forma').textContent = !hay ? '' : aparte ? 'Los cheques son solo por el capital. El costo financiero, '+f$(r.pagoAparte)+', se paga el día de la operación junto con el anticipo.'
+    : 'Cada cheque incluye capital y costo financiero. El día de la operación el cliente paga solo el anticipo.';
+  pintaChips();
+
+  /* vista: con impuestos es la cotización válida; sin impuestos es solo para comparar en pantalla */
+  var sinV = vista==='sin' && hay && !!r.sin;
+  var v = sinV ? {filas:r.sin.filas, totalCheques:r.sin.totalCheques, pagoAparte:r.sin.pagoAparte, pagoHoy:r.sin.pagoHoy, costo:r.sin.costo, neto:r.sin.neto, iva:0, perc:0,
+      interes:r.sin.interes, gastos:r.sin.gastos, iibb:0, tem:0, debcred:0, ahorro:r.sin.ahorro, cft:r.cftSin, total:r.sin.totalOperacion}
+    : {filas:r.filas, totalCheques:r.totalCheques, pagoAparte:r.pagoAparte, pagoHoy:r.pagoHoy, costo:r.costoCliente, neto:r.neto, iva:r.iva, perc:r.perc,
+      interes:r.interes, gastos:r.gastos, iibb:r.iibb, tem:r.tem, debcred:r.debcred, ahorro:r.ahorro, cft:r.cft, total:r.totalOperacion};
+  $('vista').hidden = !hay; $('vista-con').checked = !sinV; $('vista-sin').checked = sinV;
+  $('vista-t').textContent = !hay ? '' : sinV ? 'Sin impuestos, el costo financiero sería '+f$(r.sin.costo)+' en lugar de '+f$(r.costoCliente)+'. Es una vista para comparar: no se puede descargar.'
+    : r.impuestos>0 ? 'Los impuestos suman '+f$(r.impuestos)+' al costo financiero: el '+fPct(r.impuestos/r.costoCliente,0)+' del total.' : 'Esta operación no tiene impuestos sobre el costo financiero.';
+  $('hoja').classList.toggle('sin-imp', sinV); $('o-sin').hidden = !sinV;
+
+  /* hoja */
+  $('o-numero').textContent = numero;
+  $('o-empresa').textContent = op.empresa || 'Grupo AGN';
+  $('o-emision').textContent = fFechaHora(ahora);
+  $('o-vence').textContent = fFechaHora(vence); $('o-vence2').textContent = fFechaHora(vence);
+  pone('o-cliente', op.cliente, 'A completar'); pone('o-doc', op.doc, '—'); pone('o-vendedor', op.vendedor, 'A completar');
+  pone('o-unidad', op.unidad); pone('o-detalle', op.detalle, '—'); pone('o-orden', op.empresa, 'A completar');
+  $('o-precio').textContent = f$(r.P);
+  $('o-ant-rot').textContent = 'Anticipo'+(r.P>0?' ('+fPct(r.A/r.P,1)+')':'');
+  $('o-ant').textContent = f$(r.A); $('o-saldo').textContent = f$(r.S);
+  $('o-hoy').hidden = !(hay && aparte);
+  $('o-hoy-t').textContent = 'A pagar el día de la operación: anticipo '+f$(r.A)+' + costo financiero '+f$(v.pagoAparte);
+  $('o-hoy-v').textContent = f$(v.pagoHoy);
+  $('s-reparto').hidden = !hay || (r.sh>=1 && v.ahorro<=0); $('s-cheques').hidden = !hay; $('s-costos').hidden = !hay;
+  $('o-lema').textContent = Math.abs(r.sh-0.5)<1e-9 ? 'Usted paga la mitad de la tasa' : 'Grupo AGN bonifica el '+fPct(1-r.sh,0)+' de la tasa';
+  $('o-tna').textContent = fPct(r.rb)+' TNA';
+  $('o-rc').textContent = fPct(r.rc)+' TNA';
+  $('o-ra').textContent = fPct(r.rb-r.rc)+' TNA';
+  var wc = acota(r.sh*100,22,78);
+  $('o-b-cli').style.flex = '0 0 '+wc+'%'; $('o-b-agn').style.flex = '1 1 0';
+  var cont = $('o-cheques'); cont.textContent=''; cont.classList.toggle('uno', r.n===1);
+  var hayImp = v.iva+v.perc>0, rotImp = v.perc>0 ? 'IVA y percepción' : 'IVA';
+  v.filas.forEach(function(f,i){
+    var c = el('div','cheque'); c.appendChild(el('div','talon', p2(i+1)+'/'+p2(r.n)));
+    var b = el('div','ch');
+    b.appendChild(el('small','', op.origen==='terceros' ? 'Cheque de terceros' : 'Cheque de pago diferido'));
+    b.appendChild(el('strong','', f$(f.cheque)));
+    b.appendChild(el('span','', 'Vence el '+fFecha(f.fecha)+' · a '+f.dias+' días'+(f.corrida?' · corrido a día hábil':'')));
+    var det2 = el('dl','ch-d'), pares = aparte ? [['Capital',f.capital]] : [['Capital',f.capital],['Costo financiero',f.neto]];
+    if (!aparte && hayImp) pares.push([rotImp,f.imp]);
+    pares.forEach(function(p){ det2.appendChild(el('dt','',p[0])); det2.appendChild(el('dd','',fInt(p[1]))); });
+    b.appendChild(det2);
+    c.appendChild(b); cont.appendChild(c);
+  });
+  var frecT = op.frec==='mes' ? 'el mismo día de cada mes' : 'cada '+(op.frec==='15'?15:30)+' días';
+  r.sistema = r.n===1 ? 'Pago único' : (op.tipo==='iguales' ? 'Cheques de igual importe' : 'Capital fijo más interés');
+  r.pagos = r.n===1 ? '1 cheque a '+(r.filas[0]?r.filas[0].dias:0)+' días' : r.n+' cheques, '+frecT;
+  $('o-nch').textContent = r.n===1 ? '1 cheque' : r.n+' cheques'+(aparte ? ' por el capital' : op.tipo==='iguales' ? ' de igual importe' : ' con capital fijo');
+  $('o-totch').textContent = f$(v.totalCheques);
+  $('o-costo').textContent = f$(v.costo);
+  $('o-costo').previousElementSibling.textContent = sinV ? 'Costo financiero sin impuestos' : 'Costo financiero total';
+  $('o-costo-pct').textContent = r.S>0 ? fPct(v.costo/r.S)+' del saldo financiado' : '—';
+  $('o-ahorro').textContent = f$(v.ahorro); $('o-ahorro2').textContent = f$(v.ahorro);
+  $('o-plazo').textContent = hay ? Math.round(r.plazoProm)+' días' : '—';
+  var dg = $('o-desglose'); dg.textContent='';
+  var dfila = function(t,val,cls){ dg.appendChild(el('dt',cls||'',t)); dg.appendChild(el('dd',cls==='sub'?'sub':'',val)); };
+  dfila('Interés a tasa bonificada ('+fPct(r.rc)+' TNA)', f$(v.interes));
+  if (v.gastos>0) dfila('Sellos y gastos bancarios de la negociación de los cheques', f$(v.gastos));
+  if (r.margen>0) dfila('Cargo administrativo', f$(r.margen));
+  if (v.iibb>0) dfila('Ingresos Brutos', f$(v.iibb), 'imp');
+  if (v.tem>0) dfila('TEM (tributo municipal)', f$(v.tem), 'imp');
+  if (v.debcred>0) dfila('Impuesto a los débitos y créditos', f$(v.debcred), 'imp');
+  if (hayImp) dfila('Factura por intereses y gastos, neto de IVA', f$(v.neto), 'sub');
+  if (v.iva>0) dfila('IVA ('+fPct(r.ivaT,1)+')', f$(v.iva), 'imp');
+  if (v.perc>0) dfila('Percepción de Ingresos Brutos ('+fPct(par.percIIBB/100,2)+')', f$(v.perc), 'imp');
+  dfila(sinV ? 'Costo financiero sin impuestos' : 'Costo financiero total', f$(v.costo), 'sub');
+  $('o-tnac').textContent = fPct(r.rc);
+  $('o-tea').textContent = fPct(r.tea);
+  $('o-cft').textContent = fPct(v.cft);
+  $('o-cft-sub').textContent = sinV ? 'sin impuestos · con impuestos '+fPct(r.cft) : (r.impuestos>0 ? 'con gastos e impuestos · sin impuestos '+fPct(r.cftSin) : 'con gastos');
+  $('o-sistema').textContent = 'Sistema de pago: '+r.sistema.toLowerCase()+'. '+r.pagos.charAt(0).toUpperCase()+r.pagos.slice(1)+'. '
+    + (aparte ? 'Los cheques cubren solo el capital: el costo financiero se paga el día de la operación, junto con el anticipo.' : 'Cada cheque incluye capital y costo financiero: interés adelantado, gastos e impuestos.');
+  $('o-total-rot').textContent = aparte ? 'Total de la operación (anticipo + costo financiero + cheques)' : 'Total de la operación (anticipo + cheques)';
+  $('o-total').textContent = f$(v.total);
+  var oe = $('o-especial'); oe.hidden = !esp.length || !hay;
+  oe.textContent = 'Condiciones sujetas a validación expresa de Finanzas: '+esp.join('; ')+'.';
+  var ley = $('o-ley'); ley.textContent=''; leyendas(r).forEach(function(t){ ley.appendChild(el('li','',t)); });
+
+  /* costo para la empresa: solo Finanzas */
+  $('i-costo').textContent = f$(r.costoEmpresa);
+  $('i-pct-precio').textContent = r.P>0 ? fPct(r.costoEmpresa/r.P) : '—';
+  $('i-pct-saldo').textContent = r.S>0 ? fPct(r.costoEmpresa/r.S) : '—';
+  $('i-tna').textContent = hay ? fPct(r.tnaEmpresa) : '—';
+  $('i-nosis').textContent = op.nosis==='apto'?'Apto':op.nosis==='no'?'No apto':'Pendiente';
+  var lib = $('i-libro'); lib.textContent='';
+  var fila = function(t,val,res){ lib.appendChild(el('dt',res?'res':'',t)); lib.appendChild(el('dd',res?'res':'',val)); };
+  fila('Importe de los cheques a descontar', f$(r.totalCheques));
+  fila('Interés del banco al '+fPct(r.rb)+' TNA '+(par.metodo==='vencida'?'vencida':'adelantada'), '− '+f$(r.intB));
+  fila('Sellos ('+fNum(par.sellos)+'% anual)', '− '+f$(r.selB));
+  if (par.comision>0) fila('Comisión ('+fNum(par.comision)+'%)', '− '+f$(r.comB));
+  if (par.otros>0) fila('Otros gastos del banco ('+fNum(par.otros)+'%)', '− '+f$(r.otrB));
+  fila('IVA y percepción del banco: crédito fiscal, no es costo', '− '+f$(r.credB));
+  fila('Neto que acredita el banco', f$(r.netoB), true);
+  fila('Costo del banco: interés, sellos, comisión y otros gastos', f$(r.costoBanco));
+  fila('Parte que paga el cliente dentro de la factura de intereses', '− '+f$(r.bancoCliente));
+  if (r.margen>0) fila('Margen adicional cobrado al cliente', '− '+f$(r.margen));
+  fila('Costo total de la bonificación', f$(r.costoEmpresa), true);
+  fila('Factura de intereses al cliente, neto de IVA', f$(r.neto));
+  fila('Ingresos Brutos, TEM y débitos y créditos de esa factura: los paga el cliente', f$(r.iibb+r.tem+r.debcred));
+  if (r.iva+r.perc>0) fila('IVA y percepciones cobrados al cliente, a ingresar al fisco', f$(r.iva+r.perc));
+  fila(aparte ? 'Caja de la operación hoy: anticipo + costo financiero + acreditación' : 'Caja de la operación hoy: anticipo + acreditación', f$(r.A+r.pagoAparte+r.netoB));
+  fila('Plazo promedio de los cheques, con acreditación', hay ? Math.round(r.plazoProm)+' días' : '—');
+  var tot = r.costoBanco>0 ? r.costoBanco : 1, pc = acota(r.bancoCliente/tot,0,1);
+  $('i-rep-t').textContent = 'Cómo se reparte lo que cobra el banco ('+f$(r.costoBanco)+')';
+  $('i-b-cli').style.flex = '0 0 '+acota(pc*100,18,82)+'%'; $('i-b-agn').style.flex='1 1 0';
+  $('i-rep-cli').textContent = 'Cliente '+fPct(pc,1);
+  $('i-rep-agn').textContent = 'Empresa '+fPct(1-pc,1);
+
+  /* botón PDF: la vista sin impuestos no se descarga */
+  var bp = $('b-pdf'); bp.disabled = r.bloqueado || sinV;
+  bp.title = sinV ? 'La vista sin impuestos es solo para comparar. Volvé a Con impuestos para descargar la cotización.' : r.bloqueado ? 'Corregí los avisos para poder descargar la cotización' : 'Genera la cotización para el cliente, lista para imprimir';
+
+  /* resumen fijo */
+  miniOk = !r.bloqueado && r.n>0;
+  var parejos = r.filas.every(function(f){ return f.cheque===r.filas[0].cheque; });
+  $('m-rot').textContent = r.n===1 ? '1 cheque de' : r.n+(parejos ? ' cheques de' : ' cheques, total');
+  $('m-val').textContent = f$(r.n ? (parejos ? r.filas[0].cheque : r.totalCheques) : 0);
+  miniPinta();
+  ultimo = r;
+}
+
+/* ---------- registro de cotizaciones emitidas ---------- */
+var ETIQ = {pendiente:{t:'Pendiente de validación', c:'warn'}, aprobada:{t:'Aprobada', c:'ok'}, observada:{t:'Observada', c:'warn'}, rechazada:{t:'Rechazada', c:'bad'}, vencida:{t:'Vencida sin validar', c:'gris'},
+  registrada:{t:'Registrada', c:'ok'}, caducada:{t:'Vencida', c:'gris'}};
+function estadoDe(rec){
+  if (rec.estado==='registrada') return rec.vence && Date.now()>rec.vence ? 'caducada' : 'registrada';
+  var e = ETIQ[rec.estado] && rec.estado!=='vencida' && rec.estado!=='caducada' ? rec.estado : 'pendiente';
+  if (e==='pendiente' && rec.vence && Date.now()>rec.vence) e='vencida';
+  return e;
+}
+/* Lo que se registra de cada cotización emitida: la operación, los cheques y los valores con los que se calculó. */
+function armaRegistro(r, emitida){
+  var op = r.op, par = r.par, c = function(s,n){ return String(s||'').slice(0,n); };
+  return {v:3, numero:r.numero, ts:emitida.toISOString(), tsNum:emitida.getTime(), vence:emitida.getTime()+864e5, configId:(A.pub && (A.pub.id || A.pub.publicada)) || '',
+    vendedor:c(op.vendedor,80), cliente:c(op.cliente,120), doc:c(op.doc,20), empresa:c(op.empresa,80), unidad:c(op.unidad,60), detalle:c(op.detalle,120),
+    importe:r.P, anticipo:r.A, saldo:r.S, forma:r.forma, modo:op.modo, tipo:op.tipo, origen:op.origen, nosis:op.nosis,
+    cheques:r.filas.map(function(f){ return {f:aIso(f.fecha), d:f.dias, t:f.t, k:f.capital, n:f.cheque}; }),
+    total:r.totalCheques, pagoAparte:r.pagoAparte, costoCliente:Math.round(r.costoCliente), facturaNeto:r.neto, iva:r.iva+r.perc,
+    tna:par.tna, bonif:par.bonif, gastosAGN:par.gastosAGN, sellos:par.sellos, comision:par.comision, otros:par.otros, metodo:par.metodo,
+    iibb:par.iibb, tem:par.tem, debcred:par.debcred, ivaPct:par.iva, margen:par.margen,
+    tea:Math.round(r.tea*1e4)/100, cft:Math.round(r.cft*1e4)/100, alertas:r.alertas.slice(0,8), estado:'pendiente', nota:''};
+}
+function itemReg(rec, conAcciones){
+  var it = el('div','reg-item'), e = estadoDe(rec), cab = el('div','reg-cab'), ch = rec.cheques||[];
+  cab.appendChild(el('b','',rec.numero||'—')); cab.appendChild(el('span','pill '+ETIQ[e].c, ETIQ[e].t)); it.appendChild(cab);
+  it.appendChild(el('p','reg-dat', (rec.cliente||'Cliente sin cargar')+' · '+(rec.detalle||rec.unidad||'—')));
+  var maxd = ch.reduce(function(m,c){ return Math.max(m,c.d||0); },0);
+  it.appendChild(el('p','reg-num', 'Emitida '+(rec.tsNum?fFechaHora(new Date(rec.tsNum)):'—')+(rec.vendedor?' · '+rec.vendedor:'')+' · saldo '+f$(rec.saldo||0)+' · '+ch.length+(ch.length===1?' cheque':' cheques')+' por '+f$(rec.total||0)
+    +(rec.pagoAparte>0?' + '+f$(rec.pagoAparte)+' aparte':'')+' · hasta '+maxd+' días'));
+  if (conAcciones){
+    var c = costoRegistro(rec);
+    it.appendChild(el('p','reg-num', 'Tasa '+fPct((rec.tna||0)/100)+' · bonificación '+fNum(rec.bonif||0)+'% de tasa y '+fNum(rec.gastosAGN||0)+'% de gastos · costo para la empresa '+f$(c)+(rec.importe>0?' ('+fPct(c/rec.importe)+' del importe)':'')));
+    if (rec.revisadaPor) it.appendChild(el('p','reg-num', 'Revisada por '+rec.revisadaPor+(rec.revisada ? ' el '+fFechaHora(new Date(rec.revisada)) : '')));
+  }
+  if ((rec.alertas||[]).length){ var al = el('div','reg-al'); rec.alertas.forEach(function(t){ al.appendChild(el('span','pill warn',String(t))); }); it.appendChild(al); }
+  if (rec.nota && !conAcciones) it.appendChild(el('p','reg-nota','Finanzas: '+rec.nota));
+  if (conAcciones){
+    var ac = el('div','reg-ac'), inp = el('input','ctl'); inp.type='text'; inp.id='nota-'+rec.numero; inp.maxLength=300; inp.placeholder='Nota para el vendedor (opcional)'; inp.value=rec.nota||''; inp.setAttribute('aria-label','Nota para '+rec.numero);
+    ac.appendChild(inp);
+    [['aprobada','Aprobar'],['observada','Observar'],['rechazada','Rechazar']].forEach(function(b){
+      var bt = el('button','btn sec',b[1]); bt.type='button'; bt.dataset.rev=b[0]; bt.dataset.num=rec.numero; bt.setAttribute('aria-pressed', String(rec.estado===b[0])); ac.appendChild(bt);
+    });
+    it.appendChild(ac);
+  }
+  return it;
+}
+
+/* --- Finanzas: el registro de cotizaciones y la revisión se guardan en el sistema (n8n) --- */
+function registrar(r, emitida){
+  var rec = armaRegistro(r, emitida);
+  if (regHechos[rec.numero]) return Promise.resolve({estado:'ok', rec:rec});
+  return llama('tc-cotizacion', rec).then(function(j){
+    if (j.ok===true){ regHechos[rec.numero] = true; if (A.reg) cargarRegistro(); return {estado:'ok', rec:rec}; }
+    return {estado:'error', rec:rec, msg:String(sinRed(j) || j.mensaje || '').slice(0,200)};
+  });
+}
+/* Costo para la empresa de una cotización registrada: lo que absorbe del banco, con los valores con que se emitió. */
+function costoRegistro(rec){
+  var pr = norm({tna:rec.tna, sellos:rec.sellos, comision:rec.comision, otros:rec.otros, metodo:rec.metodo}), intB = 0, gas = 0;
+  (rec.cheques||[]).forEach(function(c){ var lb = liquidaBanco(c.n, c.t/365, pr); intB += lb.intB; gas += lb.selB+lb.comB+lb.otrB; });
+  return (rec.bonif||0)/100*intB + (rec.gastosAGN||0)/100*gas - Math.round((rec.margen||0)/100*(rec.saldo||0));
+}
+function pintaRegistro(){
+  if (!A.reg) return;
+  var c = $('reg'); c.textContent='';
+  var pend = A.reg.filter(function(x){ return estadoDe(x)==='pendiente'; }).length;
+  $('reg-t').textContent = A.reg.length ? (A.reg.length===1 ? '1 cotización registrada' : A.reg.length+' cotizaciones registradas')+', '+(pend===1 ? '1 pendiente' : pend+' pendientes')+' de validación.' : 'Todavía no hay cotizaciones registradas.';
+  A.reg.forEach(function(x){ c.appendChild(itemReg(x,true)); });
+}
+function cargarRegistro(){
+  $('reg-t').textContent = 'Leyendo cotizaciones…';
+  return llama('tc-finanzas', {accion:'cotizaciones'}).then(function(j){
+    if (j.ok!==true){ $('reg-t').textContent = sinRed(j) || 'No se pudieron leer las cotizaciones. Probá de nuevo con Actualizar.'; return; }
+    A.reg = (Array.isArray(j.cotizaciones) ? j.cotizaciones : []).slice().sort(function(a,b){ return (b.tsNum||0)-(a.tsNum||0); }).slice(0,150); pintaRegistro();
+  });
+}
+function revisar(num, estado){
+  var rec = (A.reg||[]).filter(function(x){ return x.numero===num; })[0]; if (!rec || !ETIQ[estado]) return;
+  var nota = ($('nota-'+num) ? $('nota-'+num).value.trim() : '').slice(0,300);
+  llama('tc-finanzas', {accion:'revisar', numero:num, estado:estado, nota:nota}).then(function(j){
+    if (j.ok!==true){ if (!caida(j)) toast(sinRed(j) || j.mensaje || 'No se pudo guardar la revisión. Probá de nuevo.', true); return; }
+    rec.estado = estado; rec.nota = nota; rec.revisadaPor = j.revisadaPor || (S && S.usuario) || ''; rec.revisada = new Date().toISOString();
+    pintaRegistro(); toast('Cotización '+num+': '+ETIQ[estado].t.toLowerCase()+'.');
+  });
+}
+function csvRegistro(){
+  var cab = ['Emitida','Número','Vendedor','Cliente','CUIT o DNI','Empresa','Unidad de negocio','Unidad o producto','Importe total','Anticipo','Saldo','Costo financiero','Cheques','Total cheques','Pago aparte','Costo financiero cliente','Plazo máximo (días)','Tasa del día %','Bonificación de tasa %','Bonificación de gastos %','TEA %','CFTEA %','Costo empresa','Alertas','Estado','Nota'];
+  var t = function(v){ v = v===undefined||v===null ? '' : String(v); if (/^[=+\-@]/.test(v)) v = "'"+v; return /[";\r\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
+  var filas = (A.reg||[]).map(function(x){
+    var ch = x.cheques||[];
+    return [x.tsNum?fFechaHora(new Date(x.tsNum)):'', x.numero, x.vendedor, x.cliente, x.doc, x.empresa, x.unidad, x.detalle].map(t)
+      .concat([x.importe||0, x.anticipo||0, x.saldo||0, x.forma==='aparte'?'Aparte':'Dentro de los cheques', ch.length, x.total||0, x.pagoAparte||0, x.costoCliente||0, ch.reduce(function(m,c){ return Math.max(m,c.d||0); },0),
+        fNum(x.tna||0), fNum(x.bonif||0), fNum(x.gastosAGN||0), fNum(x.tea||0), fNum(x.cft||0), Math.round(costoRegistro(x))])
+      .concat([(x.alertas||[]).join(' | '), ETIQ[estadoDe(x)].t, x.nota].map(t));
+  });
+  return '﻿' + [cab.map(t)].concat(filas).map(function(f){ return f.join(';'); }).join('\r\n');
+}
+/* --- Finanzas: usuarios. Altas, cambios, contraseñas provisorias y bajas; todo queda guardado en el sistema (n8n) --- */
+var usuEdit = null;
+/* Contraseña provisoria fácil de dictar: sin letras ni números que se confundan. La persona la cambia al ingresar por primera vez. */
+function claveNueva(){
+  var abc = 'abcdefghjkmnpqrstuvwxyz', nums = '23456789', a = new Uint32Array(10), t = '';
+  (window.crypto || window.msCrypto).getRandomValues(a);
+  for (var i=0;i<10;i++) t += i%3===2 ? nums.charAt(a[i]%nums.length) : abc.charAt(a[i]%abc.length);
+  return t.charAt(0).toUpperCase()+t.slice(1);
+}
+function pintaUsuarios(){
+  if (!A.usu) return;
+  var c = $('usu'); c.textContent = '';
+  var act = A.usu.filter(function(u){ return u.activo; }).length, fz = A.usu.filter(function(u){ return u.activo && u.rol==='finanzas'; }).length;
+  $('usu-t').textContent = (A.usu.length===1 ? '1 usuario' : A.usu.length+' usuarios')+': '+act+(act===1 ? ' activo' : ' activos')+', '+fz+' de Finanzas. Solo los activos pueden ingresar.';
+  A.usu.forEach(function(u){
+    var it = el('div','reg-item'), cab = el('div','reg-cab'), ps = el('div','reg-al'), propio = !!S && u.usuario===S.usuario;
+    cab.appendChild(el('b','',u.usuario));
+    ps.appendChild(el('span','pill '+(u.rol==='finanzas' ? 'ok' : 'gris'), u.rol==='finanzas' ? 'Finanzas' : 'Vendedor'));
+    if (!u.activo) ps.appendChild(el('span','pill bad','Inactivo'));
+    if (u.bloqueado) ps.appendChild(el('span','pill warn','Bloqueado'));
+    if (u.debeCambiar && u.activo) ps.appendChild(el('span','pill warn','Contraseña provisoria'));
+    cab.appendChild(ps); it.appendChild(cab);
+    it.appendChild(el('p','reg-dat', (u.nombre || '—')+(propio ? ' (vos)' : '')));
+    it.appendChild(el('p','reg-num', (u.correo ? u.correo+' · ' : '')+(u.ultimoIngreso ? 'Último ingreso: '+fFechaHora(new Date(u.ultimoIngreso)) : 'Todavía no ingresó')));
+    var ac = el('div','reg-ac');
+    [['editar','Editar']].concat(propio ? [] : [['clave','Nueva contraseña'], u.activo ? ['baja','Desactivar'] : ['alta','Reactivar']]).concat(u.bloqueado && !propio ? [['libera','Desbloquear']] : []).forEach(function(b){
+      var bt = el('button','btn sec',b[1]); bt.type='button'; bt.dataset.usu=u.usuario; bt.dataset.que=b[0]; ac.appendChild(bt);
+    });
+    it.appendChild(ac); c.appendChild(it);
+  });
+}
+function cargarUsuarios(){
+  $('usu-t').textContent = 'Leyendo usuarios…';
+  return llama('tc-finanzas', {accion:'usuarios'}).then(function(j){
+    if (j.ok!==true){ $('usu-t').textContent = sinRed(j) || 'No se pudieron leer los usuarios. Probá de nuevo con Actualizar.'; return; }
+    A.usu = Array.isArray(j.usuarios) ? j.usuarios : []; pintaUsuarios();
+  });
+}
+function abreUsuario(u, conClave){
+  usuEdit = u ? u.usuario : null;
+  var propio = !!u && !!S && u.usuario===S.usuario;
+  $('u-usuario').value = u ? u.usuario : ''; $('u-usuario').readOnly = !!u;
+  $('u-nombre').value = u ? u.nombre : ''; $('u-correo').value = u ? u.correo : ''; $('u-rol').value = u ? u.rol : 'vendedor'; $('u-activo').checked = u ? u.activo : true;
+  $('u-clave').value = (!u || conClave) && !propio ? claveNueva() : '';
+  $('u-clave-l').textContent = u ? 'Contraseña provisoria nueva (vacío: no cambia)' : 'Contraseña provisoria';
+  ['u-clave','b-usu-gen','u-rol','u-activo'].forEach(function(id){ $(id).disabled = propio; });
+  $('usu-form-t').textContent = propio ? 'Es tu usuario: podés cambiar el nombre y el correo. Tu contraseña se cambia con «Cambiar contraseña», arriba.'
+    : 'Vendedor: cotiza y ve sus cotizaciones. Finanzas: además parametriza, revisa las cotizaciones y da usuarios. Pasale a la persona el usuario y la contraseña provisoria: la primera vez que ingrese, el sistema le pide que elija una propia.';
+  $('usu-form').hidden = false; $('usu-aviso').hidden = true;
+  try{ (u ? $('u-nombre') : $('u-usuario')).focus(); }catch(e){}
+}
+function mandaUsuario(d, hecho){
+  return llama('tc-finanzas', copia({accion:'usuario_guardar'}, d)).then(function(j){
+    if (j.ok!==true){ if (!caida(j)) toast(sinRed(j) || j.mensaje || 'No se pudo guardar el usuario. Probá de nuevo.', true); return false; }
+    if (d.clave){ $('usu-aviso-t').textContent = 'Usuario: '+d.usuario+'   Contraseña provisoria: '+d.clave; $('usu-aviso').hidden = false; }
+    toast(hecho || ((j.nuevo ? 'Usuario '+d.usuario+' creado.' : 'Usuario '+d.usuario+' actualizado.')+(d.clave ? ' Pasale la contraseña provisoria a la persona.' : '')));
+    cargarUsuarios(); return true;
+  });
+}
+function guardarUsuario(){
+  var d = {usuario:$('u-usuario').value.trim().toLowerCase(), nombre:$('u-nombre').value.trim(), correo:$('u-correo').value.trim(), rol:$('u-rol').value==='finanzas' ? 'finanzas' : 'vendedor', activo:$('u-activo').checked};
+  var c = $('u-clave').disabled ? '' : $('u-clave').value.trim(); if (c) d.clave = c;
+  if (!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(d.usuario)){ toast('El usuario debe tener entre 3 y 30 caracteres: letras minúsculas, números, punto o guion. Por ejemplo: juan.perez', true); return; }
+  if (!d.nombre){ toast('Falta el nombre y apellido de la persona.', true); return; }
+  if (!usuEdit && !d.clave){ toast('Falta la contraseña provisoria. Tocá «Generar».', true); return; }
+  if (d.clave && d.clave.length<8){ toast('La contraseña provisoria debe tener al menos 8 caracteres.', true); return; }
+  if (!usuEdit && (A.usu||[]).some(function(u){ return u.usuario===d.usuario; })){ toast('Ya existe un usuario «'+d.usuario+'». Elegí otro o editá el que está.', true); return; }
+  var b = $('b-usu-guardar'); b.disabled = true;
+  mandaUsuario(d).then(function(ok){ b.disabled = false; if (ok) $('usu-form').hidden = true; });
+}
+function alTocarUsuario(e){
+  var b = e.target.closest('button[data-usu]'); if (!b) return;
+  var u = (A.usu||[]).filter(function(x){ return x.usuario===b.dataset.usu; })[0], que = b.dataset.que; if (!u) return;
+  if (que==='editar'){ abreUsuario(u, false); return; }
+  if (que==='clave'){ abreUsuario(u, true); return; }
+  var base = {usuario:u.usuario, nombre:u.nombre, correo:u.correo, rol:u.rol, activo:u.activo};
+  b.disabled = true;
+  if (que==='baja') mandaUsuario(copia(base, {activo:false}), 'Usuario '+u.usuario+' desactivado: ya no puede ingresar. Sus cotizaciones quedan en el registro.');
+  else if (que==='alta') mandaUsuario(copia(base, {activo:true}), 'Usuario '+u.usuario+' reactivado.');
+  else if (que==='libera') mandaUsuario(copia(base, {desbloquear:true}), 'Usuario '+u.usuario+' desbloqueado: ya puede ingresar con su contraseña.');
+}
+
+/* ---------- PDF: siempre la cotización con impuestos ---------- */
+function limpiaPdf(s){
+  return String(s===undefined||s===null?'':s).replace(/[‘’‚]/g,"'").replace(/[“”„]/g,'"').replace(/[–—−]/g,'-')
+    .replace(/…/g,'...').replace(/•/g,'·').replace(/ /g,' ').replace(/[^\x00-\xFF]/g,'');
+}
+function generarPDF(r, emitida){
+  var doc = new window.jspdf.jsPDF({unit:'mm', format:'a4', compress:true});
+  var W=210, M=15, CW=W-2*M, y=0, vence=new Date(emitida.getTime()+24*3600*1000);
+  var C={night:[6,11,20],navy:[11,37,69],blue:[20,88,200],sky:[143,211,247],soft:[221,239,251],ink:[10,18,32],ink2:[47,64,87],muted:[95,113,135],line:[210,219,229],white:[255,255,255],gris:[243,246,250],nm:[147,167,189],ambar:[252,241,220],ambarT:[120,76,8]};
+  var fill=function(c){doc.setFillColor(c[0],c[1],c[2]);}, txt=function(c){doc.setTextColor(c[0],c[1],c[2]);}, traz=function(c){doc.setDrawColor(c[0],c[1],c[2]);};
+  var fuente=function(est,t){doc.setFont('helvetica',est);doc.setFontSize(t);};
+  var m$=function(n){return '$ '+fInt(n);};
+  var op=r.op, L=limpiaPdf;
+  doc.setProperties({title:'Cotización '+r.numero, subject:'Tasa Compartida - Financiación con cheques', author:'Grupo AGN'});
+
+  function cabCont(){
+    fill(C.night); doc.rect(0,0,W,13,'F'); fill(C.blue); doc.rect(0,13,W,0.9,'F');
+    txt(C.white); fuente('bold',10); doc.text('GRUPO AGN', M, 8.4);
+    txt(C.sky); fuente('normal',8); doc.text('Tasa Compartida · Cotización N° '+r.numero+' · continuación', W-M, 8.4, {align:'right'});
+  }
+  function lugar(h,lim){ if (y+h>(lim||282)){ doc.addPage(); cabCont(); y=25; } }
+  function titulo(t){ lugar(12); txt(C.blue); fuente('bold',8); doc.text(t.toUpperCase(), M, y); traz(C.line); doc.setLineWidth(0.2); doc.line(M, y+1.8, W-M, y+1.8); y+=7.5; }
+
+  /* encabezado */
+  fill(C.night); doc.rect(0,0,W,31,'F'); fill(C.blue); doc.rect(0,31,W,1.4,'F');
+  fill([31,111,229]); doc.rect(M,8,5.5,11,'F'); fill(C.sky); doc.rect(M+5.5,8,5.5,11,'F');
+  txt(C.white); fuente('bold',19); doc.text('GRUPO AGN', M+15, 14.2);
+  txt(C.sky); fuente('normal',9.5); doc.text('Tasa Compartida · Financiación con cheques', M+15, 20.2);
+  txt(C.sky); fuente('normal',7.5); doc.text('COTIZACIÓN N°', W-M, 10.5, {align:'right'});
+  txt(C.white); fuente('bold',12.5); doc.text(r.numero, W-M, 16.4, {align:'right'});
+  txt(C.nm); fuente('normal',8); doc.text(L(op.empresa)||'Grupo AGN', W-M, 22.4, {align:'right'});
+  fill(C.soft); doc.rect(0,32.4,W,10,'F');
+  txt(C.navy); fuente('normal',8.5); doc.text('Emitida: '+fFechaHora(emitida), M, 38.6);
+  fuente('bold',8.5); doc.text('VÁLIDA POR 24 HORAS · Vence: '+fFechaHora(vence), W-M, 38.6, {align:'right'});
+  y=50;
+
+  /* datos */
+  titulo('Datos de la operación');
+  var kv=function(rot,val,x,w){
+    txt(C.muted); fuente('normal',7.5); doc.text(rot,x,y);
+    var s=L(val)||'-', t=10; txt(C.ink); fuente('bold',t);
+    while(t>8 && doc.getTextWidth(s)>w){ t-=0.5; doc.setFontSize(t); }
+    if(doc.getTextWidth(s)>w){ while(s.length>4 && doc.getTextWidth(s+'...')>w) s=s.slice(0,-1); s=s.trim()+'...'; }
+    doc.text(s, x, y+4.7);
+  };
+  var c1=M, w1=CW*0.46-4, c2=M+CW*0.46, w2=CW*0.27-4, c3=M+CW*0.73, w3=CW*0.27;
+  kv('Cliente', op.cliente||'A completar', c1, w1); kv('CUIT o DNI', op.doc, c2, w2); kv('Vendedor', op.vendedor||'A completar', c3, w3); y+=10.5;
+  kv('Unidad o producto', op.detalle, c1, w1); kv('Unidad de negocio', op.unidad, c2, w2); kv('Cheques a la orden de', op.empresa||'A completar', c3, w3); y+=12;
+
+  /* resumen */
+  var bw=(CW-8)/3, bh=17;
+  var caja=function(i,rot,val,sub,osc){
+    var x=M+i*(bw+4); fill(osc?C.navy:C.gris); doc.rect(x,y,bw,bh,'F');
+    txt(osc?C.sky:C.muted); fuente('normal',7.5); doc.text(rot,x+4,y+5.6);
+    if(sub){ doc.text(sub,x+bw-4,y+5.6,{align:'right'}); }
+    txt(osc?C.white:C.ink); fuente('bold',12.5); doc.text(val,x+4,y+12.2);
+  };
+  caja(0,'Importe total a pagar',m$(r.P)); caja(1,'Anticipo',m$(r.A), r.P>0?fPct(r.A/r.P,1):''); caja(2,'Saldo a financiar con cheques',m$(r.S),'',true);
+  y+=bh+9;
+  var aparte=r.forma==='aparte', hayImp=r.iva+r.perc>0;
+  if (aparte && r.n>0){
+    y-=5; fill(C.soft); doc.rect(M,y,CW,10,'F'); txt(C.navy); fuente('normal',8.5);
+    doc.text('A pagar el día de la operación: anticipo '+m$(r.A)+' + costo financiero '+m$(r.pagoAparte), M+4, y+6.3);
+    fuente('bold',10.5); doc.text(m$(r.pagoHoy), W-M-4, y+6.4, {align:'right'}); y+=16;
+  }
+
+  /* tasa compartida */
+  titulo('Tasa compartida');
+  var wc=CW*acota(r.sh,0.05,0.95);
+  fill(C.blue); doc.rect(M,y,wc,9,'F'); fill(C.sky); doc.rect(M+wc,y,CW-wc,9,'F');
+  var tCli='Usted paga '+fPct(r.rc)+' TNA', tAgn='Grupo AGN bonifica '+fPct(r.rb-r.rc)+' TNA';
+  fuente('bold',9);
+  if (wc>=64 && CW-wc>=64){ txt(C.white); doc.text(tCli,M+3,y+5.9); txt(C.navy); doc.text(tAgn,W-M-3,y+5.9,{align:'right'}); y+=13; }
+  else { y+=13.5; txt(C.ink); doc.text(tCli+'  ·  '+tAgn, M, y); y+=5; }
+  txt(C.muted); fuente('normal',7.8);
+  doc.text('Tasa de descuento de cheques de referencia: '+fPct(r.rb)+' TNA adelantada. La diferencia la bonifica Grupo AGN: '+m$(r.ahorro)+' en esta operación.', M, y); y+=9;
+
+  /* plan de cheques */
+  titulo('Plan de cheques');
+  var din = aparte ? ['Importe del cheque'] : ['Capital','Costo financiero'].concat(hayImp ? [r.perc>0 ? 'IVA y perc.' : 'IVA'] : []).concat(['Importe del cheque']);
+  var wD=(CW-55)/din.length, tam=8.8;
+  var cols=[['N°',10,'l'],['Fecha de pago',26,'l'],['Plazo',19,'l']].concat(din.map(function(t){ return [t,wD,'r']; }));
+  var renglon=function(vals,alto,est,fondo,color){
+    if(fondo){ fill(fondo); doc.rect(M,y,CW,alto,'F'); }
+    txt(color||C.ink); fuente(est, est==='bold'?tam-0.4:tam);
+    var x=M;
+    cols.forEach(function(c,i){ var v=vals[i]; if(v!==''){ if(c[2]==='r') doc.text(v,x+c[1]-2.5,y+alto*0.68,{align:'right'}); else doc.text(v,x+2.5,y+alto*0.68); } x+=c[1]; });
+    y+=alto;
+  };
+  var celdas=function(k,ne,im,n){ if (aparte) return [m$(n)]; var q=[m$(k),m$(ne)]; if (hayImp) q.push(m$(im)); q.push(m$(n)); return q; };
+  renglon(cols.map(function(c){return c[0];}),7,'bold',C.navy,C.white);
+  r.filas.forEach(function(f,i){
+    lugar(6);
+    renglon([String(i+1), fFecha(f.fecha), f.dias+' días'].concat(celdas(f.capital,f.neto,f.imp,f.cheque)),5.6,'normal', i%2?C.gris:null);
+  });
+  lugar(8);
+  renglon(['Total','',''].concat(celdas(r.S,r.neto,r.iva+r.perc,r.totalCheques)),6.8,'bold',C.soft,C.navy);
+  y+=3.6; txt(C.muted); fuente('normal',7);
+  doc.text(aparte ? 'Los cheques cubren solo el capital. El costo financiero se paga el día de la operación, junto con el anticipo.'
+    : 'Costo financiero: interés a tasa bonificada, sellos y gastos bancarios e impuestos'+(hayImp?', neto de IVA.':'.'), M, y); y+=5.5;
+
+  /* costo financiero */
+  lugar(22);
+  var fig=function(i,rot,val,sub,azul){
+    var x=M+i*(bw+4); traz(C.line); doc.setLineWidth(0.2); doc.rect(x,y,bw,18);
+    txt(C.muted); fuente('normal',7.5); doc.text(rot,x+4,y+5.4);
+    txt(azul?C.blue:C.ink); fuente('bold',12); doc.text(val,x+4,y+11.4);
+    txt(C.ink2); fuente('normal',7); doc.text(sub,x+4,y+15.4);
+  };
+  fig(0,'Costo financiero total',m$(r.costoCliente),(r.S>0?fPct(r.costoCliente/r.S):'-')+' del saldo financiado');
+  fig(1,'Bonificación de Grupo AGN',m$(r.ahorro),'respecto de la tasa de referencia',true);
+  fig(2,'Total de la operación',m$(r.totalOperacion), aparte ? 'anticipo + costo financiero + cheques' : 'anticipo + cheques');
+  y+=24;
+
+  /* detalle de la financiación */
+  var izq=[['Importe total a pagar',m$(r.P)],['Anticipo',m$(r.A)],['Monto financiado',m$(r.S)],['Interés a tasa bonificada',m$(r.interes)]];
+  if (r.gastos>0) izq.push(['Sellos y gastos bancarios',m$(r.gastos)]);
+  if (r.margen>0) izq.push(['Cargo administrativo',m$(r.margen)]);
+  if (r.iibb>0) izq.push(['Ingresos Brutos',m$(r.iibb)]);
+  if (r.tem>0) izq.push(['TEM (tributo municipal)',m$(r.tem)]);
+  if (r.debcred>0) izq.push(['Impuesto a los débitos y créditos',m$(r.debcred)]);
+  if (hayImp) izq.push(['Factura por intereses y gastos, neto de IVA',m$(r.neto),1]);
+  if (r.iva>0) izq.push(['IVA ('+fPct(r.ivaT,1)+')',m$(r.iva)]);
+  if (r.perc>0) izq.push(['Percepción de Ingresos Brutos',m$(r.perc)]);
+  izq.push(['Costo financiero total',m$(r.costoCliente),1]);
+  if (aparte) izq.push(['A pagar el día de la operación, con el anticipo',m$(r.pagoAparte)]);
+  izq.push(['Total a pagar en cheques',m$(r.totalCheques),1]);
+  var der=[['Tasa nominal anual que paga, adelantada',fPct(r.rc)],['Tasa efectiva anual (TEA)',fPct(r.tea)],['Costo financiero total efectivo anual',fPct(r.cft),1]];
+  if (r.impuestos>0) der.push(['Costo financiero total sin impuestos',fPct(r.cftSin)]);
+  der.push(['Sistema de pago',r.sistema],['Pagos',r.pagos],['Plazo promedio',Math.round(r.plazoProm)+' días']);
+  var nf=Math.max(izq.length,der.length), wcol=(CW-8)/2;
+  lugar(12+nf*4.7+4);
+  titulo('Detalle de la financiación');
+  var par2=function(l,x){
+    l.forEach(function(p,i){
+      var yy=y+i*4.7;
+      txt(C.ink2); fuente(p[2]?'bold':'normal',8); doc.text(p[0],x,yy);
+      txt(C.ink); fuente('bold',8); doc.text(String(p[1]),x+wcol,yy,{align:'right'});
+      traz(C.line); doc.setLineWidth(0.1); doc.line(x,yy+1.4,x+wcol,yy+1.4);
+    });
+  };
+  par2(izq,M); par2(der,M+wcol+8);
+  y+=nf*4.7+4;
+
+  /* condiciones sujetas a validación */
+  if (r.especiales.length){
+    fuente('bold',8.2);
+    var le=doc.splitTextToSize('Condiciones sujetas a validación expresa de Finanzas: '+r.especiales.join('; ')+'.', CW-7);
+    lugar(le.length*3.8+8);
+    fill(C.ambar); doc.rect(M,y,CW,le.length*3.8+4.4,'F'); txt(C.ambarT); doc.text(le, M+3.5, y+5.2);
+    y+=le.length*3.8+8.4;
+  }
+
+  /* caducidad, condiciones y firmas: van juntas en la misma página cuando entran */
+  fuente('normal',7.6);
+  var leyes = leyendas(r).map(function(t,i){ return doc.splitTextToSize((i+1)+'. '+L(t), CW); });
+  var altoLey = leyes.reduce(function(s,l){ return s+l.length*3.5+1.2; },0), junto = 13+altoLey+22;
+  if (junto<=255) lugar(junto,284); else lugar(13);
+  fill(C.soft); doc.rect(M,y,CW,8.5,'F'); txt(C.navy); fuente('bold',8.8);
+  doc.text('ESTA COTIZACIÓN CADUCA A LAS 24 HORAS DE SU EMISIÓN: vence el '+fFechaHora(vence)+'.', M+3.5, y+5.6);
+  y+=13;
+  leyes.forEach(function(lin){ if (junto>255) lugar(lin.length*3.5+1.2); txt(C.muted); fuente('normal',7.6); doc.text(lin, M, y); y+=lin.length*3.5+1.2; });
+
+  /* firmas */
+  if (junto>255) lugar(24);
+  y+=14;
+  traz(C.ink2); doc.setLineWidth(0.25);
+  doc.line(M,y,M+70,y); doc.line(W-M-70,y,W-M,y);
+  txt(C.muted); fuente('normal',7.5);
+  doc.text('Firma del vendedor'+(op.vendedor?' · '+L(op.vendedor):''), M, y+4);
+  doc.text('Firma, aclaración y documento del cliente', W-M-70, y+4);
+
+  /* pie con número de página */
+  var total=doc.getNumberOfPages();
+  for (var pg=1; pg<=total; pg++){
+    doc.setPage(pg); txt(C.muted); fuente('normal',7);
+    doc.text('Grupo AGN · Tasa Compartida · Cotización N° '+r.numero+' · Documento no válido como factura · Página '+pg+' de '+total, W/2, 290, {align:'center'});
+  }
+  var nombre = 'Cotizacion_'+r.numero+(op.cliente?'_'+op.cliente.replace(/[^A-Za-z0-9ÁÉÍÓÚÑáéíóúñ]+/g,'_').slice(0,40):'')+'.pdf';
+  return {blob:doc.output('blob'), nombre:nombre, vence:vence, paginas:total};
+}
+
+/* ---------- mensajes y descarga ---------- */
+function toast(t, malo){
+  var e=$('toast'); e.textContent=t; e.className='toast'+(malo?' bad':''); e.hidden=false;
+  clearTimeout(toastT); toastT=setTimeout(function(){ e.hidden=true; }, 7000);
+}
+/* Los archivos (PDF y planilla) se guardan con la descarga normal del navegador. */
+function bajaDirecto(nombre, data){
+  return new Promise(function(res, rej){
+    try{
+      var blob = data instanceof Blob ? data : new Blob([data], {type:'text/csv;charset=utf-8'});
+      var u = URL.createObjectURL(blob), a = document.createElement('a');
+      a.href = u; a.download = nombre; document.body.appendChild(a); a.click(); a.remove();
+      setTimeout(function(){ URL.revokeObjectURL(u); }, 5000); res({status:'saved'});
+    }catch(e){ rej({code:'unavailable'}); }
+  });
+}
+function guardaArchivo(nombre, data){
+  return bajaDirecto(nombre, data);
+}
+function avisaFallo(e, que){
+  var c = e && e.code;
+  if (c==='declined') toast('Descarga cancelada. '+que+' sigue en pantalla.');
+  else if (c==='rate_limited') toast('Ya hay una descarga pendiente. Confirmala o esperá unos segundos.');
+  else toast('No se pudo guardar el archivo en este equipo. Probá de nuevo o con otro navegador.', true);
+}
+function alPdf(){
+  var r=ultimo; if(!r || r.bloqueado || vista==='sin') return;
+  var bp=$('b-pdf'); bp.disabled=true; bp.textContent='Preparando…';
+  var fin=function(){ bp.textContent='Descargar PDF'; pintar(); };
+  if(!window.jspdf){ fin(); toast('No se pudo cargar el generador de PDF. Recargá la página y probá de nuevo.', true); return; }
+  var out, emitida = emitidaFija || new Date();
+  try{ out=generarPDF(r, emitida); }catch(e){ fin(); toast('No se pudo armar el PDF. Revisá los datos de la operación.', true); return; }
+  guardaArchivo(out.nombre, out.blob).then(function(){
+    return registrar(r, emitida).then(function(res){
+      if (r.rev===rev) emitidaFija = emitida; else if (numero===r.numero) numero = nuevoNumero();
+      fin();
+      var base = 'Cotización '+r.numero+' descargada. Vence el '+fFechaHora(out.vence)+'. ';
+      if (res.estado==='ok') toast(base+'Quedó en el registro de cotizaciones.');
+      else toast(base+'No quedó en el registro de cotizaciones.', res.estado==='error');
+    });
+  }, function(e){ fin(); avisaFallo(e, 'La cotización'); });
+}
+
+/* ---------- Finanzas: publicar, descartar, datos ---------- */
+function publicar(){
+  if (!A.editable) return;
+  var p = parForm();
+  if (!(p.tna>0)){ toast('Cargá la tasa del día antes de publicar.', true); return; }
+  var pub = {}, int = {};
+  Object.keys(M.SUG).forEach(function(k){ (CLAVES_INT.indexOf(k)>=0 ? int : pub)[k] = p[k]; });
+  var bs = [$('b-publicar'), $('b-publicar2')], on = function(x){ bs.forEach(function(b){ b.disabled = x; }); };
+  on(true);
+  /* La fecha, la hora y el número de la publicación los pone el sistema, no esta página. */
+  llama('tc-finanzas', {accion:'publicar', config:pub, interno:int}).then(function(j){
+    on(false);
+    if (j.ok!==true || !j.config || j.config.v!==3){ if (!caida(j)) toast(sinRed(j) || j.mensaje || 'No se pudo publicar. Probá de nuevo.', true); return; }
+    A.pub = j.config; A.int = j.interno && typeof j.interno==='object' ? j.interno : int; A.previa = null; tocado = false; tnaVista = p.tna;
+    var h = new Date(j.config.publicada);
+    A.sync = 'Publicada a las '+p2(h.getHours())+':'+p2(h.getMinutes())+' hs por '+(j.publicadaPor || (S && S.usuario) || 'Finanzas')+'. Desde ahora ninguna cotización se puede emitir con los valores anteriores.';
+    ponerParamsForm(parPublicado()); cambio(); pintar();
+    toast('Tasa del día publicada: '+fPct(p.tna/100)+' TNA.');
+  });
+}
+function descartar(){ tocado = false; ponerParamsForm(parPublicado() || sugeridosDesde(A.previa)); cambio(); pintar(); toast('Se descartaron los cambios sin publicar.'); }
+function tomaPub(d){ if (d && d.v===3){ A.pub = d; A.previa = null; } else { A.pub = null; A.previa = d || null; } }
+function alLlegarConfig(){
+  if (A.editable && !tocado) ponerParamsForm(parPublicado() || sugeridosDesde(A.previa));
+  var t = pubOk() ? norm(A.pub).tna : null;
+  if (t !== null) tnaVista = t;
+  pintar();
+}
+var reintento = null;
+function cargarConfigFin(){
+  clearTimeout(reintento);
+  return llama('tc-finanzas', {accion:'config'}).then(function(j){
+    if (j.ok!==true){
+      if (caida(j)) return;
+      if (j.motivo==='permiso'){ cierraLocal(j.mensaje || 'Tu usuario no tiene acceso al módulo de Finanzas.'); return; }
+      A.modo = 'sinacceso'; A.listo = true; pintar();
+      reintento = setTimeout(function(){ if (S && A.modo==='sinacceso') cargarConfigFin(); }, 20000); return;
+    }
+    A.modo = 'n8n'; tomaPub(j.config); A.int = j.interno && typeof j.interno==='object' ? j.interno : null;
+    A.sync = j.config && j.publicadaPor ? 'Última publicación hecha por '+j.publicadaPor+'.' : '';
+    A.listo = true; alLlegarConfig();
+  });
+}
+function iniciarDatos(){
+  A.modo = 'n8n'; A.esFin = true; A.editable = true; A.listo = false; A.reg = null; A.usu = null; tocado = false;
+  $('usu-form').hidden = true; $('usu-aviso').hidden = true; $('usu').textContent = ''; $('reg').textContent = '';
+  cargarConfigFin();
+  if ($('g-reg').open) cargarRegistro();
+  if ($('g-usu').open) cargarUsuarios();
+}
+
+/* ---------- eventos ---------- */
+function miles(inp){
+  inp.addEventListener('input', function(){
+    var pos=inp.selectionStart||0, antes=soloDig(inp.value.slice(0,pos)).length;
+    var d=soloDig(inp.value).replace(/^0+(?=\d)/,'');
+    inp.value = d ? fInt(Number(d)) : '';
+    var i=0, c=0; while(i<inp.value.length && c<antes){ if(/\d/.test(inp.value[i])) c++; i++; }
+    try{ inp.setSelectionRange(i,i); }catch(e){}
+  });
+}
+function sincronizaAnticipo(origen){
+  var precio=nEnt($('precio'));
+  if(origen==='monto'){ var m=nEnt($('antMonto')); $('antPct').value = precio>0 ? String(Math.round(m/precio*1000)/10).replace('.',',') : '0'; }
+  else { var pc=acota(nDec($('antPct')),0,100); $('antMonto').value = fInt(Math.round(precio*pc/100)); }
+}
+function sincronizaPlazo(origen){
+  var hoy=hoy0();
+  if(origen==='fecha'){ var f=deIso($('fechaUno').value); if(f){ $('plazo').value=String(Math.max(1,difDias(hoy,f))); } }
+  else { $('fechaUno').value = aIso(masDias(hoy, acota(nEnt($('plazo')),1,3650))); }
+}
+function iniciar(){
+  ponerParamsForm(norm(SUG));
+  var vn=trae(LS_VEND); if(vn && typeof vn==='string' && !$('vendedor').value) $('vendedor').value=vn;
+  ['precio','antMonto'].forEach(function(id){ miles($(id)); });
+  sincronizaAnticipo('pct'); sincronizaPlazo('plazo');
+
+  $('carga').addEventListener('submit', function(e){ e.preventDefault(); });
+  $('carga').addEventListener('input', function(e){
+    var id=e.target.id;
+    editado=true; cambio();
+    if(id==='precio'||id==='antPct') sincronizaAnticipo('pct');
+    else if(id==='antMonto') sincronizaAnticipo('monto');
+    else if(id==='plazo') sincronizaPlazo('plazo');
+    else if(id==='fechaUno') sincronizaPlazo('fecha');
+    else if(id==='vendedor') guarda(LS_VEND, e.target.value.trim());
+    pintar();
+  });
+  $('carga').addEventListener('change', function(){ pintar(); });
+  document.querySelectorAll('.chips').forEach(function(g){
+    g.addEventListener('click', function(e){
+      var c=e.target.closest('.chip'); if(!c) return;
+      var inp=$(g.dataset.para); inp.value=c.dataset.v; editado=true; cambio();
+      if(inp.id==='antPct') sincronizaAnticipo('pct');
+      if(inp.id==='plazo') sincronizaPlazo('plazo');
+      pintar();
+    });
+  });
+  document.querySelectorAll('input[name="vista"]').forEach(function(x){
+    x.addEventListener('change', function(){ if (x.checked){ vista = x.value==='sin' ? 'sin' : 'con'; pintar(); } });
+  });
+
+  /* módulo de Finanzas */
+  var alEditar = function(e){ if (e.target && /^p-/.test(e.target.id||'')){ tocado = true; pintar(); } };
+  $('finanzas').addEventListener('input', alEditar);
+  $('finanzas').addEventListener('change', alEditar);
+  $('b-publicar').addEventListener('click', publicar);
+  $('b-publicar2').addEventListener('click', publicar);
+  $('b-descartar').addEventListener('click', descartar);
+  $('b-reset').addEventListener('click', function(){ var s = norm(SUG), a = parForm(); s.tna = a.tna; s.unidades = a.unidades; ponerParamsForm(s); tocado = true; pintar(); toast('Valores sugeridos cargados, sin tocar la tasa ni las unidades. Revisalos y publicá.'); });
+  $('b-textos-sug').addEventListener('click', function(){ $('p-textos').value = TEXTOS_SUG.join('\n'); tocado = true; pintar(); toast('Textos sugeridos cargados. Falta publicarlos.'); });
+  $('b-fin').addEventListener('click', function(){ $('finanzas').scrollIntoView({block:'start'}); try{ $('p-tna').focus({preventScroll:true}); }catch(e){} });
+  $('g-reg').addEventListener('toggle', function(){ if (this.open && !A.reg) cargarRegistro(); });
+  $('b-reg-act').addEventListener('click', function(){ cargarRegistro(); });
+  $('b-reg-csv').addEventListener('click', function(){
+    var baja = function(){
+      if (!A.reg || !A.reg.length){ toast('No hay cotizaciones registradas para descargar.'); return; }
+      guardaArchivo('cotizaciones_tasa_compartida_'+aIso(new Date())+'.csv', csvRegistro()).then(function(){ toast('Planilla descargada: se abre con Excel.'); }, function(e){ avisaFallo(e, 'El registro'); });
+    };
+    if (A.reg) baja(); else cargarRegistro().then(baja);
+  });
+  $('reg').addEventListener('click', function(e){ var b = e.target.closest('button[data-rev]'); if (b) revisar(b.dataset.num, b.dataset.rev); });
+  /* usuarios */
+  $('g-usu').addEventListener('toggle', function(){ if (this.open && !A.usu) cargarUsuarios(); });
+  $('b-usu-act').addEventListener('click', function(){ cargarUsuarios(); });
+  $('b-usu-nuevo').addEventListener('click', function(){ abreUsuario(null, false); });
+  $('b-usu-gen').addEventListener('click', function(){ $('u-clave').value = claveNueva(); });
+  $('b-usu-cancelar').addEventListener('click', function(){ $('usu-form').hidden = true; });
+  $('b-usu-guardar').addEventListener('click', guardarUsuario);
+  $('b-usu-ok').addEventListener('click', function(){ $('usu-aviso').hidden = true; $('usu-aviso-t').textContent = ''; });
+  $('b-usu-copiar').addEventListener('click', function(){
+    var t = $('usu-aviso-t').textContent;
+    try{ navigator.clipboard.writeText(t).then(function(){ toast('Copiado. Pegalo en el mensaje para la persona.'); }, function(){ toast('No se pudo copiar: anotá los datos a mano.', true); }); }catch(e){ toast('No se pudo copiar: anotá los datos a mano.', true); }
+  });
+  $('usu').addEventListener('click', alTocarUsuario);
+
+  $('b-ver').addEventListener('click', function(){ $('hoja').scrollIntoView({block:'start'}); });
+  if ('IntersectionObserver' in window){
+    new IntersectionObserver(function(es){ var e=es[es.length-1]; hojaLejos = !e.isIntersecting && e.boundingClientRect.top>0; miniPinta(); }).observe($('hoja'));
+  }
+  $('b-pdf').addEventListener('click', alPdf);
+  $('b-cliente').addEventListener('click', function(){
+    var on=!document.body.classList.contains('cliente');
+    document.body.classList.toggle('cliente', on);
+    this.setAttribute('aria-pressed', String(on)); this.textContent = on ? 'Volver a editar' : 'Mostrar al cliente';
+    window.scrollTo(0,0);
+  });
+  $('b-nueva').addEventListener('click', function(){
+    ['cliente','doc','detalle','precio'].forEach(function(id){ $(id).value=''; });
+    $('nosis-pend').checked=true; $('origen-propios').checked=true; $('forma-dentro').checked=true; vista='con'; numero=nuevoNumero(); emitidaFija=null; rev++; editado=true;
+    sincronizaAnticipo('pct'); pintar(); $('cliente').focus();
+    toast('Nueva cotización '+numero+'. Cargá el cliente y el importe.');
+  });
+  /* sesión */
+  $('ing-form').addEventListener('submit', alEnviarIngreso);
+  $('ing-cancelar').addEventListener('click', cierraIngreso);
+  $('ing-salir').addEventListener('click', salir);
+  $('b-salir').addEventListener('click', salir);
+  $('b-clave').addEventListener('click', function(){ claveEscrita = ''; abreIngreso('cambiar-vol'); });
+  pintar();
+  var s0 = sesionGuardada(), resuelto = false;
+  if (s0 && s0.rol!=='finanzas'){ resuelto = true; abreIngreso('ingresar', 'Tu usuario no tiene acceso al módulo de Finanzas. Ingresá con un usuario de Finanzas.'); }
+  if (!resuelto){
+    if (s0){ S = s0; pintaQuien(); if (S.debe) abreIngreso('cambiar'); else alEntrar(null, false); }
+    else abreIngreso('ingresar');
+  }
+  setInterval(function(){ if(!document.hidden) pintar(); }, 60000);
+}
+window.tasaCompartida = {calcular:calcular, generarPDF:generarPDF, norm:norm, sugeridos:SUG, estado:A, motor:M};
+iniciar();
+})();
+</script>
+</body>
+</html>
