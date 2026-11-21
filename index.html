@@ -352,6 +352,7 @@ body.sin-sesion main,body.sin-sesion .mini,body.sin-sesion .cond,body.sin-sesion
 .quien[hidden]{display:none}
 .quien span{font-size:13px;color:var(--on-night-muted);margin-right:auto}
 .quien b{color:var(--on-night);font-weight:600}
+.quien i{font-style:normal;white-space:nowrap}
 .btn.chico{padding:7px 11px;font-size:13px}
 a.btn{text-decoration:none;display:inline-flex;align-items:center}
 a.btn[hidden]{display:none}
@@ -385,7 +386,7 @@ select.ctl{appearance:auto}
       <button type="button" class="btn pri" id="b-pdf">Descargar PDF</button>
     </div>
     <div class="quien solo-vendedor" id="quien" hidden>
-      <span>Usuario: <b id="q-nombre">—</b></span>
+      <span>Usuario: <b id="q-nombre">—</b> · <i id="q-ver"></i></span>
       <a class="btn sec chico" id="q-fin" href="finanzas.html" hidden>Módulo de Finanzas</a>
       <button type="button" class="btn sec chico" id="b-clave">Cambiar contraseña</button>
       <button type="button" class="btn sec chico" id="b-salir">Salir</button>
@@ -619,7 +620,8 @@ select.ctl{appearance:auto}
 
 <!-- En la página publicada queda en null. Para una demostración sin conexión del cotizador: {"config":{…}}. Para pruebas: {"api":"http://localhost:…/"}. -->
 <script id="tc-remoto" type="application/json">null</script>
-<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js"></script>
+<!-- El generador de PDF viene de un servidor externo. La huella (integrity) hace que el navegador lo rechace si el archivo no es exactamente el esperado. -->
+<script src="https://cdnjs.cloudflare.com/ajax/libs/jspdf/2.5.1/jspdf.umd.min.js" integrity="sha512-qZvrmS2ekKPF2mSznTQsxqPgnpkI4DNTlrdUmTzrDgektczlKNRRhy5X5AAOnx5S09ydFYWWNSfcEqDTTHgtNA==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
 <script>
 /* Tasa Compartida · motor de cálculo, versión 3.
    Fuente única del cálculo: la usan la página de Finanzas y la página del vendedor. Funciones puras, sin pantalla.
@@ -847,9 +849,11 @@ return {SUG:SUG, FER_SUG:FER_SUG, CLAVES_INT:CLAVES_INT, norm:norm, ivaDe:ivaDe,
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
 var M = window.TCMotor;   /* motor de cálculo: el mismo archivo en la página de Finanzas y en la del vendedor */
-var VERSION = 'Versión 3.1 · 21-11-2026';
+var VERSION = 'Versión 3.2 · 21-11-2026';
 var LS_VEND = 'tc_vendedor_v1';
-var LS_MIAS = 'tc3_mias', CONFIG_URL = 'config.json';
+/* AVISO_URL: archivo público que sólo dice que hubo una publicación (número y hora). No lleva la tasa ni ningún valor:
+   esos datos se piden al sistema con la sesión abierta y quedan guardados en este navegador mientras dura la sesión. */
+var LS_MIAS = 'tc3_mias', LS_TASA = 'tc3_tasa', AVISO_URL = '../cotizador-tasa/config.json';
 var CLAVES_INT = M.CLAVES_INT;
 
 /* Textos legales sugeridos. Son un borrador hasta que los valide el asesor legal. */
@@ -962,6 +966,7 @@ function pintaQuien(){
 }
 function cierraLocal(msg, bien){
   S = null; try{ almacen().removeItem(LS_SES); }catch(e){}
+  olvidaTasa();
   pintaQuien(); abreIngreso('ingresar', msg || '', bien);
 }
 function salir(){
@@ -1011,7 +1016,7 @@ function alEntrar(config, deServidor){
   pintaQuien();
   if (!arrancado){ arrancado = true; iniciarDatos(config, deServidor); }
   else {
-    A.mias = traeMias(); pintaMias(); pidioTasa = false;
+    A.mias = traeMias(); pintaMias(); pidioTasa = false; avisoPedido = ''; esperaHasta = 0;
     if (deServidor) aplicaConfig(config, true);
   }
   cambio(); pintar();
@@ -1065,12 +1070,12 @@ function pintaChips(){
 }
 function pintaFranja(par, tasa, borr){
   var l = [], fin = A.esFin;
-  if (!A.listo) l.push(A.lento ? ['', 'No se pudo leer la tasa del día todavía. Revisá la conexión: la página sigue intentando.'] : ['info', 'Leyendo la tasa del día…']);
+  if (!A.listo) l.push(A.lento ? ['', 'No se pudo leer la tasa del día todavía. Revisá la conexión: la página vuelve a intentar sola en unos minutos. Para probar ahora, tocá «Actualizar» en Mis cotizaciones.'] : ['info', 'Leyendo la tasa del día…']);
   if (A.demo) l.push(['warn', 'Página de demostración: usa valores de ejemplo y las cotizaciones no quedan registradas. No sirve para operar.']);
   if (A.listo && A.modo!=='sinacceso'){
     if (!pubOk()) l.push(fin && A.editable ? ['info', A.previa ? 'Esta es la versión 3 del cotizador. Revisá los gastos del banco y los impuestos en el módulo de Finanzas y publicá para habilitar a los vendedores.'
         : 'Todavía no hay tasa publicada. Revisá los valores sugeridos del módulo de Finanzas y publicá para habilitar a los vendedores.']
-      : ['', 'Finanzas todavía no publicó la tasa del día. Sin tasa no se pueden emitir cotizaciones.']);
+      : ['', 'Finanzas todavía no publicó la tasa del día. Sin tasa no se pueden emitir cotizaciones. Para volver a consultar, tocá «Actualizar» en Mis cotizaciones.']);
     else if (borr) l.push(['info', 'Estás simulando con cambios sin publicar. Los vendedores siguen viendo los valores publicados, y no se pueden emitir cotizaciones hasta publicar o descartar.']);
     else if (tasa.nivel==='bloqueo') l.push(['', 'La tasa vigente se publicó el '+fFecha(tasa.pub)+' y ya no vale. '+(fin ? 'Publicá la tasa de hoy para habilitar la emisión.' : 'Pedile a Finanzas que publique la tasa de hoy para poder emitir.')]);
     else if (tasa.nivel==='aviso') l.push(['warn', 'La tasa vigente es la del '+fFecha(tasa.pub)+'. '+(fin ? 'Todavía no publicaste la de hoy.' : 'Finanzas todavía no confirmó la de hoy.')]);
@@ -1560,35 +1565,70 @@ function alLlegarConfig(){
   if (t !== null) tnaVista = t;
   pintar();
 }
-var leyendo = false, pidioTasa = false;
-/* La tasa puede llegar del sistema (al ingresar, al registrar, al actualizar) o del archivo publicado. Nunca se vuelve a una publicación más vieja
-   que la que ya se tiene, y un archivo vacío o atrasado no borra la tasa que ya llegó del sistema. */
+/* leyendo: hay una lectura del aviso en curso. pidiendo: hay una consulta de tasa al sistema en curso. pidioTasa: en esta apertura ya se le
+   pidió la tasa al sistema porque faltaba o porque el aviso no se pudo leer. avisoVisto: número de la última publicación que mostró el aviso.
+   avisoPedido: publicación avisada que el sistema ya tuvo oportunidad de entregar. delSistema: en esta apertura el sistema ya respondió.
+   nSistema: cuántas veces respondió. esperaHasta: si el sistema no respondió, hasta cuándo no se le vuelve a pedir la tasa. */
+var leyendo = false, pidiendo = false, pidioTasa = false, avisoVisto = '', avisoPedido = '', delSistema = false, nSistema = 0, esperaHasta = 0;
+/* La tasa y los valores del día sólo los entrega el sistema, con la sesión abierta. Se guardan en este navegador junto con la sesión, para que
+   volver a abrir el cotizador no cueste una consulta, y se borran al salir o cuando la sesión vence. */
+function guardaTasa(){ if (S && pubOk()) guarda(LS_TASA, {u:S.usuario, c:A.pub}); }
+function tasaGuardada(){ var x = trae(LS_TASA); return x && typeof x==='object' && S && x.u===S.usuario && x.c && typeof x.c==='object' && x.c.v===3 ? x.c : null; }
+function olvidaTasa(){ try{ localStorage.removeItem(LS_TASA); }catch(e){} }
+/* Nunca se vuelve a una publicación más vieja que la que ya se tiene. deServidor: llegó del sistema (al ingresar, al registrar, al actualizar);
+   si no, es la que este navegador tenía guardada. */
 function aplicaConfig(j, deServidor){
   var nueva = j && typeof j==='object' && j.v===3 ? j : null;
+  /* Lo que responde el sistema ya incluye la publicación que mostraba el último aviso leído: no hace falta volver a consultar por ella. */
+  if (deServidor){ delSistema = true; nSistema++; avisoPedido = avisoVisto; }
   if (!nueva){ if (deServidor && !pubOk()){ A.listo = true; pintar(); } return; }
   if (pubOk() && A.pub.publicada && nueva.publicada && String(nueva.publicada) < String(A.pub.publicada)){ A.listo = true; pintar(); return; }
-  A.pub = nueva; A.listo = true; A.lento = false; alLlegarConfig();
+  A.pub = nueva; A.listo = true; A.lento = false;
+  if (deServidor) guardaTasa();
+  alLlegarConfig();
 }
-/* Si el archivo de la tasa no está o todavía no tiene una publicación, la tasa se le pide al sistema una sola vez. */
-function sinArchivo(){
-  if (pubOk() || A.listo) return;
-  if (!pidioTasa && S){ pidioTasa = true; actualizaMias(true).then(function(){ if (!A.listo){ A.lento = true; pintar(); } }); }
+/* Le pide la tasa al sistema (una consulta) y devuelve si llegó a pedirla. Si el sistema no responde, la página lo dice y no insiste antes de
+   10 minutos: una falla del sistema no tiene que gastar consultas ni dejar a la página pidiendo sin parar. */
+function pideTasa(){
+  if (!S || pidiendo || Date.now() < esperaHasta) return false;
+  pidiendo = true; var n0 = nSistema;
+  actualizaMias(true).then(function(){
+    pidiendo = false;
+    if (nSistema === n0){ esperaHasta = Date.now() + 600000; pidioTasa = false; avisoPedido = ''; if (!A.listo){ A.lento = true; pintar(); } }
+  });
+  return true;
 }
-function leerConfig(){
-  if (A.demo || leyendo) return;
+/* Sin aviso legible (todavía no existe o no hay red): si en esta apertura el sistema todavía no respondió, la tasa se le pide una sola vez. */
+function sinAviso(){
+  if (delSistema || pidioTasa || !S) return;
+  if (pideTasa()) pidioTasa = true;
+}
+/* El aviso es público y no cuesta consultas: sólo trae el número y la hora de la última publicación. Si es más nueva que la tasa que tiene
+   este navegador, se le pide la tasa al sistema: una consulta por publicación, no una por cada vez que se abre la página. */
+function leerAviso(){
+  if (A.demo || leyendo || !S) return;
   leyendo = true;
-  fetch(CONFIG_URL+(CONFIG_URL.indexOf('?')<0 ? '?' : '&')+'t='+Date.now(), {cache:'no-store'}).then(function(x){ if (!x.ok) throw new Error('http'); return x.json(); }).then(function(j){
+  fetch(AVISO_URL+(AVISO_URL.indexOf('?')<0 ? '?' : '&')+'t='+Date.now(), {cache:'no-store'}).then(function(x){ if (!x.ok) throw new Error('http'); return x.json(); }).then(function(j){
     leyendo = false;
-    if (j && typeof j==='object' && j.v===3) aplicaConfig(j, false); else sinArchivo();
-  }, function(){ leyendo = false; sinArchivo(); });
+    if (!(j && typeof j==='object' && j.aviso===1 && typeof j.id==='string' && j.id && typeof j.publicada==='string' && j.publicada)){ sinAviso(); return; }
+    avisoVisto = j.id;
+    if (!S || pidiendo || avisoPedido===j.id) return;
+    /* Sin tasa en pantalla: se consulta por cada publicación nueva que muestre el aviso. Con tasa: sólo si el aviso es de una publicación posterior. */
+    if ((!pubOk() || (j.id!==A.pub.id && String(j.publicada) > String(A.pub.publicada || ''))) && pideTasa()){ avisoPedido = j.id; pidioTasa = true; }
+  }, function(){ leyendo = false; sinAviso(); });
 }
 function iniciarDatos(config, deServidor){
   if (A.demo){ A.modo = 'demo'; A.listo = true; return; }
   A.modo = 'web'; A.mias = traeMias(); pintaMias();
   if (deServidor) aplicaConfig(config, true);
-  leerConfig();
-  setInterval(function(){ if (!document.hidden && S) leerConfig(); }, 120000);
-  document.addEventListener('visibilitychange', function(){ if (!document.hidden && S) leerConfig(); });
+  else {
+    var g = tasaGuardada();
+    if (g) aplicaConfig(g, false);                         /* sesión ya abierta: se sigue con la tasa guardada y el aviso dice si hay otra */
+    else if (S){ olvidaTasa(); if (pideTasa()) pidioTasa = true; }   /* sin tasa guardada: se le pide al sistema */
+  }
+  leerAviso();
+  setInterval(function(){ if (!document.hidden && S) leerAviso(); }, 120000);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden && S) leerAviso(); });
 }
 
 /* ---------- eventos ---------- */
@@ -1661,6 +1701,7 @@ function iniciar(){
   });
   /* sesión */
   $('ing-ver').textContent = VERSION;
+  $('q-ver').textContent = VERSION.split(' · ')[0]; $('q-ver').title = VERSION;
   $('ing-form').addEventListener('submit', alEnviarIngreso);
   $('ing-cancelar').addEventListener('click', cierraIngreso);
   $('ing-salir').addEventListener('click', salir);
@@ -1669,6 +1710,7 @@ function iniciar(){
   $('b-mias').addEventListener('click', function(){ actualizaMias(false); });
   pintar();
   var s0 = sesionGuardada(), resuelto = false;
+  if (!s0) olvidaTasa();   /* sin sesión vigente no queda guardada ninguna tasa en este navegador */
   if (REM && typeof REM==='object' && REM.config){ resuelto = true; A.demo = true; A.pub = copia(REM.config, {v:3}); arrancado = true; document.body.classList.remove('sin-sesion'); $('vendedor').readOnly = false; iniciarDatos(); pintar(); }
   if (!resuelto){
     if (s0){ S = s0; pintaQuien(); if (S.debe) abreIngreso('cambiar'); else alEntrar(null, false); }
