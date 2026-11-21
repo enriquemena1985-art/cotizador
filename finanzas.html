@@ -408,7 +408,7 @@ select.ctl{appearance:auto}
       <button type="button" class="btn sec" id="ing-cancelar" hidden>Cancelar</button>
       <button type="submit" class="btn pri" id="ing-ok">Ingresar</button>
     </div>
-    <p class="ing-pie">Tasa Compartida · Grupo AGN · Módulo de Finanzas: solo usuarios de Finanzas</p>
+    <p class="ing-pie">Tasa Compartida · Grupo AGN · Módulo de Finanzas. Solo usuarios de Finanzas. Por seguridad pide usuario y contraseña cada vez que se abre y se cierra solo a los 30 minutos sin uso. <span id="ing-ver"></span></p>
   </form>
 </div>
 
@@ -984,7 +984,7 @@ return {SUG:SUG, FER_SUG:FER_SUG, CLAVES_INT:CLAVES_INT, norm:norm, ivaDe:ivaDe,
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
 var M = window.TCMotor;   /* motor de cálculo: el mismo archivo en la página de Finanzas y en la del vendedor */
-var VERSION = 'Versión 3 · 21-11-2026';
+var VERSION = 'Versión 3.1 · 21-11-2026';
 var LS_VEND = 'tc_vendedor_v1';
 var CLAVES_INT = M.CLAVES_INT;
 
@@ -1043,13 +1043,24 @@ var SUG = copia(M.SUG, {textos:TEXTOS_SUG});
 function pubOk(){ return !!(A.pub && A.pub.v===3); }
 
 /* ---------- sesión: cada persona entra con su usuario y su contraseña. n8n valida, registra y responde ---------- */
-var API = 'https://menaenriquedaniel.app.n8n.cloud/webhook/', LS_SES = 'tc3_sesion';
+var API = 'https://menaenriquedaniel.app.n8n.cloud/webhook/';
+/* El módulo de Finanzas no comparte la sesión del cotizador: pide usuario y contraseña cada vez que se abre,
+   la sesión vale sólo mientras esta pestaña está abierta y se cierra sola tras un rato sin uso. */
+var LS_SES = 'tc3_sesion_fin', AMBITO = 'finanzas', almacen = function(){ return window.sessionStorage; };
+var INACTIVIDAD_MIN = 30, ultimaActividad = Date.now();
+function tocaActividad(){ ultimaActividad = Date.now(); }
+function revisaInactividad(){
+  if (!S || Date.now()-ultimaActividad <= INACTIVIDAD_MIN*60000) return;
+  llama('tc-sesion', {accion:'salir'});
+  cierraLocal('Se cerró la sesión por '+INACTIVIDAD_MIN+' minutos sin actividad. Ingresá de nuevo.');
+}
+function guardaSesion(){ try{ almacen().setItem(LS_SES, JSON.stringify(S)); }catch(e){} }
 var REM = null; try{ REM = JSON.parse(($('tc-remoto') || {}).textContent || 'null'); }catch(e){ REM = null; }
 if (REM && typeof REM==='object' && typeof REM.api==='string' && /^https:\/\/|^http:\/\/(localhost|127\.0\.0\.1)(:\d+)?\//.test(REM.api)) API = REM.api;
-/* S: la sesión abierta {token, vence, usuario, nombre, rol, debe}. Vale 12 horas y es la misma para el cotizador y para el módulo de Finanzas. */
+/* S: la sesión abierta {token, vence, usuario, nombre, rol, debe}. El sistema la da por 12 horas como máximo. */
 var S = null, ingModo = 'ingresar', claveEscrita = '', arrancado = false, configIngreso = null, hayConfigIngreso = false;
 function sesionGuardada(){
-  var x = trae(LS_SES);
+  var x = null; try{ x = JSON.parse(almacen().getItem(LS_SES) || 'null'); }catch(e){ x = null; }
   return x && typeof x==='object' && /^[a-f0-9]{64}$/.test(String(x.token||'')) && Number(x.vence) > Date.now()+60000 && x.usuario ? x : null;
 }
 /* Todo pedido a n8n es un POST simple (texto con JSON adentro): el navegador no necesita consulta previa al servidor. */
@@ -1062,7 +1073,7 @@ function llama(ruta, datos){
           function(){ clearTimeout(reloj); return {ok:false, motivo:'red'}; })
     .then(function(j){
       if (j.ok!==true && S && j.motivo==='sesion') cierraLocal('La sesión venció. Ingresá de nuevo.');
-      else if (j.ok!==true && S && j.motivo==='cambiar' && ingModo!=='cambiar'){ S.debe = true; guarda(LS_SES, S); abreIngreso('cambiar'); }
+      else if (j.ok!==true && S && j.motivo==='cambiar' && ingModo!=='cambiar'){ S.debe = true; guardaSesion(); abreIngreso('cambiar'); }
       return j;
     });
 }
@@ -1093,7 +1104,7 @@ function pintaQuien(){
   $('quien').hidden = !S; $('q-nombre').textContent = S ? (S.nombre || S.usuario) : '—';
 }
 function cierraLocal(msg, bien){
-  S = null; try{ localStorage.removeItem(LS_SES); }catch(e){}
+  S = null; try{ almacen().removeItem(LS_SES); }catch(e){}
   pintaQuien(); abreIngreso('ingresar', msg || '', bien);
 }
 function salir(){
@@ -1108,12 +1119,12 @@ function alEnviarIngreso(e){
     var u = $('ing-usuario').value.trim().toLowerCase(), c = $('ing-clave').value;
     if (!u || !c){ ingMsg('Escribí tu usuario y tu contraseña.'); return; }
     b.disabled = true; ingMsg('');
-    llama('tc-sesion', {accion:'ingresar', usuario:u, clave:c}).then(function(j){
+    llama('tc-sesion', {accion:'ingresar', usuario:u, clave:c, ambito:AMBITO}).then(function(j){
       b.disabled = false;
       if (j.ok!==true || !j.token){ ingMsg(sinRed(j) || j.mensaje || 'No se pudo ingresar. Probá de nuevo.'); return; }
       if (j.rol!=='finanzas'){ ingMsg('Tu usuario no tiene acceso al módulo de Finanzas. Para cotizar entrá al cotizador de vendedores.'); return; }
       S = {token:String(j.token), vence:Number(j.vence), usuario:String(j.usuario), nombre:String(j.nombre || j.usuario), rol:String(j.rol), debe:!!j.debeCambiar};
-      guarda(LS_SES, S); configIngreso = j.config || null; hayConfigIngreso = true;
+      guardaSesion(); configIngreso = j.config || null; hayConfigIngreso = true;
       if (S.debe){ claveEscrita = c; pintaQuien(); abreIngreso('cambiar'); return; }
       alEntrar(configIngreso, true);
     });
@@ -1132,7 +1143,7 @@ function alEnviarIngreso(e){
       if (j.motivo==='clave' && claveEscrita){ claveEscrita = ''; abreIngreso(ingModo, j.mensaje); return; }
       ingMsg(sinRed(j) || j.mensaje || 'No se pudo cambiar la contraseña. Probá de nuevo.'); return;
     }
-    if (S){ S.debe = false; guarda(LS_SES, S); }
+    if (S){ S.debe = false; guardaSesion(); }
     if (obligada || !arrancado) alEntrar(configIngreso, hayConfigIngreso); else cierraIngreso();
     toast('Contraseña cambiada. Desde ahora ingresás con la nueva.');
   });
@@ -1140,6 +1151,7 @@ function alEnviarIngreso(e){
 /* Con la sesión abierta arranca todo lo demás: la tasa, los datos y, en Finanzas, los parámetros. */
 function alEntrar(config, deServidor){
   cierraIngreso();
+  tocaActividad();
   $('vendedor').value = S.nombre || S.usuario;
   pintaQuien();
   if (!arrancado){ arrancado = true; iniciarDatos(config, deServidor); }
@@ -2028,14 +2040,18 @@ function iniciar(){
     toast('Nueva cotización '+numero+'. Cargá el cliente y el importe.');
   });
   /* sesión */
+  $('ing-ver').textContent = VERSION;
   $('ing-form').addEventListener('submit', alEnviarIngreso);
   $('ing-cancelar').addEventListener('click', cierraIngreso);
   $('ing-salir').addEventListener('click', salir);
   $('b-salir').addEventListener('click', salir);
   $('b-clave').addEventListener('click', function(){ claveEscrita = ''; abreIngreso('cambiar-vol'); });
+  ['mousemove','keydown','click','touchstart','scroll'].forEach(function(ev){ document.addEventListener(ev, tocaActividad, {passive:true, capture:true}); });
+  setInterval(revisaInactividad, 30000);
+  document.addEventListener('visibilitychange', function(){ if (!document.hidden) revisaInactividad(); });
   pintar();
   var s0 = sesionGuardada(), resuelto = false;
-  if (s0 && s0.rol!=='finanzas'){ resuelto = true; abreIngreso('ingresar', 'Tu usuario no tiene acceso al módulo de Finanzas. Ingresá con un usuario de Finanzas.'); }
+  if (s0 && s0.rol!=='finanzas'){ resuelto = true; abreIngreso('ingresar'); }
   if (!resuelto){
     if (s0){ S = s0; pintaQuien(); if (S.debe) abreIngreso('cambiar'); else alEntrar(null, false); }
     else abreIngreso('ingresar');
@@ -2043,6 +2059,7 @@ function iniciar(){
   setInterval(function(){ if(!document.hidden) pintar(); }, 60000);
 }
 window.tasaCompartida = {calcular:calcular, generarPDF:generarPDF, norm:norm, sugeridos:SUG, estado:A, motor:M};
+window.tasaCompartida.revisaInactividad = revisaInactividad;
 iniciar();
 })();
 </script>
