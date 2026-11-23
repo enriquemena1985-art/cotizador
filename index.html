@@ -280,7 +280,7 @@ textarea.ctl{height:auto;min-height:104px;padding:9px 11px;line-height:1.45;resi
 .reg-vacio{font-size:13.5px;color:var(--on-night-muted)}
 .reg-item{border:1px solid var(--night-line);border-radius:4px;background:var(--night-2);padding:12px 14px;display:flex;flex-direction:column;gap:6px;min-width:0}
 .reg-cab{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between}
-.reg-cab b{font-family:var(--f-mono);font-weight:600;font-size:14px}
+.reg-cab b{font-family:var(--f-mono);font-weight:600;font-size:14px} .reg-est{display:flex;flex-wrap:wrap;gap:6px;justify-content:flex-end}
 .reg-dat{font-size:14px;font-weight:600;overflow-wrap:anywhere}
 .reg-num{font-size:12.5px;color:var(--on-night-muted);overflow-wrap:anywhere}
 .reg-nota{font-size:13px;color:var(--sky)}
@@ -325,6 +325,7 @@ body:not(.finanzas) .solo-finanzas{display:none!important}
 .vista .seg{flex:0 0 auto;min-width:min(100%,300px)}
 .vista p{flex:1 1 260px;font-size:13px;color:var(--ink-2);text-wrap:pretty}
 .sin-banda{padding:11px 14px;border:1px solid var(--warn);background:var(--warn-soft);color:var(--warn);border-radius:4px;font-weight:600;font-size:14px}
+.sello-ok{padding:11px 14px;border:1px solid var(--ok);background:var(--ok-soft);color:var(--ok);border-radius:4px;font-weight:600;font-size:14px}
 .hoja.sin-imp .hoja-val{background:var(--warn-soft);color:var(--warn)}
 .hoy{display:flex;justify-content:space-between;align-items:baseline;flex-wrap:wrap;gap:6px 16px;padding:12px 16px;border:1px solid var(--sky);background:var(--sky-soft);color:var(--sky-ink);border-radius:4px;font-size:14px;font-weight:500}
 .hoy strong{font-family:var(--f-mono);font-weight:600;font-size:19px;font-variant-numeric:tabular-nums;white-space:nowrap}
@@ -545,6 +546,7 @@ select.ctl{appearance:auto}
 
       <div class="hoja-cuerpo">
         <p class="sin-banda" id="o-sin" hidden>Vista sin impuestos, solo para comparar. No es una cotización válida y no se puede descargar.</p>
+        <p class="sello-ok" id="o-sello" hidden></p>
 
         <dl class="datos">
           <div><dt>Cliente</dt><dd id="o-cliente" class="vacio">A completar</dd></div>
@@ -605,7 +607,7 @@ select.ctl{appearance:auto}
 
     <section class="interno solo-vendedor" id="mias" aria-label="Mis cotizaciones" hidden>
       <div class="int-cab"><h2>Mis cotizaciones</h2><span>Las últimas que emitiste con tu usuario</span></div>
-      <div class="param-pie" style="padding-top:0"><p id="mias-t">Tocá «Actualizar» para ver la respuesta de Finanzas y traer la tasa del momento.</p><button type="button" class="btn sec" id="b-mias">Actualizar</button></div>
+      <div class="param-pie" style="padding-top:0"><p id="mias-t">Tocá «Actualizar» para ver la respuesta de Finanzas y traer la tasa del momento. Con «Abrir» retomás una cotización desde cualquier equipo.</p><button type="button" class="btn sec" id="b-mias">Actualizar</button></div>
       <div class="reg" id="mias-l"></div>
     </section>
 
@@ -849,7 +851,7 @@ return {SUG:SUG, FER_SUG:FER_SUG, CLAVES_INT:CLAVES_INT, norm:norm, ivaDe:ivaDe,
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
 var M = window.TCMotor;   /* motor de cálculo: el mismo archivo en la página de Finanzas y en la del vendedor */
-var VERSION = 'Versión 3.2 · 21-11-2026';
+var VERSION = 'Versión 3.3 · 22-11-2026';
 var LS_VEND = 'tc_vendedor_v1';
 /* AVISO_URL: archivo público que sólo dice que hubo una publicación (número y hora). No lleva la tasa ni ningún valor:
    esos datos se piden al sistema con la sesión abierta y quedan guardados en este navegador mientras dura la sesión. */
@@ -893,6 +895,10 @@ var hoy0 = function(){ var d=new Date(); return new Date(d.getFullYear(),d.getMo
    Finanzas: 'n8n' = configuración leída del sistema. Vendedor: 'web' = tasa publicada; demo = valores de ejemplo incluidos en el archivo. */
 var A = {modo:'', listo:false, lento:false, esFin:false, editable:false, pub:null, int:null, previa:null, demo:false, sync:'', mias:[], reg:null, usu:null};
 var numero = nuevoNumero(), emitidaFija = null, rev = 0, ultimo = null, editado = false, toastT = null, miniOk = false, hojaLejos = false;
+/* Trazabilidad (versión 3.3). fija: la cotización emitida o abierta que está en pantalla con su número. base: la cotización a la que reemplaza la
+   próxima que se emita, si es para el mismo cliente. abierta: una cotización traída del sistema, que se ve y se descarga con las condiciones con
+   las que se emitió, aunque Finanzas haya publicado otra tasa después. */
+var fija = null, base = null, abierta = null;
 var tocado = false, parStr = null, ferMal = 0, unidadesStr = null, regHechos = {}, tnaVista = null, vista = 'con';
 function nuevoNumero(){
   var d = new Date(), r = (Math.random().toString(36)+'000').slice(2,5).toUpperCase();
@@ -904,7 +910,17 @@ var radio = function(nombre){ var el=document.querySelector('input[name="'+nombr
 var copia = function(a,b){ var o={}, k; for(k in a) if(Object.prototype.hasOwnProperty.call(a,k)) o[k]=a[k]; for(k in (b||{})) if(Object.prototype.hasOwnProperty.call(b,k)) o[k]=b[k]; return o; };
 /* Una cotización descargada queda con su número y su hora de emisión. Si después cambian las condiciones, se abre un número nuevo:
    así dos documentos con importes distintos nunca comparten número. */
-function cambio(){ rev++; if (emitidaFija){ numero = nuevoNumero(); emitidaFija = null; } }
+function suelta(){ if (fija && regHechos[fija.numero]) base = fija; numero = nuevoNumero(); emitidaFija = null; fija = null; abierta = null; }
+function cambio(){ rev++; if (emitidaFija) suelta(); }
+var llano = function(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim(); };
+/* La cotización nueva reemplaza a la anterior solo si es para el mismo cliente: el mismo CUIT o DNI o, si falta alguno, el mismo nombre. */
+function reemplazaDe(op){
+  if (!base || !op) return '';
+  var d1 = soloDig(base.doc||''), d2 = soloDig(op.doc||'');
+  if (d1 && d2) return d1===d2 ? base.numero : '';
+  var n1 = llano(base.cliente), n2 = llano(op.cliente);
+  return n1 && n1===n2 ? base.numero : '';
+}
 function miniPinta(){ $('mini').hidden = !(miniOk && hojaLejos); }
 var SUG = copia(M.SUG, {textos:TEXTOS_SUG});
 /* Sólo vale una publicación hecha con este modelo de cálculo (versión 3). */
@@ -966,6 +982,7 @@ function pintaQuien(){
 }
 function cierraLocal(msg, bien){
   S = null; try{ almacen().removeItem(LS_SES); }catch(e){}
+  fija = null; base = null; abierta = null;
   olvidaTasa();
   pintaQuien(); abreIngreso('ingresar', msg || '', bien);
 }
@@ -1016,7 +1033,7 @@ function alEntrar(config, deServidor){
   pintaQuien();
   if (!arrancado){ arrancado = true; iniciarDatos(config, deServidor); }
   else {
-    A.mias = traeMias(); pintaMias(); pidioTasa = false; avisoPedido = ''; esperaHasta = 0;
+    A.det = {}; A.cfgs = {}; A.mias = traeMias(); pintaMias(); pidioTasa = false; avisoPedido = ''; esperaHasta = 0;
     if (deServidor) aplicaConfig(config, true);
   }
   cambio(); pintar();
@@ -1028,6 +1045,7 @@ function hayBorrador(){ return false; }
 /* Los vendedores calculan siempre con lo publicado. Finanzas, mientras edita, ve el efecto de sus cambios antes de publicarlos. */
 function parActual(){
   if (!A.listo) return null;
+  if (abierta) return abierta.par;
   var pp = parPublicado();
   return pp;
 }
@@ -1095,10 +1113,11 @@ function pintaCond(par, tasa){
 }
 
 function pintar(){
-  if (emitidaFija && Date.now()-emitidaFija.getTime() >= 24*3600*1000){ numero = nuevoNumero(); emitidaFija = null; }
+  if (emitidaFija && Date.now()-emitidaFija.getTime() >= 24*3600*1000) suelta();
   var par = parActual(), sp = par ? JSON.stringify(par) : '';
   if (sp !== parStr){ if (parStr !== null) cambio(); parStr = sp; }
   var ahora = emitidaFija || new Date(), hoy = diaDe(ahora), tasa = estadoTasa(par, new Date()), borr = hayBorrador();
+  if (abierta && emitidaFija) tasa = {nivel:'ok', txt:'Cotización emitida el '+fFechaHora(emitidaFija), pub:emitidaFija, habiles:0};
   document.body.classList.toggle('finanzas', !!A.esFin);
   pintaFranja(par, tasa, borr); pintaCond(par, tasa);
   var enCliente = document.body.classList.contains('cliente'), modo = radio('modo');
@@ -1137,6 +1156,9 @@ function pintar(){
     if (!par.unidades.some(function(u){ return u.toLowerCase()===det; })) esp.push('unidad fuera del listado habilitado');
   }
   if (esp.length) notas.push('Esta cotización necesita validación expresa de Finanzas: '+esp.join('; ')+'.');
+  if (abierta) notas.push('Estás viendo la cotización '+numero+', '+(selloDe(numero) ? 'aprobada por Finanzas' : 'pendiente de validación')+'. «Descargar PDF» baja el mismo documento. Si cambiás algún dato pasa a ser una cotización nueva, que la reemplaza.');
+  var rz = reemplazaDe(op);
+  if (rz) notas.push('Esta cotización reemplaza a '+rz+': Finanzas la va a ver encadenada con la anterior.');
   var contado = op.precio>0 && r.S===0 && op.anticipo<=op.precio;
   if (contado) notas.push('Operación de contado: no queda saldo para financiar con cheques.');
   var sinTasa = tasa.nivel==='bloqueo' || borr || A.modo==='sinacceso';
@@ -1166,6 +1188,9 @@ function pintar(){
   $('vista-t').textContent = !hay ? '' : sinV ? 'Sin impuestos, el costo financiero sería '+f$(r.sin.costo)+' en lugar de '+f$(r.costoCliente)+'. Es una vista para comparar: no se puede descargar.'
     : r.impuestos>0 ? 'Los impuestos suman '+f$(r.impuestos)+' al costo financiero: el '+fPct(r.impuestos/r.costoCliente,0)+' del total.' : 'Esta operación no tiene impuestos sobre el costo financiero.';
   $('hoja').classList.toggle('sin-imp', sinV); $('o-sin').hidden = !sinV;
+  var se = $('o-sello'), sl = '';
+  sl = emitidaFija ? selloDe(numero) : '';
+  se.hidden = !sl || sinV; se.textContent = sl;
 
   /* hoja */
   $('o-numero').textContent = numero;
@@ -1261,24 +1286,33 @@ function estadoDe(rec){
 /* Lo que se registra de cada cotización emitida: la operación, los cheques y los valores con los que se calculó. */
 function armaRegistro(r, emitida){
   var op = r.op, par = r.par, c = function(s,n){ return String(s||'').slice(0,n); };
-  return {v:3, numero:r.numero, ts:emitida.toISOString(), tsNum:emitida.getTime(), vence:emitida.getTime()+864e5, configId:(A.pub && (A.pub.id || A.pub.publicada)) || '',
+  return {v:3, numero:r.numero, ts:emitida.toISOString(), tsNum:emitida.getTime(), vence:emitida.getTime()+864e5, configId:(abierta && abierta.configId) || (A.pub && (A.pub.id || A.pub.publicada)) || '',
     vendedor:c(op.vendedor,80), cliente:c(op.cliente,120), doc:c(op.doc,20), empresa:c(op.empresa,80), unidad:c(op.unidad,60), detalle:c(op.detalle,120),
     importe:r.P, anticipo:r.A, saldo:r.S, forma:r.forma, modo:op.modo, tipo:op.tipo, origen:op.origen, nosis:op.nosis,
+    plazo:op.plazo, primer:op.primer, frec:op.frec, reemplaza:reemplazaDe(op),
     cheques:r.filas.map(function(f){ return {f:aIso(f.fecha), d:f.dias, t:f.t, k:f.capital, n:f.cheque}; }),
     total:r.totalCheques, pagoAparte:r.pagoAparte, costoCliente:Math.round(r.costoCliente), facturaNeto:r.neto, iva:r.iva+r.perc,
     tna:par.tna, bonif:par.bonif, gastosAGN:par.gastosAGN, sellos:par.sellos, comision:par.comision, otros:par.otros, metodo:par.metodo,
     iibb:par.iibb, tem:par.tem, debcred:par.debcred, ivaPct:par.iva, margen:par.margen,
     tea:Math.round(r.tea*1e4)/100, cft:Math.round(r.cft*1e4)/100, alertas:r.alertas.slice(0,8), estado:'pendiente', nota:''};
 }
-function itemReg(rec, conAcciones){
+function itemReg(rec, conAcciones, lista){
   var it = el('div','reg-item'), e = estadoDe(rec), cab = el('div','reg-cab'), ch = rec.cheques||[];
-  cab.appendChild(el('b','',rec.numero||'—')); cab.appendChild(el('span','pill '+ETIQ[e].c, ETIQ[e].t)); it.appendChild(cab);
+  var sig = (lista||[]).filter(function(x){ return !!x.reemplaza && x.reemplaza===rec.numero; })[0];
+  var ant = rec.reemplaza ? (lista||[]).filter(function(x){ return x.numero===rec.reemplaza; })[0] : null;
+  cab.appendChild(el('b','',rec.numero||'—'));
+  var est = el('span','reg-est'); est.appendChild(el('span','pill '+ETIQ[e].c, ETIQ[e].t)); if (sig) est.appendChild(el('span','pill gris','Reemplazada')); cab.appendChild(est); it.appendChild(cab);
   it.appendChild(el('p','reg-dat', (rec.cliente||'Cliente sin cargar')+' · '+(rec.detalle||rec.unidad||'—')));
   var maxd = ch.reduce(function(m,c){ return Math.max(m,c.d||0); },0);
   it.appendChild(el('p','reg-num', 'Emitida '+(rec.tsNum?fFechaHora(new Date(rec.tsNum)):'—')+(rec.vendedor?' · '+rec.vendedor:'')+' · saldo '+f$(rec.saldo||0)+' · '+ch.length+(ch.length===1?' cheque':' cheques')+' por '+f$(rec.total||0)
     +(rec.pagoAparte>0?' + '+f$(rec.pagoAparte)+' aparte':'')+' · hasta '+maxd+' días'));
+  if (rec.reemplaza || sig) it.appendChild(el('p','reg-num', (rec.reemplaza ? 'Reemplaza a '+rec.reemplaza+(ant ? ' ('+ETIQ[estadoDe(ant)].t.toLowerCase()+(ant.usuario && rec.usuario && ant.usuario!==rec.usuario ? ', de otro vendedor' : '')+')' : '') : '')+(rec.reemplaza && sig ? ' · ' : '')+(sig ? 'Reemplazada por '+sig.numero : '')));
   if ((rec.alertas||[]).length){ var al = el('div','reg-al'); rec.alertas.forEach(function(t){ al.appendChild(el('span','pill warn',String(t))); }); it.appendChild(al); }
   if (rec.nota && !conAcciones) it.appendChild(el('p','reg-nota','Finanzas: '+rec.nota));
+  if (!conAcciones && S && !A.demo){
+    var av = el('div','reg-ac'), ba = el('button','btn sec chico','Abrir'); ba.type='button'; ba.dataset.abrir = rec.numero; ba.setAttribute('aria-label','Abrir la cotización '+rec.numero);
+    av.appendChild(ba); it.appendChild(av);
+  }
   return it;
 }
 
@@ -1288,18 +1322,23 @@ function traeMias(){ var l = trae(lsMias()); return Array.isArray(l) ? l : []; }
 /* En este equipo se guarda un resumen de cada cotización, no la operación completa. */
 function resumenMia(rec, estado){
   return {numero:rec.numero, tsNum:rec.tsNum, vence:rec.vence, vendedor:rec.vendedor, cliente:rec.cliente, detalle:rec.detalle, unidad:rec.unidad, saldo:rec.saldo, total:rec.total, pagoAparte:rec.pagoAparte,
-    cheques:(rec.cheques||[]).map(function(c){ return {d:c.d}; }), alertas:(rec.alertas||[]).slice(0,8), estado:estado || rec.estado || 'pendiente', nota:String(rec.nota||'').slice(0,300)};
+    cheques:(rec.cheques||[]).map(function(c){ return {d:c.d}; }), alertas:(rec.alertas||[]).slice(0,8), estado:estado || rec.estado || 'pendiente', nota:String(rec.nota||'').slice(0,300), reemplaza:String(rec.reemplaza||'').slice(0,24), revisada:String(rec.revisada||'').slice(0,30)};
 }
 function anotaMia(rec){
-  var l = traeMias().filter(function(x){ return x.numero!==rec.numero; });
-  l.unshift(resumenMia(rec, 'registrada'));
-  l = l.slice(0,30); guarda(lsMias(), l); A.mias = l; pintaMias();
+  var l = traeMias();
+  /* El detalle queda solo en memoria, para poder abrirla sin consultar al sistema. */
+  if (!A.det) A.det = {}; if (!A.cfgs) A.cfgs = {};
+  if (!A.det[rec.numero]) A.det[rec.numero] = rec;
+  if (pubOk() && A.pub.id && rec.configId===A.pub.id) A.cfgs[A.pub.id] = A.pub;
+  /* Si el sistema ya la devolvió con la respuesta de Finanzas, conserva ese estado al volver a descargarla. */
+  if (!l.some(function(x){ return x.numero===rec.numero; })){ l.unshift(resumenMia(rec, 'registrada')); l = l.slice(0,30); guarda(lsMias(), l); }
+  A.mias = l; pintaMias();
 }
 function pintaMias(){
   var sec = $('mias'), l = A.mias || []; sec.hidden = !S;
   var c = $('mias-l'); c.textContent='';
   if (!l.length) c.appendChild(el('p','reg-vacio','Todavía no emitiste cotizaciones con este usuario.'));
-  l.forEach(function(x){ c.appendChild(itemReg(x,false)); });
+  l.forEach(function(x){ c.appendChild(itemReg(x,false,l)); });
 }
 /* Trae del sistema las cotizaciones del usuario con la respuesta de Finanzas y, de paso, la tasa vigente. */
 function actualizaMias(callado){
@@ -1308,11 +1347,114 @@ function actualizaMias(callado){
   return llama('tc-cotizacion', {accion:'mias'}).then(function(j){
     b.disabled = false;
     if (j.ok!==true){ if (!callado && !caida(j)) toast(sinRed(j) || 'No se pudieron leer tus cotizaciones. Probá de nuevo.', true); return; }
-    A.mias = (Array.isArray(j.cotizaciones) ? j.cotizaciones : []).slice(0,30).map(function(x){ return resumenMia(x); });
+    var cots = (Array.isArray(j.cotizaciones) ? j.cotizaciones : []).slice(0,30), cs = j.configs && typeof j.configs==='object' ? j.configs : {}, k;
+    A.mias = cots.map(function(x){ return resumenMia(x); });
+    /* El detalle completo y las condiciones de emisión quedan solo en memoria, para poder abrir una cotización: en el equipo se guarda el resumen. */
+    A.det = {}; cots.forEach(function(x){ if (x && x.numero) A.det[x.numero] = x; });
+    A.cfgs = {}; for (k in cs) if (Object.prototype.hasOwnProperty.call(cs,k) && cs[k] && cs[k].v===3) A.cfgs[k] = cs[k];
+    if (j.config && j.config.v===3 && j.config.id) A.cfgs[j.config.id] = j.config;
     guarda(lsMias(), A.mias); pintaMias();
     aplicaConfig(j.config, true);
-    if (!callado) toast('Listo: cotizaciones y tasa al día.');
+    /* Si Finanzas observó o rechazó la que está abierta, o si ya fue reemplazada desde otro equipo, deja de ser un documento para descargar. */
+    var ma = abierta ? miaDe(abierta.numero) : null, ea = ma ? estadoDe(ma) : '', fin = ea==='observada' || ea==='rechazada';
+    var sg = abierta ? (A.mias||[]).filter(function(x){ return !!x.reemplaza && x.reemplaza===abierta.numero; })[0] : null, cayo = fin || !!sg;
+    var porque = fin ? 'Finanzas dejó '+ea+' la cotización que tenías abierta.' : sg ? 'La cotización que tenías abierta ya fue reemplazada por '+sg.numero+'.' : '';
+    if (cayo){ rev++; suelta(); if (base) base = {numero:ultimaDe(base.numero), cliente:base.cliente, doc:base.doc}; }
+    if (abierta || cayo) pintar();
+    if (cayo) toast(porque+' Si la descargás, sale como una cotización nueva'+(base ? ', que reemplaza a '+base.numero : '')+'.', true);
+    else if (!callado) toast('Listo: cotizaciones y tasa al día.');
   });
+}
+function miaDe(num){ return (A.mias||[]).filter(function(x){ return x.numero===num; })[0] || null; }
+/* La última cotización de una secuencia: la que todavía no fue reemplazada por otra. */
+function ultimaDe(num){
+  var l = A.mias||[], n = num, k, s;
+  for (k=0;k<40;k++){ s = l.filter(function(x){ return !!x.reemplaza && x.reemplaza===n; })[0]; if (!s) break; n = s.numero; }
+  return n;
+}
+/* Marca de la aprobación de Finanzas, para la hoja y el PDF: solo si el sistema devolvió esa cotización como aprobada. */
+function selloDe(num){
+  var m = miaDe(num); if (!m || m.estado!=='aprobada') return '';
+  var f = m.revisada ? new Date(m.revisada) : null;
+  return 'Aprobada por Administración y Finanzas'+(f && !isNaN(f.getTime()) ? ' el '+fFechaHora(f) : '');
+}
+/* Lo que se cargó en el formulario para armar el plan de cheques de una cotización registrada. Desde la versión 3.3 queda guardado; para las
+   anteriores se deduce de las fechas de los cheques, y vale solo si reproduce exactamente esas fechas y esos plazos. */
+function entradasDe(d, par){
+  var ch = d.cheques||[], n = ch.length;
+  if (!n || !par || !(d.tsNum>0)) return null;
+  var hoy = diaDe(new Date(d.tsNum)), d0 = Math.round(Number(ch[0].d)||0), corr = [0,-1,-2,-3,-4,1,2,3,4], k, j;
+  var igual = function(noms){ return noms.length===n && noms.every(function(f,i){ var b = M.plazoCalculo(hoy, f, par); return aIso(b.fecha)===ch[i].f && b.dias===ch[i].d && b.t===ch[i].t; }); };
+  if (d.modo==='uno' || (n===1 && d.modo!=='cuotas')){
+    var pls = d.plazo>0 ? [Math.round(d.plazo)] : corr.map(function(c){ return d0+c; });
+    for (k=0;k<pls.length;k++) if (pls[k]>=1 && igual([masDias(hoy, pls[k])])) return {modo:'uno', plazo:pls[k], exacto:true};
+    return {modo:'uno', plazo:Math.max(1,d0), exacto:false};
+  }
+  var pares = [], hallado = null;
+  if (d.primer>0 && d.frec) pares.push([Math.round(d.primer), String(d.frec)]);
+  else corr.forEach(function(c){ ['30','mes','15'].forEach(function(f){ pares.push([d0+c, f]); }); });
+  for (k=0;k<pares.length;k++){
+    var pr = pares[k][0], fr = pares[k][1], f0, noms = [];
+    if (pr<1) continue;
+    f0 = masDias(hoy, pr);
+    for (j=0;j<n;j++) noms.push(fr==='mes' ? FM.masMeses(f0,j) : masDias(f0,(fr==='15'?15:30)*j));
+    if (!igual(noms)) continue;
+    if (!hallado) hallado = {modo:'cuotas', cuotas:n, primer:pr, frec:fr, exacto:true};
+    /* Dos frecuencias que dan las mismas fechas: no se sabe si el documento original dice «cada 30 días» o «el mismo día de cada mes». */
+    else if (n>1 && hallado.frec!==fr) hallado.exacto = false;
+  }
+  return hallado || {modo:'cuotas', cuotas:n, primer:Math.max(1,d0), frec:'30', exacto:false};
+}
+function cargaForm(d, ins){
+  var u = $('unidad'); u.value = d.unidad||''; if (u.selectedIndex<0) u.selectedIndex = 0;
+  $('empresa').value = d.empresa||''; $('detalle').value = d.detalle||''; $('cliente').value = d.cliente||''; $('doc').value = d.doc||'';
+  $('precio').value = d.importe>0 ? fInt(d.importe) : ''; $('antMonto').value = fInt(d.anticipo||0); sincronizaAnticipo('monto');
+  $(ins.modo==='uno' ? 'modo-uno' : 'modo-cuotas').checked = true;
+  if (ins.modo==='uno') $('plazo').value = String(ins.plazo);
+  else { $('cuotas').value = String(ins.cuotas); $('primer').value = String(ins.primer); $('frec').value = ins.frec; if ($('frec').selectedIndex<0) $('frec').selectedIndex = 0; }
+  $(d.tipo==='capital' ? 'tipo-capital' : 'tipo-iguales').checked = true;
+  $(d.origen==='terceros' ? 'origen-terceros' : 'origen-propios').checked = true;
+  $(d.forma==='aparte' ? 'forma-aparte' : 'forma-dentro').checked = true;
+  $(d.nosis==='apto' ? 'nosis-apto' : d.nosis==='no' ? 'nosis-no' : 'nosis-pend').checked = true;
+}
+/* Abre una cotización del sistema. Si sigue vigente y Finanzas no la observó ni la rechazó, queda en pantalla como el mismo documento: mismo número,
+   misma emisión y los valores con que se emitió. Si no, se abre con los datos cargados como una cotización nueva, con la tasa de hoy, que la reemplaza. */
+function abreCot(d){
+  var e = estadoDe(miaDe(d.numero) || d), sig = (A.mias||[]).filter(function(x){ return !!x.reemplaza && x.reemplaza===d.numero; })[0];
+  var cfg = pubOk() && A.pub.id && A.pub.id===d.configId ? A.pub : (A.cfgs||{})[d.configId];
+  var parOrig = cfg && cfg.v===3 ? norm(cfg) : null;
+  var motivo = sig ? 'ya fue reemplazada por '+sig.numero : e==='rechazada' ? 'Finanzas la rechazó' : e==='observada' ? 'Finanzas la dejó observada'
+    : !(d.vence>Date.now()) ? 'ya venció' : !parOrig ? 'se emitió con una tasa que ya no está disponible' : '';
+  var ins = entradasDe(d, parOrig || parPublicado());
+  if (!ins){ toast('No se pudo abrir esa cotización. Tocá «Actualizar» y probá de nuevo.', true); return; }
+  if (!motivo && !ins.exacto) motivo = 'no se pudo reconstruir el documento original';
+  var esta = {numero:d.numero, cliente:d.cliente, doc:d.doc}, cerca = function(a,b){ return Math.abs((Number(a)||0)-(Number(b)||0))<=1; };
+  cargaForm(d, ins); vista = 'con'; editado = true;
+  if (!motivo){
+    abierta = {numero:d.numero, par:parOrig, configId:d.configId};
+    numero = d.numero; emitidaFija = new Date(d.tsNum); fija = esta; base = null; regHechos[d.numero] = true;
+    if (ins.modo==='uno') $('fechaUno').value = aIso(masDias(diaDe(emitidaFija), ins.plazo));
+    parStr = JSON.stringify(parOrig); rev++; pintar();
+    var r = ultimo;
+    /* Solo es «el mismo documento» si reproduce los importes registrados y cada cheque, con su fecha y su plazo. */
+    var calza = !!r && r.numero===d.numero && r.filas.length===(d.cheques||[]).length && cerca(r.totalCheques, d.total) && cerca(r.pagoAparte, d.pagoAparte) && cerca(r.S, d.saldo)
+      && cerca(r.P, d.importe) && cerca(r.A, d.anticipo) && r.filas.every(function(f,i){ var c = d.cheques[i]||{}; return aIso(f.fecha)===c.f && f.dias===c.d && cerca(f.cheque, c.n); });
+    if (calza){
+      toast('Cotización '+d.numero+' abierta: '+(e==='aprobada' ? 'aprobada por Finanzas' : 'pendiente de validación')+'. Vence el '+fFechaHora(new Date(d.vence))+'.');
+      try{ $('carga').scrollIntoView({block:'start'}); }catch(x){}
+      return;
+    }
+    motivo = 'los importes no coinciden con los registrados';
+  }
+  abierta = null; fija = null; emitidaFija = null; base = {numero:ultimaDe(d.numero), cliente:d.cliente, doc:d.doc}; numero = nuevoNumero();
+  if (ins.modo==='uno') sincronizaPlazo('plazo');
+  rev++; pintar();
+  toast('Se abrió como cotización nueva ('+numero+'), con la tasa de hoy: '+motivo+'. Reemplaza a '+base.numero+'.');
+  try{ $('carga').scrollIntoView({block:'start'}); }catch(x){}
+}
+function abrirMia(num){
+  var sigue = function(){ var d = (A.det||{})[num]; if (!d){ toast('No se pudo traer esa cotización del sistema. Revisá la conexión y tocá «Actualizar».', true); return; } abreCot(d); };
+  if ((A.det||{})[num]) sigue(); else actualizaMias(true).then(sigue);
 }
 /* Devuelve {estado}: 'ok', 'tasa' (Finanzas cambió la tasa), 'sesion' (hay que ingresar de nuevo), 'sin' (demostración) o 'error'. */
 function registrar(r, emitida){
@@ -1333,7 +1475,7 @@ function limpiaPdf(s){
 function generarPDF(r, emitida){
   var doc = new window.jspdf.jsPDF({unit:'mm', format:'a4', compress:true});
   var W=210, M=15, CW=W-2*M, y=0, vence=new Date(emitida.getTime()+24*3600*1000);
-  var C={night:[6,11,20],navy:[11,37,69],blue:[20,88,200],sky:[143,211,247],soft:[221,239,251],ink:[10,18,32],ink2:[47,64,87],muted:[95,113,135],line:[210,219,229],white:[255,255,255],gris:[243,246,250],nm:[147,167,189],ambar:[252,241,220],ambarT:[120,76,8]};
+  var C={night:[6,11,20],navy:[11,37,69],blue:[20,88,200],sky:[143,211,247],soft:[221,239,251],ink:[10,18,32],ink2:[47,64,87],muted:[95,113,135],line:[210,219,229],white:[255,255,255],gris:[243,246,250],nm:[147,167,189],ambar:[252,241,220],ambarT:[120,76,8],okF:[223,243,234],okT:[23,121,78]};
   var fill=function(c){doc.setFillColor(c[0],c[1],c[2]);}, txt=function(c){doc.setTextColor(c[0],c[1],c[2]);}, traz=function(c){doc.setDrawColor(c[0],c[1],c[2]);};
   var fuente=function(est,t){doc.setFont('helvetica',est);doc.setFontSize(t);};
   var m$=function(n){return '$ '+fInt(n);};
@@ -1361,6 +1503,8 @@ function generarPDF(r, emitida){
   fuente('bold',8.5); doc.text('VÁLIDA POR 24 HORAS · Vence: '+fFechaHora(vence), W-M, 38.6, {align:'right'});
   y=50;
   if (A.demo){ fill(C.ambar); doc.rect(M,y-4.5,CW,8,'F'); txt(C.ambarT); fuente('bold',8.5); doc.text('DEMOSTRACIÓN: cotización no registrada, sin validez comercial.', M+3.5, y+0.8); y+=9; }
+  var sello = A.demo ? '' : selloDe(r.numero);
+  if (sello){ fill(C.okF); doc.rect(M,y-4.5,CW,8,'F'); txt(C.okT); fuente('bold',8.5); doc.text(L(sello).toUpperCase()+'.', M+3.5, y+0.8); y+=9; }
 
   /* datos */
   titulo('Datos de la operación');
@@ -1551,7 +1695,8 @@ function alPdf(){
     if (res.vendedor && res.vendedor!==r.op.vendedor){ r.op.vendedor = res.vendedor; $('vendedor').value = res.vendedor; guarda(LS_VEND, res.vendedor); }
     var out; try{ out=generarPDF(r, emitida); }catch(e){ fin(); toast('La cotización quedó registrada, pero no se pudo armar el PDF. Probá descargarla de nuevo.', true); return; }
     return guardaArchivo(out.nombre, out.blob).then(function(){
-      if (r.rev===rev) emitidaFija = emitida; else if (numero===r.numero) numero = nuevoNumero();
+      var esta = {numero:r.numero, cliente:r.op.cliente, doc:r.op.doc};
+      if (r.rev===rev){ emitidaFija = emitida; fija = esta; base = null; } else { if (numero===r.numero) numero = nuevoNumero(); if (regHechos[r.numero]) base = esta; }
       if (registrada) anotaMia(res.rec);
       fin();
       toast('Cotización '+r.numero+' descargada. Vence el '+fFechaHora(out.vence)+'. '+(registrada ? 'Quedó registrada en el sistema de Finanzas.' : A.demo ? 'Es una demostración: no quedó registrada.' : 'No quedó registrada: enviale el PDF a Finanzas.'), !registrada && !A.demo);
@@ -1695,7 +1840,7 @@ function iniciar(){
   });
   $('b-nueva').addEventListener('click', function(){
     ['cliente','doc','detalle','precio'].forEach(function(id){ $(id).value=''; });
-    $('nosis-pend').checked=true; $('origen-propios').checked=true; $('forma-dentro').checked=true; vista='con'; numero=nuevoNumero(); emitidaFija=null; rev++; editado=true;
+    $('nosis-pend').checked=true; $('origen-propios').checked=true; $('forma-dentro').checked=true; vista='con'; numero=nuevoNumero(); emitidaFija=null; fija=null; base=null; abierta=null; rev++; editado=true;
     sincronizaAnticipo('pct'); pintar(); $('cliente').focus();
     toast('Nueva cotización '+numero+'. Cargá el cliente y el importe.');
   });
@@ -1708,6 +1853,7 @@ function iniciar(){
   $('b-salir').addEventListener('click', salir);
   $('b-clave').addEventListener('click', function(){ claveEscrita = ''; abreIngreso('cambiar-vol'); });
   $('b-mias').addEventListener('click', function(){ actualizaMias(false); });
+  $('mias-l').addEventListener('click', function(e){ var b = e.target.closest('button[data-abrir]'); if (b) abrirMia(b.dataset.abrir); });
   pintar();
   var s0 = sesionGuardada(), resuelto = false;
   if (!s0) olvidaTasa();   /* sin sesión vigente no queda guardada ninguna tasa en este navegador */
