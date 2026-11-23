@@ -851,7 +851,7 @@ return {SUG:SUG, FER_SUG:FER_SUG, CLAVES_INT:CLAVES_INT, norm:norm, ivaDe:ivaDe,
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
 var M = window.TCMotor;   /* motor de cálculo: el mismo archivo en la página de Finanzas y en la del vendedor */
-var VERSION = 'Versión 3.3 · 22-11-2026';
+var VERSION = 'Versión 3.4 · 23-11-2026';
 var LS_VEND = 'tc_vendedor_v1';
 /* AVISO_URL: archivo público que sólo dice que hubo una publicación (número y hora). No lleva la tasa ni ningún valor:
    esos datos se piden al sistema con la sesión abierta y quedan guardados en este navegador mientras dura la sesión. */
@@ -1657,7 +1657,7 @@ function toast(t, malo){
   var e=$('toast'); e.textContent=t; e.className='toast'+(malo?' bad':''); e.hidden=false;
   clearTimeout(toastT); toastT=setTimeout(function(){ e.hidden=true; }, 7000);
 }
-/* Los archivos (PDF y planilla) se guardan con la descarga normal del navegador. */
+/* Los archivos (PDF y reporte en Excel) se guardan con la descarga normal del navegador. */
 function bajaDirecto(nombre, data){
   return new Promise(function(res, rej){
     try{

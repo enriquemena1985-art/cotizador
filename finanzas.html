@@ -288,6 +288,14 @@ textarea.ctl{height:auto;min-height:104px;padding:9px 11px;line-height:1.45;resi
 .reg-ac{display:flex;flex-wrap:wrap;gap:8px;align-items:center;padding-top:4px}
 .reg-ac .ctl{flex:1 1 220px;height:38px;font-size:14px}
 .reg-ac .btn{padding:9px 13px}
+.reg-mas{display:flex;flex-wrap:wrap;gap:10px 16px;align-items:center;justify-content:space-between;padding-top:12px}
+.reg-mas p{font-size:12.5px;color:var(--on-night-muted)}
+.rep{margin-top:16px;padding:14px;border:1px solid var(--night-line);border-radius:4px;background:var(--night-2);display:flex;flex-direction:column;gap:10px}
+.rep-tit{font-weight:600;font-size:14px;color:var(--on-night)}
+.rep-g{display:grid;grid-template-columns:repeat(auto-fit,minmax(170px,1fr));gap:12px 16px;align-items:end}
+.rep-g .btn{height:40px}
+.rep .ctl{background:var(--night);color-scheme:dark}
+.rep-n{font-size:12.5px;color:var(--on-night-muted);max-width:80ch}
 
 /* ---------- modo cliente y roles ---------- */
 body.cliente .solo-vendedor,body.cliente .avisos{display:none}
@@ -711,8 +719,18 @@ select.ctl{appearance:auto}
       <details class="param" id="g-reg">
         <summary>Cotizaciones emitidas</summary>
         <div class="param-pie"><p id="reg-t">Abrí esta sección para ver las cotizaciones registradas.</p>
-          <div class="acc"><button type="button" class="btn sec" id="b-reg-act">Actualizar</button><button type="button" class="btn sec" id="b-reg-csv">Descargar planilla</button></div></div>
+          <div class="acc"><button type="button" class="btn sec" id="b-reg-act">Actualizar</button></div></div>
         <div class="reg" id="reg"></div>
+        <div class="reg-mas" id="reg-mas" hidden><p id="reg-mas-t">—</p><button type="button" class="btn sec" id="b-reg-mas">Ver 10 más</button></div>
+        <div class="rep" id="rep">
+          <p class="rep-tit">Reporte en Excel</p>
+          <div class="rep-g">
+            <div class="campo"><label class="rot" for="rep-desde">Emitidas desde</label><input class="ctl" id="rep-desde" type="date"></div>
+            <div class="campo"><label class="rot" for="rep-hasta">Hasta</label><input class="ctl" id="rep-hasta" type="date"></div>
+            <button type="button" class="btn pri" id="b-rep">Descargar Excel</button>
+          </div>
+          <p class="rep-n" id="rep-t">Tres hojas: Resumen, Cotizaciones y Cheques. Lleva el costo para la empresa: es de uso interno y no se comparte con clientes ni vendedores.</p>
+        </div>
       </details>
 
       <details class="param" id="g-usu">
@@ -988,7 +1006,7 @@ return {SUG:SUG, FER_SUG:FER_SUG, CLAVES_INT:CLAVES_INT, norm:norm, ivaDe:ivaDe,
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
 var M = window.TCMotor;   /* motor de cálculo: el mismo archivo en la página de Finanzas y en la del vendedor */
-var VERSION = 'Versión 3.3 · 22-11-2026';
+var VERSION = 'Versión 3.4 · 23-11-2026';
 var LS_VEND = 'tc_vendedor_v1';
 var CLAVES_INT = M.CLAVES_INT;
 
@@ -1572,18 +1590,34 @@ function costoRegistro(rec){
   (rec.cheques||[]).forEach(function(c){ var lb = liquidaBanco(c.n, c.t/365, pr); intB += lb.intB; gas += lb.selB+lb.comB+lb.otrB; });
   return (rec.bonif||0)/100*intB + (rec.gastosAGN||0)/100*gas - Math.round((rec.margen||0)/100*(rec.saldo||0));
 }
+/* Versión 3.4: el registro muestra de a 10. Arriba las pendientes de validación y después las más recientes.
+   El orden se fija al leer el registro: al aprobar u observar, la cotización no salta de lugar hasta «Actualizar». */
+var REG_PASO = 10, REG_TOPE = 150;
+function ordenRegistro(l){
+  var pend = function(x){ return estadoDe(x)==='pendiente' ? 0 : 1; };
+  return l.slice().sort(function(a,b){ return pend(a)-pend(b) || (b.tsNum||0)-(a.tsNum||0); }).map(function(x){ return x.numero; });
+}
 function pintaRegistro(){
   if (!A.reg) return;
   var c = $('reg'); c.textContent='';
-  var pend = A.reg.filter(function(x){ return estadoDe(x)==='pendiente'; }).length;
-  $('reg-t').textContent = A.reg.length ? (A.reg.length===1 ? '1 cotización registrada' : A.reg.length+' cotizaciones registradas')+', '+(pend===1 ? '1 pendiente' : pend+' pendientes')+' de validación.' : 'Todavía no hay cotizaciones registradas.';
-  A.reg.forEach(function(x){ c.appendChild(itemReg(x,true,A.reg)); });
+  var pend = A.reg.filter(function(x){ return estadoDe(x)==='pendiente'; }).length, porNum = {};
+  A.reg.forEach(function(x){ porNum[x.numero] = x; });
+  var orden = (A.regOrden||[]).filter(function(n){ return !!porNum[n]; });
+  A.reg.forEach(function(x){ if (orden.indexOf(x.numero)<0) orden.push(x.numero); });
+  var ver = Math.min(A.regVer||REG_PASO, orden.length), resta = orden.length-ver;
+  $('reg-t').textContent = A.reg.length ? (A.reg.length===1 ? '1 cotización registrada' : A.reg.length+' cotizaciones registradas')+', '+(pend===1 ? '1 pendiente' : pend+' pendientes')+' de validación.'
+    +(A.reg.length>1 ? ' Arriba, las pendientes; después, las más recientes.' : '')+(A.reg.length>=REG_TOPE ? ' Se ven las '+REG_TOPE+' últimas: las anteriores están en el reporte en Excel.' : '') : 'Todavía no hay cotizaciones registradas.';
+  orden.slice(0,ver).forEach(function(n){ c.appendChild(itemReg(porNum[n],true,A.reg)); });
+  $('reg-mas').hidden = resta<=0;
+  $('reg-mas-t').textContent = 'Se ven '+ver+' de '+orden.length+'.';
+  $('b-reg-mas').textContent = 'Ver '+Math.min(REG_PASO,resta)+' más';
 }
 function cargarRegistro(){
   $('reg-t').textContent = 'Leyendo cotizaciones…';
   return llama('tc-finanzas', {accion:'cotizaciones'}).then(function(j){
     if (j.ok!==true){ $('reg-t').textContent = sinRed(j) || 'No se pudieron leer las cotizaciones. Probá de nuevo con Actualizar.'; return; }
-    A.reg = (Array.isArray(j.cotizaciones) ? j.cotizaciones : []).slice().sort(function(a,b){ return (b.tsNum||0)-(a.tsNum||0); }).slice(0,150); pintaRegistro();
+    A.reg = (Array.isArray(j.cotizaciones) ? j.cotizaciones : []).slice().sort(function(a,b){ return (b.tsNum||0)-(a.tsNum||0); }).slice(0,REG_TOPE);
+    A.regOrden = ordenRegistro(A.reg); A.regVer = REG_PASO; pintaRegistro();
   });
 }
 function revisar(num, estado){
@@ -1595,17 +1629,203 @@ function revisar(num, estado){
     pintaRegistro(); toast('Cotización '+num+': '+ETIQ[estado].t.toLowerCase()+'.');
   });
 }
-function csvRegistro(){
-  var cab = ['Emitida','Número','Vendedor','Cliente','CUIT o DNI','Empresa','Unidad de negocio','Unidad o producto','Importe total','Anticipo','Saldo','Costo financiero','Cheques','Total cheques','Pago aparte','Costo financiero cliente','Plazo máximo (días)','Tasa del día %','Bonificación de tasa %','Bonificación de gastos %','TEA %','CFTEA %','Costo empresa','Alertas','Estado','Nota','Reemplaza a'];
-  var t = function(v){ v = v===undefined||v===null ? '' : String(v); if (/^[=+\-@]/.test(v)) v = "'"+v; return /[";\r\n]/.test(v) ? '"'+v.replace(/"/g,'""')+'"' : v; };
-  var filas = (A.reg||[]).map(function(x){
-    var ch = x.cheques||[];
-    return [x.tsNum?fFechaHora(new Date(x.tsNum)):'', x.numero, x.vendedor, x.cliente, x.doc, x.empresa, x.unidad, x.detalle].map(t)
-      .concat([x.importe||0, x.anticipo||0, x.saldo||0, x.forma==='aparte'?'Aparte':'Dentro de los cheques', ch.length, x.total||0, x.pagoAparte||0, x.costoCliente||0, ch.reduce(function(m,c){ return Math.max(m,c.d||0); },0),
-        fNum(x.tna||0), fNum(x.bonif||0), fNum(x.gastosAGN||0), fNum(x.tea||0), fNum(x.cft||0), Math.round(costoRegistro(x))])
-      .concat([(x.alertas||[]).join(' | '), ETIQ[estadoDe(x)].t, x.nota, x.reemplaza||''].map(t));
+/* --- Finanzas 3.4: reporte en Excel por período. Se arma acá, sin librerías externas: un .xlsx es un ZIP con hojas en XML. ---
+   Tres hojas: Resumen (indicadores y aperturas), Cotizaciones (una fila por cotización) y Cheques (una fila por cheque).
+   «Operaciones» = cotizaciones del período que no fueron reemplazadas por otra del mismo período: cada recotización cuenta una sola vez. */
+var XL = {txt:0, cab:1, $:2, pct:3, fh:4, f:5, tit:6, neg:7, $n:8, pctn:9, nota:10, sec:11, ent:12, entn:13, alerta:14, mes:15, sub:16};
+var XL_ESTILOS = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<styleSheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main">'
+  +'<numFmts count="5"><numFmt numFmtId="164" formatCode="#,##0"/><numFmt numFmtId="165" formatCode="0.00%"/><numFmt numFmtId="166" formatCode="dd/mm/yyyy hh:mm"/><numFmt numFmtId="167" formatCode="dd/mm/yyyy"/><numFmt numFmtId="168" formatCode="mmmm yyyy"/></numFmts>'
+  +'<fonts count="7"><font><sz val="10"/><name val="Arial"/></font><font><b/><sz val="10"/><color rgb="FFFFFFFF"/><name val="Arial"/></font><font><b/><sz val="14"/><color rgb="FF060B14"/><name val="Arial"/></font>'
+  +'<font><b/><sz val="10"/><name val="Arial"/></font><font><i/><sz val="9"/><color rgb="FF5B6B7D"/><name val="Arial"/></font><font><b/><sz val="11"/><color rgb="FF1458C8"/><name val="Arial"/></font><font><b/><sz val="10"/><color rgb="FFB42318"/><name val="Arial"/></font></fonts>'
+  +'<fills count="4"><fill><patternFill patternType="none"/></fill><fill><patternFill patternType="gray125"/></fill><fill><patternFill patternType="solid"><fgColor rgb="FF1458C8"/><bgColor indexed="64"/></patternFill></fill><fill><patternFill patternType="solid"><fgColor rgb="FFDDEFFB"/><bgColor indexed="64"/></patternFill></fill></fills>'
+  +'<borders count="2"><border><left/><right/><top/><bottom/><diagonal/></border><border><left/><right/><top style="thin"><color rgb="FF93A7BD"/></top><bottom/><diagonal/></border></borders>'
+  +'<cellStyleXfs count="1"><xf numFmtId="0" fontId="0" fillId="0" borderId="0"/></cellStyleXfs><cellXfs count="17">'
+  +'<xf numFmtId="0" fontId="0" fillId="0" borderId="0" xfId="0"/>'
+  +'<xf numFmtId="0" fontId="1" fillId="2" borderId="0" xfId="0" applyFont="1" applyFill="1" applyAlignment="1"><alignment vertical="center" wrapText="1"/></xf>'
+  +'<xf numFmtId="164" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+  +'<xf numFmtId="165" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+  +'<xf numFmtId="166" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+  +'<xf numFmtId="167" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+  +'<xf numFmtId="0" fontId="2" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+  +'<xf numFmtId="0" fontId="3" fillId="3" borderId="1" xfId="0" applyFont="1" applyFill="1" applyBorder="1"/>'
+  +'<xf numFmtId="164" fontId="3" fillId="3" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1"/>'
+  +'<xf numFmtId="165" fontId="3" fillId="3" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1"/>'
+  +'<xf numFmtId="0" fontId="4" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+  +'<xf numFmtId="0" fontId="5" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+  +'<xf numFmtId="1" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+  +'<xf numFmtId="1" fontId="3" fillId="3" borderId="1" xfId="0" applyNumberFormat="1" applyFont="1" applyFill="1" applyBorder="1"/>'
+  +'<xf numFmtId="0" fontId="6" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+  +'<xf numFmtId="168" fontId="0" fillId="0" borderId="0" xfId="0" applyNumberFormat="1"/>'
+  +'<xf numFmtId="0" fontId="3" fillId="0" borderId="0" xfId="0" applyFont="1"/>'
+  +'</cellXfs><cellStyles count="1"><cellStyle name="Normal" xfId="0" builtinId="0"/></cellStyles></styleSheet>';
+function xlCol(i){ var s = ''; i++; while (i>0){ var m = (i-1)%26; s = String.fromCharCode(65+m)+s; i = Math.floor((i-1)/26); } return s; }
+function xlEsc(t){ return String(t).replace(/[\u0000-\u0008\u000B\u000C\u000E-\u001F￾￿]/g,'').replace(/&/g,'&amp;').replace(/</g,'&lt;').replace(/>/g,'&gt;').replace(/"/g,'&quot;'); }
+/* Fecha y hora de Argentina (la del equipo) como número de serie de Excel; una fecha AAAA-MM-DD, sin hora. */
+function xlSerie(ms){ return 25569 + (ms - new Date(ms).getTimezoneOffset()*60000)/864e5; }
+function xlDia(iso){ var p = String(iso||'').split('-'); return p.length===3 ? 25569 + Date.UTC(+p[0], +p[1]-1, +p[2])/864e5 : ''; }
+/* filas: listas de celdas; cada celda es un valor o {v, s} con el estilo de XL. o: {anchos, congelar, filtro, sinGrilla, apaisado, ajustar (al imprimir, todo el ancho en una hoja)} */
+function xlHoja(filas, o){
+  var x = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n<worksheet xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships">';
+  if (o.ajustar) x += '<sheetPr><pageSetUpPr fitToPage="1"/></sheetPr>';
+  x += '<sheetViews><sheetView workbookViewId="0"'+(o.sinGrilla ? ' showGridLines="0"' : '')+'>'+(o.congelar ? '<pane ySplit="1" topLeftCell="A2" activePane="bottomLeft" state="frozen"/>' : '')+'</sheetView></sheetViews>';
+  x += '<sheetFormatPr defaultRowHeight="13.5"/>';
+  if (o.anchos) x += '<cols>'+o.anchos.map(function(w,i){ return '<col min="'+(i+1)+'" max="'+(i+1)+'" width="'+w+'" customWidth="1"/>'; }).join('')+'</cols>';
+  x += '<sheetData>';
+  filas.forEach(function(f, i){
+    x += '<row r="'+(i+1)+'">';
+    f.forEach(function(c, j){
+      var v = c, st = 0;
+      if (c && typeof c==='object'){ v = c.v; st = c.s||0; }
+      var ref = xlCol(j)+(i+1), sa = st ? ' s="'+st+'"' : '';
+      if (v===null || v===undefined || v==='' || (typeof v==='number' && !isFinite(v))){ if (st) x += '<c r="'+ref+'"'+sa+'/>'; return; }
+      if (typeof v==='number') x += '<c r="'+ref+'"'+sa+'><v>'+v+'</v></c>';
+      else x += '<c r="'+ref+'"'+sa+' t="inlineStr"><is><t xml:space="preserve">'+xlEsc(v)+'</t></is></c>';
+    });
+    x += '</row>';
   });
-  return '﻿' + [cab.map(t)].concat(filas).map(function(f){ return f.join(';'); }).join('\r\n');
+  x += '</sheetData>';
+  if (o.filtro && filas.length) x += '<autoFilter ref="A1:'+xlCol(filas[0].length-1)+filas.length+'"/>';
+  x += '<pageMargins left="0.4" right="0.4" top="0.5" bottom="0.5" header="0.3" footer="0.3"/>';
+  if (o.apaisado) x += '<pageSetup paperSize="9" orientation="landscape"'+(o.ajustar ? ' fitToWidth="1" fitToHeight="0"' : '')+'/>';
+  return x+'</worksheet>';
+}
+/* ZIP sin compresión (método «stored»): lo abren Excel, LibreOffice y Google Sheets. */
+function xlZip(archivos){
+  if (!xlZip.t){ xlZip.t = new Uint32Array(256); for (var n=0;n<256;n++){ var c = n; for (var k=0;k<8;k++) c = c&1 ? 0xEDB88320^(c>>>1) : c>>>1; xlZip.t[n] = c>>>0; } }
+  var crc = function(d){ var c = 0xFFFFFFFF; for (var i=0;i<d.length;i++) c = xlZip.t[(c^d[i])&255]^(c>>>8); return (c^0xFFFFFFFF)>>>0; };
+  var enc = new TextEncoder(), partes = [], central = [], off = 0;
+  var u16 = function(a,v){ a.push(v&255,(v>>>8)&255); }, u32 = function(a,v){ a.push(v&255,(v>>>8)&255,(v>>>16)&255,(v>>>24)&255); };
+  archivos.forEach(function(f){
+    var nom = enc.encode(f.n), d = typeof f.d==='string' ? enc.encode(f.d) : f.d, c = crc(d), h = [], e = [];
+    u32(h,0x04034b50); u16(h,20); u16(h,0x0800); u16(h,0); u16(h,0); u16(h,0x21); u32(h,c); u32(h,d.length); u32(h,d.length); u16(h,nom.length); u16(h,0);
+    u32(e,0x02014b50); u16(e,20); u16(e,20); u16(e,0x0800); u16(e,0); u16(e,0); u16(e,0x21); u32(e,c); u32(e,d.length); u32(e,d.length); u16(e,nom.length); u16(e,0); u16(e,0); u16(e,0); u16(e,0); u32(e,0); u32(e,off);
+    partes.push(new Uint8Array(h), nom, d); central.push(new Uint8Array(e), nom);
+    off += h.length + nom.length + d.length;
+  });
+  var tamC = central.reduce(function(s,a){ return s+a.length; },0), fin = [];
+  u32(fin,0x06054b50); u16(fin,0); u16(fin,0); u16(fin,archivos.length); u16(fin,archivos.length); u32(fin,tamC); u32(fin,off); u16(fin,0);
+  var todo = partes.concat(central, [new Uint8Array(fin)]), out = new Uint8Array(todo.reduce(function(s,a){ return s+a.length; },0)), p = 0;
+  todo.forEach(function(a){ out.set(a,p); p += a.length; });
+  return out;
+}
+function xlLibro(hojas, titulo){
+  var ns = 'xmlns="http://schemas.openxmlformats.org/spreadsheetml/2006/main" xmlns:r="http://schemas.openxmlformats.org/officeDocument/2006/relationships"', cab = '<?xml version="1.0" encoding="UTF-8" standalone="yes"?>\n';
+  var nombres = '';
+  hojas.forEach(function(h,i){ if (h.filtro && h.filas.length) nombres += '<definedName name="_xlnm._FilterDatabase" localSheetId="'+i+'" hidden="1">\''+xlEsc(h.nombre)+'\'!$A$1:$'+xlCol(h.filas[0].length-1)+'$'+h.filas.length+'</definedName>'; });
+  var arch = [
+    {n:'[Content_Types].xml', d:cab+'<Types xmlns="http://schemas.openxmlformats.org/package/2006/content-types"><Default Extension="rels" ContentType="application/vnd.openxmlformats-package.relationships+xml"/><Default Extension="xml" ContentType="application/xml"/>'
+      +'<Override PartName="/xl/workbook.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.sheet.main+xml"/><Override PartName="/xl/styles.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.styles+xml"/>'
+      +hojas.map(function(h,i){ return '<Override PartName="/xl/worksheets/sheet'+(i+1)+'.xml" ContentType="application/vnd.openxmlformats-officedocument.spreadsheetml.worksheet+xml"/>'; }).join('')
+      +'<Override PartName="/docProps/core.xml" ContentType="application/vnd.openxmlformats-package.core-properties+xml"/></Types>'},
+    {n:'_rels/.rels', d:cab+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships"><Relationship Id="rId1" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/officeDocument" Target="xl/workbook.xml"/><Relationship Id="rId2" Type="http://schemas.openxmlformats.org/package/2006/relationships/metadata/core-properties" Target="docProps/core.xml"/></Relationships>'},
+    {n:'docProps/core.xml', d:cab+'<cp:coreProperties xmlns:cp="http://schemas.openxmlformats.org/package/2006/metadata/core-properties" xmlns:dc="http://purl.org/dc/elements/1.1/" xmlns:dcterms="http://purl.org/dc/terms/" xmlns:xsi="http://www.w3.org/2001/XMLSchema-instance"><dc:title>'+xlEsc(titulo)+'</dc:title><dc:creator>Tasa Compartida · Grupo AGN</dc:creator><dcterms:created xsi:type="dcterms:W3CDTF">'+new Date().toISOString().slice(0,19)+'Z</dcterms:created></cp:coreProperties>'},
+    {n:'xl/workbook.xml', d:cab+'<workbook '+ns+'><bookViews><workbookView/></bookViews><sheets>'+hojas.map(function(h,i){ return '<sheet name="'+xlEsc(h.nombre)+'" sheetId="'+(i+1)+'" r:id="rId'+(i+1)+'"/>'; }).join('')+'</sheets>'+(nombres ? '<definedNames>'+nombres+'</definedNames>' : '')+'</workbook>'},
+    {n:'xl/_rels/workbook.xml.rels', d:cab+'<Relationships xmlns="http://schemas.openxmlformats.org/package/2006/relationships">'+hojas.map(function(h,i){ return '<Relationship Id="rId'+(i+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/worksheet" Target="worksheets/sheet'+(i+1)+'.xml"/>'; }).join('')
+      +'<Relationship Id="rId'+(hojas.length+1)+'" Type="http://schemas.openxmlformats.org/officeDocument/2006/relationships/styles" Target="styles.xml"/></Relationships>'},
+    {n:'xl/styles.xml', d:XL_ESTILOS}
+  ];
+  hojas.forEach(function(h,i){ arch.push({n:'xl/worksheets/sheet'+(i+1)+'.xml', d:xlHoja(h.filas, h)}); });
+  return xlZip(arch);
+}
+/* El contenido del reporte. lista: las cotizaciones que devolvió el sistema para el período. */
+function reporteExcel(lista, ini, fin, truncado){
+  var L = lista.slice().sort(function(a,b){ return (a.tsNum||0)-(b.tsNum||0); }), reemp = {}, costo = {};
+  L.forEach(function(x){ if (x.reemplaza) reemp[x.reemplaza] = x.numero; costo[x.numero] = Math.round(costoRegistro(x)); });
+  var vig = function(x){ return !reemp[x.numero]; }, est = function(x){ return estadoDe(x); };
+  var ops = L.filter(vig), apr = ops.filter(function(x){ return est(x)==='aprobada'; });
+  var pc = function(v){ return {v:(Number(v)||0)/100, s:XL.pct}; }, $c = function(v){ return {v:Math.round(Number(v)||0), s:XL.$}; };
+  var tot = function(l){ var t = {n:l.length, imp:0, ant:0, sal:0, ch:0, ap:0, cc:0, ce:0}; l.forEach(function(x){ t.imp += x.importe||0; t.ant += x.anticipo||0; t.sal += x.saldo||0; t.ch += x.total||0; t.ap += x.pagoAparte||0; t.cc += x.costoCliente||0; t.ce += costo[x.numero]; }); return t; };
+  var TL = tot(L), TO = tot(ops), TA = tot(apr), r = [], blanco = function(){ r.push([]); };
+  var cab = function(l){ r.push(l.map(function(t){ return {v:t, s:XL.cab}; })); };
+  var quien = S ? (S.nombre ? S.nombre+' ('+S.usuario+')' : S.usuario) : '';
+  r.push([{v:'Tasa Compartida · Grupo AGN · Reporte de cotizaciones', s:XL.tit}]);
+  r.push([{v:'Emitidas del '+fFecha(ini)+' al '+fFecha(fin)+'. Generado el '+fFechaHora(new Date())+(quien ? ' por '+quien : '')+'.', s:XL.sub}]);
+  r.push([{v:'Uso interno de Administración y Finanzas: incluye el costo para la empresa. No se comparte con clientes ni vendedores.', s:XL.nota}]);
+  if (truncado) r.push([{v:'ATENCIÓN: el período tiene más de 3.000 cotizaciones y este reporte quedó incompleto (faltan las más antiguas). Pedilo de nuevo con un período más corto.', s:XL.alerta}]);
+  blanco();
+  r.push([{v:'Indicadores', s:XL.sec}]);
+  cab(['', 'Todas las cotizaciones', 'Operaciones', 'Aprobadas']);
+  var fila = function(t, k, s){ r.push([t, {v:TL[k], s:s}, {v:TO[k], s:s}, {v:TA[k], s:s}]); };
+  fila('Cantidad', 'n', XL.ent); fila('Importe total', 'imp', XL.$); fila('Anticipos', 'ant', XL.$); fila('Saldo financiado', 'sal', XL.$); fila('Total en cheques', 'ch', XL.$);
+  fila('Costo financiero pagado aparte', 'ap', XL.$); fila('Costo financiero del cliente', 'cc', XL.$); fila('Costo para la empresa', 'ce', XL.$);
+  var cociente = function(a,b){ return b>0 ? {v:a/b, s:XL.pct} : ''; };
+  r.push(['Costo para la empresa / importe total', cociente(TL.ce,TL.imp), cociente(TO.ce,TO.imp), cociente(TA.ce,TA.imp)]);
+  r.push(['Costo financiero del cliente / saldo', cociente(TL.cc,TL.sal), cociente(TO.cc,TO.sal), cociente(TA.cc,TA.sal)]);
+  r.push([{v:'Operaciones: las cotizaciones que no fueron reemplazadas por otra del período (cada recotización cuenta una sola vez, en su última versión). Estado a la hora de generar el reporte.', s:XL.nota}]);
+  blanco();
+  r.push([{v:'Operaciones por estado', s:XL.sec}]);
+  cab(['Estado', 'Operaciones', 'Saldo financiado', 'Costo financiero del cliente', 'Costo para la empresa']);
+  ['pendiente','aprobada','observada','rechazada','vencida'].forEach(function(e){
+    var t = tot(ops.filter(function(x){ return est(x)===e; })); if (!t.n) return;
+    r.push([ETIQ[e].t, {v:t.n, s:XL.ent}, $c(t.sal), $c(t.cc), $c(t.ce)]);
+  });
+  r.push([{v:'Total', s:XL.neg}, {v:TO.n, s:XL.entn}, {v:TO.sal, s:XL.$n}, {v:TO.cc, s:XL.$n}, {v:TO.ce, s:XL.$n}]);
+  var apertura = function(titulo, rotulo, clave){
+    blanco(); r.push([{v:titulo, s:XL.sec}]);
+    cab([rotulo, 'Cotizaciones', 'Operaciones', 'Aprobadas', 'Saldo de las operaciones', 'Saldo aprobado', 'Costo para la empresa (aprobadas)']);
+    var g = {}; L.forEach(function(x){ var k = clave(x) || 'Sin dato'; (g[k] = g[k] || []).push(x); });
+    Object.keys(g).map(function(k){ var l = g[k], o = l.filter(vig), a = o.filter(function(x){ return est(x)==='aprobada'; }); return {k:k, n:l.length, o:tot(o), a:tot(a)}; })
+      .sort(function(a,b){ return b.o.sal-a.o.sal || a.k.localeCompare(b.k); })
+      .forEach(function(t){ r.push([t.k, {v:t.n, s:XL.ent}, {v:t.o.n, s:XL.ent}, {v:t.a.n, s:XL.ent}, $c(t.o.sal), $c(t.a.sal), $c(t.a.ce)]); });
+    r.push([{v:'Total', s:XL.neg}, {v:TL.n, s:XL.entn}, {v:TO.n, s:XL.entn}, {v:TA.n, s:XL.entn}, {v:TO.sal, s:XL.$n}, {v:TA.sal, s:XL.$n}, {v:TA.ce, s:XL.$n}]);
+  };
+  apertura('Por vendedor', 'Vendedor', function(x){ return x.vendedor; });
+  apertura('Por unidad de negocio', 'Unidad de negocio', function(x){ return x.unidad; });
+  blanco(); r.push([{v:'Cheques previstos de las operaciones aprobadas, por mes de pago', s:XL.sec}]);
+  cab(['Mes de pago', 'Cheques', 'Valor de los cheques', 'Capital']);
+  var meses = {};
+  apr.forEach(function(x){ (x.cheques||[]).forEach(function(c){ var m = String(c.f||'').slice(0,7); if (!m) return; var t = meses[m] = meses[m] || {n:0, v:0, k:0}; t.n++; t.v += c.n||0; t.k += c.k||0; }); });
+  var tm = {n:0, v:0, k:0};
+  Object.keys(meses).sort().forEach(function(m){ var t = meses[m]; tm.n += t.n; tm.v += t.v; tm.k += t.k; r.push([{v:xlDia(m+'-01'), s:XL.mes}, {v:t.n, s:XL.ent}, $c(t.v), $c(t.k)]); });
+  r.push([{v:'Total', s:XL.neg}, {v:tm.n, s:XL.entn}, {v:tm.v, s:XL.$n}, {v:tm.k, s:XL.$n}]);
+  r.push([{v:'Son los cheques de cotizaciones aprobadas: la venta puede no haberse concretado. La fecha es la de pago del cheque, sin los días de acreditación.', s:XL.nota}]);
+
+  var c1 = ['Emitida','Vence','Número','Estado','Vendedor','Usuario','Cliente','CUIT o DNI','Empresa','Unidad de negocio','Unidad o producto','Importe total','Anticipo','Saldo','Costo financiero','Cheques','Total cheques','Pago aparte',
+    'Costo financiero del cliente','Plazo máximo (días)','Tasa del día (TNA)','Bonificación de tasa','Bonificación de gastos','TEA','CFTEA','Costo para la empresa','Costo empresa / importe','Alertas','Nota de Finanzas','Revisada por','Revisada','Reemplaza a','Reemplazada por'];
+  var h2 = [c1.map(function(t){ return {v:t, s:XL.cab}; })];
+  L.forEach(function(x){
+    var ch = x.cheques||[], rev = x.revisada ? Date.parse(x.revisada) : 0;
+    h2.push([{v:x.tsNum ? xlSerie(x.tsNum) : '', s:XL.fh}, {v:x.vence ? xlSerie(x.vence) : '', s:XL.fh}, x.numero, ETIQ[est(x)].t, x.vendedor, x.usuario, x.cliente, x.doc, x.empresa, x.unidad, x.detalle,
+      $c(x.importe), $c(x.anticipo), $c(x.saldo), x.forma==='aparte' ? 'Aparte' : 'Dentro de los cheques', {v:ch.length, s:XL.ent}, $c(x.total), $c(x.pagoAparte), $c(x.costoCliente),
+      {v:ch.reduce(function(m,c){ return Math.max(m,c.d||0); },0), s:XL.ent}, pc(x.tna), pc(x.bonif), pc(x.gastosAGN), pc(x.tea), pc(x.cft), $c(costo[x.numero]), x.importe>0 ? {v:costo[x.numero]/x.importe, s:XL.pct} : '',
+      (x.alertas||[]).join(' | '), x.nota, x.revisadaPor, {v:rev ? xlSerie(rev) : '', s:XL.fh}, x.reemplaza, reemp[x.numero] || '']);
+  });
+  var c3 = ['Cotización','Emitida','Estado','Operación','Vendedor','Cliente','Costo financiero','Cheque','Fecha de pago','Días','Valor del cheque','Capital'];
+  var h3 = [c3.map(function(t){ return {v:t, s:XL.cab}; })];
+  L.forEach(function(x){
+    var ch = x.cheques||[];
+    ch.forEach(function(c, i){
+      h3.push([x.numero, {v:x.tsNum ? xlSerie(x.tsNum) : '', s:XL.fh}, ETIQ[est(x)].t, vig(x) ? 'Vigente' : 'Reemplazada por '+reemp[x.numero], x.vendedor, x.cliente, x.forma==='aparte' ? 'Aparte' : 'Dentro de los cheques',
+        (i+1)+' de '+ch.length, {v:xlDia(c.f), s:XL.f}, {v:c.d||0, s:XL.ent}, $c(c.n), $c(c.k)]);
+    });
+  });
+  return xlLibro([
+    {nombre:'Resumen', filas:r, anchos:[44,22,22,22,24,22,30], sinGrilla:true, apaisado:true, ajustar:true},
+    {nombre:'Cotizaciones', filas:h2, anchos:[16,16,22,22,20,14,28,15,18,22,28,15,14,15,20,9,15,14,16,10,11,11,11,9,9,15,12,34,34,13,16,22,22], congelar:true, filtro:true, apaisado:true},
+    {nombre:'Cheques', filas:h3, anchos:[22,16,22,30,20,28,20,9,13,8,16,16], congelar:true, filtro:true, apaisado:true}
+  ], 'Reporte Tasa Compartida '+fFecha(ini)+' al '+fFecha(fin));
+}
+/* Pide al sistema las cotizaciones emitidas en el período (días completos, hora de Argentina) y baja el Excel. */
+function bajarReporte(){
+  var d = deIso($('rep-desde').value), h = deIso($('rep-hasta').value);
+  if (!d || !h){ toast('Elegí las fechas desde y hasta del reporte.', true); return; }
+  if (h < d){ toast('La fecha «hasta» no puede ser anterior a «desde».', true); return; }
+  if (difDias(d, h) > 366){ toast('El reporte puede abarcar un año como máximo.', true); return; }
+  var ini = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0), fin = new Date(h.getFullYear(), h.getMonth(), h.getDate(), 23, 59, 59, 999);
+  var b = $('b-rep'), t = $('rep-t'), libera = function(){ b.disabled = false; };
+  b.disabled = true; t.textContent = 'Leyendo las cotizaciones del período…';
+  llama('tc-finanzas', {accion:'cotizaciones', desde:ini.toISOString(), hasta:fin.toISOString()}).then(function(j){
+    libera();
+    if (j.ok!==true){ t.textContent = 'No se pudo armar el reporte.'; if (!caida(j)) toast(sinRed(j) || j.mensaje || 'No se pudo leer el registro. Probá de nuevo.', true); return; }
+    var lista = (Array.isArray(j.cotizaciones) ? j.cotizaciones : []).filter(function(x){ return x && x.numero; }), per = fFecha(ini)+' al '+fFecha(fin);
+    if (!lista.length){ t.textContent = 'No hay cotizaciones emitidas del '+per+'.'; toast('No hay cotizaciones emitidas del '+per+'.'); return; }
+    var bytes = reporteExcel(lista, ini, fin, j.truncado===true);
+    var blob = new Blob([bytes], {type:'application/vnd.openxmlformats-officedocument.spreadsheetml.sheet'});
+    return guardaArchivo('reporte_tasa_compartida_'+aIso(d)+'_al_'+aIso(h)+'.xlsx', blob).then(function(){
+      t.textContent = 'Último reporte: '+lista.length+(lista.length===1 ? ' cotización' : ' cotizaciones')+' emitidas del '+per+'.'+(j.truncado===true ? ' Quedó incompleto: el período tiene más de 3.000.' : '');
+      toast(j.truncado===true ? 'Reporte descargado, pero incompleto: el período tiene más de 3.000 cotizaciones. Pedilo con un período más corto.' : 'Reporte descargado: '+lista.length+(lista.length===1 ? ' cotización.' : ' cotizaciones.'), j.truncado===true);
+    }, function(e){ avisaFallo(e, 'El reporte'); });
+  }, function(){ libera(); t.textContent = 'No se pudo armar el reporte.'; toast('No se pudo armar el reporte. Probá de nuevo.', true); });
 }
 /* --- Finanzas: usuarios. Altas, cambios, contraseñas provisorias y bajas; todo queda guardado en el sistema (n8n) --- */
 var usuEdit = null;
@@ -1876,7 +2096,7 @@ function toast(t, malo){
   var e=$('toast'); e.textContent=t; e.className='toast'+(malo?' bad':''); e.hidden=false;
   clearTimeout(toastT); toastT=setTimeout(function(){ e.hidden=true; }, 7000);
 }
-/* Los archivos (PDF y planilla) se guardan con la descarga normal del navegador. */
+/* Los archivos (PDF y reporte en Excel) se guardan con la descarga normal del navegador. */
 function bajaDirecto(nombre, data){
   return new Promise(function(res, rej){
     try{
@@ -2031,15 +2251,17 @@ function iniciar(){
   $('b-reset').addEventListener('click', function(){ var s = norm(SUG), a = parForm(); s.tna = a.tna; s.unidades = a.unidades; ponerParamsForm(s); tocado = true; pintar(); toast('Valores sugeridos cargados, sin tocar la tasa ni las unidades. Revisalos y publicá.'); });
   $('b-textos-sug').addEventListener('click', function(){ $('p-textos').value = TEXTOS_SUG.join('\n'); tocado = true; pintar(); toast('Textos sugeridos cargados. Falta publicarlos.'); });
   $('b-fin').addEventListener('click', function(){ $('finanzas').scrollIntoView({block:'start'}); try{ $('p-tna').focus({preventScroll:true}); }catch(e){} });
-  $('g-reg').addEventListener('toggle', function(){ if (this.open && !A.reg) cargarRegistro(); });
-  $('b-reg-act').addEventListener('click', function(){ cargarRegistro(); });
-  $('b-reg-csv').addEventListener('click', function(){
-    var baja = function(){
-      if (!A.reg || !A.reg.length){ toast('No hay cotizaciones registradas para descargar.'); return; }
-      guardaArchivo('cotizaciones_tasa_compartida_'+aIso(new Date())+'.csv', csvRegistro()).then(function(){ toast('Planilla descargada: se abre con Excel.'); }, function(e){ avisaFallo(e, 'El registro'); });
-    };
-    if (A.reg) baja(); else cargarRegistro().then(baja);
+  $('g-reg').addEventListener('toggle', function(){
+    if (!this.open) return;
+    /* período sugerido del reporte: desde el primer día del mes hasta hoy */
+    var hoy = new Date();
+    if (!$('rep-desde').value) $('rep-desde').value = aIso(new Date(hoy.getFullYear(), hoy.getMonth(), 1, 12));
+    if (!$('rep-hasta').value) $('rep-hasta').value = aIso(hoy);
+    if (!A.reg) cargarRegistro();
   });
+  $('b-reg-act').addEventListener('click', function(){ cargarRegistro(); });
+  $('b-reg-mas').addEventListener('click', function(){ A.regVer = (A.regVer||REG_PASO)+REG_PASO; pintaRegistro(); });
+  $('b-rep').addEventListener('click', bajarReporte);
   $('reg').addEventListener('click', function(e){ var b = e.target.closest('button[data-rev]'); if (b) revisar(b.dataset.num, b.dataset.rev); });
   /* usuarios */
   $('g-usu').addEventListener('toggle', function(){ if (this.open && !A.usu) cargarUsuarios(); });
