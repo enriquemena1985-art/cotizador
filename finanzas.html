@@ -296,6 +296,43 @@ textarea.ctl{height:auto;min-height:104px;padding:9px 11px;line-height:1.45;resi
 .rep-g .btn{height:40px}
 .rep .ctl{background:var(--night);color-scheme:dark}
 .rep-n{font-size:12.5px;color:var(--on-night-muted);max-width:80ch}
+.reg-ac select.ctl{flex:0 1 190px}
+.reg-costo{font-size:14px;font-weight:600;color:var(--sky);overflow-wrap:anywhere}
+.interno .lin{color:var(--sky)}
+.stock-g{border:1px solid var(--night-line);border-radius:4px;background:var(--night-2);padding:10px 14px}
+.stock-g summary{cursor:pointer;font-weight:600;font-size:13.5px;color:var(--on-night)}
+.stock-g .campo{padding:10px 0 8px;max-width:440px}
+.stock-g .ctl{background:var(--night)}
+.stock-u{display:flex;gap:10px;justify-content:space-between;align-items:baseline;font-size:12.5px;color:var(--on-night-muted);padding:5px 0;border-top:1px solid var(--night-line)}
+.stock-u b{color:var(--on-night);font-weight:600}
+.stock-u span{min-width:0;overflow-wrap:anywhere}
+/* tablero: cifras y barras finas de un solo color; los textos van siempre en los colores de texto */
+.tab{display:flex;flex-direction:column;gap:20px;padding-top:16px;--marca:#4C8FF0;--pista:#1B3358}
+.tab[hidden]{display:none}
+.tab h3{font-family:var(--f-display);font-stretch:112%;font-weight:700;font-size:12px;letter-spacing:.12em;text-transform:uppercase;color:var(--sky)}
+.tab-sec{display:flex;flex-direction:column;gap:10px;min-width:0}
+.tab-k{display:grid;grid-template-columns:repeat(auto-fit,minmax(168px,1fr));gap:10px}
+.tab-k div{display:flex;flex-direction:column;gap:2px;padding:10px 12px;border:1px solid var(--night-line);border-radius:4px;background:var(--night-2);min-width:0}
+.tab-k span{font-size:12px;color:var(--on-night-muted)}
+.tab-k b{font-family:var(--f-mono);font-weight:600;font-size:19px;color:var(--on-night);white-space:nowrap}
+.tab-k em{font-style:normal;font-size:12px;color:var(--on-night-muted)}
+.tab-b{display:flex;flex-direction:column;gap:2px}
+.tab-f{display:grid;grid-template-columns:minmax(96px,210px) minmax(0,1fr) minmax(96px,auto);gap:10px;align-items:center;font-size:13px;padding:4px 6px;border-radius:4px}
+.tab-f:hover,.tab-f:focus-visible{background:var(--night-2);outline:none}
+.tab-f span{color:var(--on-night);overflow:hidden;text-overflow:ellipsis;white-space:nowrap}
+.tab-f i{display:block;height:12px;background:var(--marca);border-radius:0 4px 4px 0;min-width:2px}
+.tab-f b{font-family:var(--f-mono);font-weight:500;font-size:12.5px;color:var(--on-night);white-space:nowrap;text-align:right}
+.tab-f em{font-style:normal;color:var(--on-night-muted)}
+.tab-m{height:10px;border-radius:999px;background:var(--pista);overflow:hidden}
+.tab-m i{display:block;height:100%;background:var(--marca)}
+.tab-n{font-size:12.5px;color:var(--on-night-muted);max-width:86ch}
+.interno .chip{border-color:var(--night-line);color:var(--on-night)}
+.interno .chip:hover,.interno .chip:focus-visible{background:var(--night-2)}
+@media (max-width:560px){.tab-f{grid-template-columns:minmax(0,1fr) auto;row-gap:5px}.tab-f>div{grid-column:1/-1;grid-row:2}.tab-f>b{grid-column:2;grid-row:1}}
+/* módulo de la Gerencia Comercial: la misma página, sin el cotizador ni los parámetros de Finanzas */
+body.comercial .carga,body.comercial .hoja,body.comercial #vista,body.comercial #interno,body.comercial #finanzas,body.comercial .cond,body.comercial .franja,body.comercial .top .acc,body.comercial .mini,body.comercial .avisos{display:none!important}
+body.comercial .mesa{grid-template-columns:minmax(0,1fr);max-width:980px}
+body:not(.comercial) #comercial{display:none!important}
 
 /* ---------- modo cliente y roles ---------- */
 body.cliente .solo-vendedor,body.cliente .avisos{display:none}
@@ -365,6 +402,27 @@ body.sin-sesion main,body.sin-sesion .mini,body.sin-sesion .cond,body.sin-sesion
 .btn.chico{padding:7px 11px;font-size:13px}
 a.btn{text-decoration:none;display:inline-flex;align-items:center}
 a.btn[hidden]{display:none}
+/* ---------- versión 3.5: unidad elegida del listado, libradores de cheques de terceros ---------- */
+.veh-l{display:flex;flex-direction:column;max-height:252px;overflow:auto;border:1px solid var(--line);border-radius:4px;background:var(--panel-2)}
+.veh-l:empty{display:none}
+.veh-i{display:flex;flex-direction:column;gap:1px;text-align:left;padding:8px 11px;border:0;border-top:1px solid var(--line);background:transparent;cursor:pointer;font:inherit;color:inherit}
+.veh-i:first-child{border-top:0}
+.veh-i:hover,.veh-i:focus-visible{background:var(--sky-soft);color:var(--sky-ink)}
+.veh-i b{font-weight:600;font-size:13.5px;overflow-wrap:anywhere}
+.veh-i span{font-size:12px;color:var(--muted)}
+.veh-i:hover span,.veh-i:focus-visible span{color:inherit}
+.veh-sel{display:flex;flex-direction:column;gap:3px;padding:10px 12px;border:1px solid var(--sky);border-radius:4px;background:var(--sky-soft);color:var(--sky-ink)}
+.veh-sel[hidden]{display:none}
+.veh-sel > b{font-size:14px;overflow-wrap:anywhere}
+.veh-sel span{font-size:12.5px}
+.veh-pie{display:flex;flex-wrap:wrap;gap:6px 12px;align-items:center;justify-content:space-between;padding-top:4px}
+.lin{background:none;border:0;padding:0;font:inherit;font-size:13px;font-weight:600;color:var(--blue);cursor:pointer;text-decoration:underline;text-underline-offset:2px;text-align:left}
+.veh-sel .lin{color:inherit}
+.bloque[hidden]{display:none}
+.terceros{display:flex;flex-direction:column;gap:10px}
+.tercero{display:grid;grid-template-columns:minmax(0,1.5fr) minmax(0,1fr) auto;gap:8px;align-items:end}
+.tercero .lin{height:40px}
+@media (max-width:420px){.tercero{grid-template-columns:minmax(0,1fr)}.tercero .lin{height:auto}}
 /* ---------- usuarios (módulo de Finanzas) ---------- */
 .usu-form{border:1px solid var(--night-line);border-radius:4px;background:var(--night-2);padding:4px 14px 14px;margin-top:14px}
 .usu-form[hidden]{display:none}
@@ -382,7 +440,7 @@ select.ctl{appearance:auto}
   <div class="top-in gut">
     <div class="marca">
       <svg width="34" height="34" viewBox="0 0 34 34" aria-hidden="true"><rect x="1" y="1" width="16" height="32" fill="#1F6FE5"/><rect x="17" y="1" width="16" height="32" fill="#8FD3F7"/><rect x="1" y="1" width="32" height="32" fill="none" stroke="#EAF2FA" stroke-width="1.5"/></svg>
-      <div class="marca-t"><b>Tasa Compartida</b><span>Grupo AGN · Cotizador de financiación con cheques</span></div>
+      <div class="marca-t"><b>Tasa Compartida</b><span id="marca-sub">Grupo AGN · Cotizador de financiación con cheques</span></div>
     </div>
     <div class="cond solo-vendedor" aria-label="Condiciones del día">
       <div id="c-caja"><span>Tasa del día</span><strong id="c-tna">—</strong><em id="c-pub">Leyendo…</em></div>
@@ -418,7 +476,7 @@ select.ctl{appearance:auto}
       <button type="button" class="btn sec" id="ing-cancelar" hidden>Cancelar</button>
       <button type="submit" class="btn pri" id="ing-ok">Ingresar</button>
     </div>
-    <p class="ing-pie">Tasa Compartida · Grupo AGN · Módulo de Finanzas. Solo usuarios de Finanzas. Por seguridad pide usuario y contraseña cada vez que se abre y se cierra solo a los 30 minutos sin uso. <span id="ing-ver"></span></p>
+    <p class="ing-pie"><span id="ing-pie-t">Tasa Compartida · Grupo AGN · Módulo de Finanzas. Solo usuarios de Finanzas.</span> Por seguridad pide usuario y contraseña cada vez que se abre y se cierra solo a los 30 minutos sin uso. <span id="ing-ver"></span></p>
   </form>
 </div>
 
@@ -430,22 +488,18 @@ select.ctl{appearance:auto}
 
     <section class="paso">
       <h2><i>01</i>Operación</h2>
-      <div class="fila">
-        <div class="campo"><label class="rot" for="unidad">Unidad de negocio</label>
-          <select class="ctl" id="unidad">
-            <option>Vehículos 0 km</option><option>Vehículos usados</option><option>Camiones y utilitarios</option><option>Planes de ahorro</option>
-            <option>Repuestos y accesorios</option><option>Servicio y posventa</option><option>Inmobiliaria</option><option>Agro</option><option>Otra</option>
-          </select></div>
-        <div class="campo"><label class="rot" for="empresa">Empresa que factura</label>
-          <input class="ctl" id="empresa" type="text" list="empresas" value="AG NAUM S.A.">
-          <datalist id="empresas"><option value="AG NAUM S.A."></option><option value="AG NOA"></option><option value="AG MOTORS"></option><option value="AG S.R.L."></option><option value="SANGON"></option></datalist></div>
-      </div>
-      <div class="campo"><label class="rot" for="detalle">Unidad o producto</label>
-        <input class="ctl" id="detalle" type="text" list="unidades" value="Pick-up 4x4 automática (ejemplo)" placeholder="Modelo, versión, servicio o producto">
-        <datalist id="unidades"></datalist></div>
+      <div class="campo"><label class="rot" for="veh-busca">Unidad</label>
+        <div class="veh-sel" id="veh-sel" hidden><b id="veh-sel-d">—</b><span id="veh-sel-s">—</span>
+          <div class="veh-pie"><span>Factura: <b id="veh-sel-e">—</b></span><button type="button" class="lin" id="b-veh-cambiar">Cambiar la unidad</button></div></div>
+        <div class="bloque" id="veh-elige">
+          <input class="ctl" id="veh-busca" type="search" autocomplete="off" spellcheck="false" placeholder="Buscá por modelo, color, serie o dominio">
+          <div class="chips" id="veh-grupos" aria-label="Listados de unidades"></div>
+          <div class="veh-l" id="veh-l" role="listbox" aria-label="Unidades habilitadas"></div>
+          <small id="veh-t">—</small>
+        </div></div>
       <div class="fila">
         <div class="campo"><label class="rot" for="cliente">Cliente</label><input class="ctl" id="cliente" type="text" placeholder="Nombre o razón social"></div>
-        <div class="campo"><label class="rot" for="doc">CUIT o DNI</label><input class="ctl" id="doc" type="text" inputmode="numeric" placeholder="Opcional"></div>
+        <div class="campo"><label class="rot" for="doc">CUIT del cliente</label><input class="ctl" id="doc" type="text" inputmode="numeric" maxlength="13" placeholder="11 números"></div>
       </div>
       <div class="fila">
         <div class="campo"><label class="rot" for="vendedor">Vendedor</label><input class="ctl" id="vendedor" type="text" placeholder="Sale de tu usuario" readonly></div>
@@ -466,6 +520,7 @@ select.ctl{appearance:auto}
       <div class="chips" data-para="antPct" aria-label="Anticipos frecuentes">
         <button type="button" class="chip" data-v="0">Sin anticipo</button><button type="button" class="chip" data-v="20">20%</button><button type="button" class="chip" data-v="30">30%</button><button type="button" class="chip" data-v="40">40%</button><button type="button" class="chip" data-v="50">50%</button>
       </div>
+      <p class="nota" id="f-antmin" hidden></p>
       <p class="saldo">Saldo a financiar con cheques <b id="f-saldo">$ 33.950.000</b></p>
     </section>
 
@@ -483,15 +538,10 @@ select.ctl{appearance:auto}
             <div class="cifra"><span>a</span><input id="primer" type="text" inputmode="numeric" value="30"><span class="fin">días</span></div></div>
         </div>
         <div class="chips" data-para="cuotas" aria-label="Cantidades frecuentes">
-          <button type="button" class="chip" data-v="2">2</button><button type="button" class="chip" data-v="3">3</button><button type="button" class="chip" data-v="4">4</button><button type="button" class="chip" data-v="6">6</button><button type="button" class="chip" data-v="9">9</button><button type="button" class="chip" data-v="12">12</button>
+          <button type="button" class="chip" data-v="2">2</button><button type="button" class="chip" data-v="3">3</button><button type="button" class="chip" data-v="4">4</button><button type="button" class="chip" data-v="5">5</button><button type="button" class="chip" data-v="6">6</button><button type="button" class="chip" data-v="9">9</button><button type="button" class="chip" data-v="12">12</button>
         </div>
         <div class="campo"><label class="rot" for="frec">Frecuencia de los vencimientos</label>
           <select class="ctl" id="frec"><option value="30">Cada 30 días</option><option value="mes">El mismo día de cada mes</option><option value="15">Cada 15 días</option></select></div>
-        <div class="campo"><span class="rot" id="rot-tipo">Importe de los cheques</span>
-          <div class="seg" role="radiogroup" aria-labelledby="rot-tipo">
-            <input type="radio" name="tipo" id="tipo-iguales" value="iguales" checked><label for="tipo-iguales">Todos iguales</label>
-            <input type="radio" name="tipo" id="tipo-capital" value="capital"><label for="tipo-capital">Capital fijo + interés</label>
-          </div></div>
       </div>
       <div class="bloque" id="blk-uno" hidden>
         <div class="fila">
@@ -508,23 +558,19 @@ select.ctl{appearance:auto}
           <input type="radio" name="origen" id="origen-propios" value="propios" checked><label for="origen-propios">Propios del cliente</label>
           <input type="radio" name="origen" id="origen-terceros" value="terceros"><label for="origen-terceros">De terceros</label>
         </div></div>
+      <div class="bloque" id="blk-terceros" hidden>
+        <p class="nota">Cargá a cada librador de los cheques. Finanzas lo analiza junto con el cliente antes de aprobar.</p>
+        <div class="terceros" id="terceros"></div>
+        <button type="button" class="lin" id="b-tercero">+ Agregar otro librador</button>
+      </div>
       <div class="campo"><span class="rot" id="rot-forma">Cómo se paga el costo financiero</span>
         <div class="seg" role="radiogroup" aria-labelledby="rot-forma">
           <input type="radio" name="forma" id="forma-dentro" value="dentro" checked><label for="forma-dentro">Dentro de los cheques</label>
           <input type="radio" name="forma" id="forma-aparte" value="aparte"><label for="forma-aparte">Aparte, con el anticipo</label>
         </div>
         <small id="f-forma"></small></div>
-      <p class="nota">Las fechas que caen en sábado, domingo o feriado se corren al día hábil siguiente. El cálculo suma <b id="f-clearing">1 día hábil</b> de acreditación bancaria a cada cheque.</p>
-    </section>
-
-    <section class="paso">
-      <h2><i>04</i>Verificación Nosis</h2>
-      <div class="seg" role="radiogroup" aria-label="Resultado de Nosis">
-        <input type="radio" name="nosis" id="nosis-pend" value="pendiente" checked><label for="nosis-pend">Pendiente</label>
-        <input type="radio" name="nosis" id="nosis-apto" value="apto"><label for="nosis-apto">Apto</label>
-        <input type="radio" name="nosis" id="nosis-no" value="no"><label for="nosis-no">No apto</label>
-      </div>
-      <p class="estado warn" id="f-nosis">Podés cotizar, pero no recibas cheques hasta tener el Nosis del cliente en estado apto.</p>
+      <p class="nota"><span id="f-topes"></span> Las fechas que caen en sábado, domingo o feriado se corren al día hábil siguiente. El cálculo suma <b id="f-clearing">1 día hábil</b> de acreditación bancaria a cada cheque.</p>
+      <p class="estado" id="f-circuito">El análisis crediticio (Nosis) lo hace Finanzas. La operación queda firme cuando Finanzas la aprueba y la Gerencia Comercial la autoriza: lo ves en «Mis cotizaciones».</p>
     </section>
   </form>
 
@@ -535,7 +581,7 @@ select.ctl{appearance:auto}
       <div class="hoja-cuerpo"><p class="sin-t" id="sin-tasa-t">Leyendo la tasa del día…</p><p class="nota">La cotización se arma con la tasa que publica Finanzas. Sin esa tasa no se pueden calcular los cheques.</p></div>
     </div>
 
-    <div class="vista" id="vista" hidden>
+    <div class="vista solo-vendedor" id="vista" hidden>
       <div class="seg" role="radiogroup" aria-label="Vista de la cotización">
         <input type="radio" name="vista" id="vista-con" value="con" checked><label for="vista-con">Con impuestos</label>
         <input type="radio" name="vista" id="vista-sin" value="sin"><label for="vista-sin">Sin impuestos</label>
@@ -559,10 +605,9 @@ select.ctl{appearance:auto}
 
         <dl class="datos">
           <div><dt>Cliente</dt><dd id="o-cliente" class="vacio">A completar</dd></div>
-          <div><dt>CUIT o DNI</dt><dd id="o-doc" class="vacio">—</dd></div>
+          <div><dt>CUIT</dt><dd id="o-doc" class="vacio">—</dd></div>
           <div><dt>Vendedor</dt><dd id="o-vendedor" class="vacio">A completar</dd></div>
-          <div><dt>Unidad de negocio</dt><dd id="o-unidad">Vehículos 0 km</dd></div>
-          <div><dt>Unidad o producto</dt><dd id="o-detalle">—</dd></div>
+          <div><dt>Unidad</dt><dd id="o-detalle">—</dd></div>
           <div><dt>Cheques a la orden de</dt><dd id="o-orden">AG NAUM S.A.</dd></div>
         </dl>
 
@@ -573,15 +618,6 @@ select.ctl{appearance:auto}
         </div>
         <div class="hoy" id="o-hoy" hidden><span id="o-hoy-t">—</span><strong id="o-hoy-v">$ 0</strong></div>
 
-        <section class="sec reparto" id="s-reparto">
-          <div class="reparto-h"><h3 id="o-lema">Usted paga la mitad de la tasa</h3><span>Tasa de descuento de cheques de referencia: <b id="o-tna">—</b></span></div>
-          <div class="barra" id="o-barra">
-            <div class="cli" id="o-b-cli"><small>Usted paga</small><b id="o-rc">—</b></div>
-            <div class="agn" id="o-b-agn"><small>Bonifica Grupo AGN</small><b id="o-ra">—</b></div>
-          </div>
-          <p class="reparto-pie">En esta operación Grupo AGN le bonifica <b id="o-ahorro2">$ 0</b> de costo financiero.</p>
-        </section>
-
         <section class="sec" id="s-cheques">
           <span class="sec-t">Sus cheques</span>
           <div class="cheques" id="o-cheques"></div>
@@ -590,16 +626,15 @@ select.ctl{appearance:auto}
 
         <section class="sec" id="s-costos">
           <span class="sec-t">Costo financiero</span>
-          <div class="costos">
-            <div><span>Costo financiero total</span><strong id="o-costo">$ 0</strong><em id="o-costo-pct">—</em></div>
-            <div class="ahorro"><span>Bonificación de Grupo AGN</span><strong id="o-ahorro">$ 0</strong><em>respecto de la tasa de referencia</em></div>
-            <div><span>Plazo promedio</span><strong id="o-plazo">—</strong><em id="o-plazo-sub">incluye la acreditación bancaria</em></div>
-          </div>
-          <dl class="desglose" id="o-desglose"></dl>
+          <dl class="desglose" id="o-desglose">
+            <dt>Intereses y otros costos financieros</dt><dd id="o-neto">$ 0</dd>
+            <dt id="o-imp-rot">Impuestos (IVA)</dt><dd id="o-imp">$ 0</dd>
+            <dt class="sub"><span id="o-costo-rot">Costo financiero total</span><span id="o-costo-pct"></span></dt><dd class="sub" id="o-costo">$ 0</dd>
+          </dl>
           <div class="tasas">
-            <div><span>Tasa nominal anual que paga</span><strong id="o-tnac">—</strong><em>adelantada, sobre el importe del cheque</em></div>
+            <div><span>Tasa Compartida</span><strong id="o-tnac">—</strong><em>nominal anual adelantada</em></div>
             <div><span>Tasa efectiva anual (TEA)</span><strong id="o-tea">—</strong><em>solo interés</em></div>
-            <div class="cft"><span>Costo financiero total efectivo anual</span><strong id="o-cft">—</strong><em id="o-cft-sub">con gastos e impuestos</em></div>
+            <div class="cft"><span>Costo financiero total (CFT)</span><strong id="o-cft">—</strong><em id="o-cft-sub">efectivo anual, con impuestos</em></div>
           </div>
           <p class="nota" id="o-sistema">—</p>
           <div class="total-op"><span id="o-total-rot">Total de la operación (anticipo + cheques)</span><strong id="o-total">$ 0</strong></div>
@@ -621,7 +656,6 @@ select.ctl{appearance:auto}
           <div><span>Del importe</span><b id="i-pct-precio">—</b></div>
           <div><span>Del saldo financiado</span><b id="i-pct-saldo">—</b></div>
           <div><span>TNA equivalente</span><b id="i-tna">—</b></div>
-          <div><span>Nosis</span><b id="i-nosis">Pendiente</b></div>
         </div>
       </div>
       <dl class="libro" id="i-libro"></dl>
@@ -631,6 +665,15 @@ select.ctl{appearance:auto}
       </div>
     </aside>
 
+
+    <section class="interno" id="comercial" aria-label="Autorización comercial">
+      <div class="int-cab"><h2>Autorización comercial</h2><span>Solo lo ve la Gerencia Comercial</span></div>
+      <div class="param-pie" style="padding-top:0"><p id="com-t">Leyendo las operaciones…</p><button type="button" class="btn sec" id="b-com-act">Actualizar</button></div>
+      <p class="rep-n">Acá llegan las operaciones que Finanzas ya aprobó (condiciones financieras y Nosis). Cada una muestra cuánto le cuesta a la empresa la financiación, en pesos y como porcentaje del importe, para compararlo con el margen de la unidad. La operación queda firme cuando la autorizás; el vendedor y Finanzas reciben el aviso.</p>
+      <div class="reg" id="com-l"></div>
+      <div class="reg-mas" id="com-mas" hidden><p id="com-mas-t">—</p><button type="button" class="btn sec" id="b-com-mas">Ver 10 más</button></div>
+      <p class="rep-n" id="com-pie"></p>
+    </section>
 
     <section class="interno solo-vendedor solo-finanzas" id="finanzas" aria-label="Módulo de Finanzas">
       <div class="int-cab"><h2>Módulo de Finanzas</h2><span id="fin-modo">Solo lo ve Finanzas</span></div>
@@ -687,21 +730,30 @@ select.ctl{appearance:auto}
       <details class="param" id="g-pol">
         <summary>Política comercial</summary>
         <div class="param-g">
-          <div class="campo"><label class="rot" for="p-plazosinval">Plazo sin validación especial</label><div class="cifra"><span>hasta</span><input id="p-plazosinval" type="text" inputmode="numeric" value="180"><span class="fin">días</span></div></div>
-          <div class="campo"><label class="rot" for="p-plazomax">Plazo máximo de un cheque</label><div class="cifra"><input id="p-plazomax" type="text" inputmode="numeric" value="360"><span class="fin">días</span></div></div>
-          <div class="campo"><label class="rot" for="p-cuotassinval">Cheques sin validación especial</label><div class="cifra"><span>hasta</span><input id="p-cuotassinval" type="text" inputmode="numeric" value="12"><span class="fin">cheques</span></div></div>
-          <div class="campo"><label class="rot" for="p-cuotasmax">Máximo de cheques por operación</label><div class="cifra"><input id="p-cuotasmax" type="text" inputmode="numeric" value="24"><span class="fin">cheques</span></div></div>
-          <div class="campo"><label class="rot" for="p-anticipomin">Anticipo mínimo sin validación especial</label><div class="cifra"><input id="p-anticipomin" type="text" inputmode="decimal" value="0"><span class="fin">%</span></div></div>
+          <div class="campo"><label class="rot" for="p-plazomax">Plazo máximo de un cheque</label><div class="cifra"><input id="p-plazomax" type="text" inputmode="numeric" value="180"><span class="fin">días</span></div></div>
+          <div class="campo"><label class="rot" for="p-cuotasmax">Máximo de cheques por operación</label><div class="cifra"><input id="p-cuotasmax" type="text" inputmode="numeric" value="6"><span class="fin">cheques</span></div></div>
+          <div class="campo"><label class="rot" for="p-anticipomin">Anticipo mínimo</label><div class="cifra"><input id="p-anticipomin" type="text" inputmode="decimal" value="0"><span class="fin">%</span></div></div>
           <div class="campo"><label class="rot" for="p-vigencia">Días hábiles que vale la tasa publicada</label><div class="cifra"><input id="p-vigencia" type="text" inputmode="numeric" value="1"><span class="fin">días</span></div></div>
+          <div class="campo"><label class="rot" for="p-tasasdec">Tasas en la cotización del cliente</label>
+            <select class="ctl" id="p-tasasdec"><option value="0">Números redondos (33%)</option><option value="1">Con un decimal (33,4%)</option><option value="2">Con dos decimales (33,42%)</option></select></div>
+          <div class="campo"><label class="rot" for="p-cupo">Cupo de las líneas de descuento, para el tablero</label><div class="cifra"><span>$</span><input id="p-cupo" type="text" inputmode="numeric" value="0"></div></div>
           <label class="marca-ok ancho" for="p-exigir"><input type="checkbox" id="p-exigir" checked><span>Exigir que la cotización quede registrada antes de entregar el PDF al vendedor</span></label>
         </div>
-        <p class="param-n">Lo que supera estos valores no se bloquea: la cotización sale marcada para validación de Finanzas. Si la tasa publicada es más vieja que los días hábiles indicados, los vendedores no pueden emitir hasta que se publique la de hoy. Con el registro exigido, el vendedor no obtiene el PDF si la cotización no pudo registrarse.</p>
+        <p class="param-n">Plazo, cantidad de cheques y anticipo mínimo son topes: fuera de esos valores el vendedor no puede emitir. Los cheques son siempre del mismo importe. Las tasas se redondean solo en lo que ve el cliente; los importes se calculan con las tasas exactas. Si la tasa publicada es más vieja que los días hábiles indicados, los vendedores no pueden emitir hasta que se publique la de hoy. El cupo es un dato interno: no viaja al cotizador.</p>
+      </details>
+
+      <details class="param" id="g-stock">
+        <summary>Unidades habilitadas <span class="pill warn" id="fin-stock-p">Sin listado</span></summary>
+        <div class="param-pie"><p id="stock-t">—</p>
+          <div class="acc"><button type="button" class="btn sec" id="b-stock-arch">Cargar listados (.xlsx)</button><input type="file" id="stock-arch" accept=".xlsx,application/vnd.openxmlformats-officedocument.spreadsheetml.sheet" multiple hidden><button type="button" class="btn sec" id="b-stock-vaciar">Quitar todas</button></div></div>
+        <label class="marca-ok" for="stock-60" style="padding-top:12px"><input type="checkbox" id="stock-60" checked><span>Si el archivo trae la hoja «Más de 60 días», tomar solo esas unidades</span></label>
+        <div class="reg" id="stock-l"></div>
+        <p class="param-n">El vendedor solo puede cotizar unidades de este listado, y cada unidad trae la empresa que la factura: no puede escribir otra. Del archivo se toman marca y modelo, color, serie o dominio, año y kilómetros. Los costos, los márgenes y los precios no se leen y no salen de este equipo. Cargar un archivo reemplaza las unidades del mismo listado. Los cambios valen cuando publicás.</p>
       </details>
 
       <details class="param" id="g-listas">
-        <summary>Unidades habilitadas y feriados</summary>
+        <summary>Feriados bancarios</summary>
         <div class="param-g">
-          <div class="campo ancho"><label class="rot" for="p-unidades">Unidades habilitadas para Tasa Compartida, una por línea. Vacío: todas</label><textarea class="ctl" id="p-unidades" spellcheck="false" placeholder="Ejemplo: Ranger XLT 4x4 AT stock 2026"></textarea></div>
           <div class="campo ancho"><label class="rot" for="p-feriados">Feriados bancarios, una fecha por línea (dd-mm-aaaa)</label><textarea class="ctl" id="p-feriados" spellcheck="false"></textarea></div>
         </div>
         <p class="param-n" id="fin-fer-t">—</p>
@@ -710,9 +762,10 @@ select.ctl{appearance:auto}
       <details class="param" id="g-legal">
         <summary>Textos legales de la cotización <span class="pill warn" id="fin-legal-p">Borrador sin validar</span></summary>
         <div class="param-g">
-          <div class="campo ancho"><label class="rot" for="p-textos">Un párrafo por línea. Se reemplazan solos: {empresa}, {plazoSinVal}, {plazoMax}, {cuotasSinVal}, {clearing}</label><textarea class="ctl" id="p-textos" style="min-height:220px"></textarea></div>
+          <div class="campo ancho"><label class="rot" for="p-textos">Un párrafo por línea. Se reemplazan solos: {empresa}, {plazoMax}, {cuotasMax}, {clearing}</label><textarea class="ctl" id="p-textos" style="min-height:220px"></textarea></div>
           <label class="marca-ok ancho" for="p-legalok"><input type="checkbox" id="p-legalok"><span>Textos validados por el asesor legal</span></label>
         </div>
+        <p class="param-n" id="fin-legal-n" hidden></p>
         <div class="param-pie"><p>Estos textos salen en pantalla y en el PDF que firma el cliente. La leyenda de caducidad a las 24 horas se agrega siempre.</p><button type="button" class="btn sec" id="b-textos-sug">Cargar textos sugeridos</button></div>
       </details>
 
@@ -729,13 +782,30 @@ select.ctl{appearance:auto}
             <div class="campo"><label class="rot" for="rep-hasta">Hasta</label><input class="ctl" id="rep-hasta" type="date"></div>
             <button type="button" class="btn pri" id="b-rep">Descargar Excel</button>
           </div>
-          <p class="rep-n" id="rep-t">Tres hojas: Resumen, Cotizaciones y Cheques. Lleva el costo para la empresa: es de uso interno y no se comparte con clientes ni vendedores.</p>
+          <p class="rep-n" id="rep-t">Tres hojas: Resumen, Cotizaciones y Cheques. Lleva el costo para la empresa, el Nosis, la autorización comercial y los libradores: es de uso interno y no se comparte con clientes ni vendedores.</p>
         </div>
       </details>
 
+      <details class="param" id="g-tab">
+        <summary>Tablero de gestión</summary>
+        <div class="rep">
+          <p class="rep-tit">Período</p>
+          <div class="chips" id="tab-pre" aria-label="Períodos frecuentes">
+            <button type="button" class="chip" data-pre="mes">Este mes</button><button type="button" class="chip" data-pre="ant">Mes pasado</button><button type="button" class="chip" data-pre="90">Últimos 90 días</button>
+          </div>
+          <div class="rep-g">
+            <div class="campo"><label class="rot" for="tab-desde">Emitidas desde</label><input class="ctl" id="tab-desde" type="date"></div>
+            <div class="campo"><label class="rot" for="tab-hasta">Hasta</label><input class="ctl" id="tab-hasta" type="date"></div>
+            <button type="button" class="btn pri" id="b-tab">Ver tablero</button>
+          </div>
+          <p class="rep-n" id="tab-t">Volumen cotizado, operaciones aprobadas y autorizadas, costo que absorbe la empresa y cheques comprometidos por mes. Todo sale del registro de cotizaciones.</p>
+        </div>
+        <div class="tab" id="tab" hidden></div>
+      </details>
+
       <details class="param" id="g-usu">
-        <summary>Usuarios</summary>
-        <div class="param-pie"><p id="usu-t">Abrí esta sección para ver quiénes pueden entrar al sistema y dar de alta vendedores u otros usuarios de Finanzas.</p>
+        <summary>Usuarios <span class="pill warn" id="fin-usu-p" hidden></span></summary>
+        <div class="param-pie"><p id="usu-t">Abrí esta sección para ver quiénes pueden entrar al sistema y dar de alta vendedores, usuarios de Finanzas o de la Gerencia Comercial.</p>
           <div class="acc"><button type="button" class="btn sec" id="b-usu-act">Actualizar</button><button type="button" class="btn sec" id="b-usu-nuevo">Nuevo usuario</button></div></div>
         <div class="borr" id="usu-aviso" hidden>
           <span class="usu-aviso" id="usu-aviso-t"></span>
@@ -746,7 +816,7 @@ select.ctl{appearance:auto}
             <div class="campo"><label class="rot" for="u-usuario">Usuario (con el que ingresa)</label><input class="ctl" id="u-usuario" type="text" autocapitalize="none" autocomplete="off" spellcheck="false" maxlength="30" placeholder="nombre.apellido"></div>
             <div class="campo"><label class="rot" for="u-nombre">Nombre y apellido</label><input class="ctl" id="u-nombre" type="text" autocomplete="off" maxlength="80" placeholder="Como sale en la cotización"></div>
             <div class="campo"><label class="rot" for="u-correo">Correo, para los avisos</label><input class="ctl" id="u-correo" type="email" autocomplete="off" maxlength="120" placeholder="Opcional"></div>
-            <div class="campo"><label class="rot" for="u-rol">Acceso</label><select class="ctl" id="u-rol"><option value="vendedor">Vendedor</option><option value="finanzas">Finanzas</option></select></div>
+            <div class="campo"><label class="rot" for="u-rol">Acceso</label><select class="ctl" id="u-rol"><option value="vendedor">Vendedor</option><option value="finanzas">Finanzas</option><option value="comercial">Gerencia Comercial</option></select></div>
             <div class="campo"><label class="rot" for="u-clave" id="u-clave-l">Contraseña provisoria</label><div class="con-btn"><input class="ctl" id="u-clave" type="text" autocomplete="off" spellcheck="false" maxlength="72"><button type="button" class="btn sec" id="b-usu-gen">Generar</button></div></div>
             <label class="marca-ok" for="u-activo"><input type="checkbox" id="u-activo" checked><span>Usuario activo: puede ingresar</span></label>
           </div>
@@ -791,17 +861,53 @@ select.ctl{appearance:auto}
 var FER_SUG = ['2026-11-23','2026-12-07','2026-12-08','2026-12-25','2027-01-01','2027-02-08','2027-02-09','2027-03-24','2027-03-25','2027-03-26','2027-04-02','2027-05-25','2027-06-21','2027-07-09','2027-08-16','2027-10-11','2027-12-08'];
 var SUG = {tna:28.39, bonif:50, gastosAGN:0, sellos:4, comision:0.7, otros:0, clearing:1, metodo:'adelantada',
   iibb:8.9243, tem:1.180625, debcred:0.402, iva:10.5, percIIBB:0, margen:0,
-  plazoSinVal:180, plazoMax:360, cuotasSinVal:12, cuotasMax:24, anticipoMin:0, vigencia:1, exigirRegistro:true,
+  plazoSinVal:180, plazoMax:180, cuotasSinVal:6, cuotasMax:6, anticipoMin:0, vigencia:1, exigirRegistro:true,
+  tasasDec:0, stock:[],
   unidades:[], feriados:FER_SUG, textos:[], legalOk:false,
-  ivaBanco:10.5, percIvaBanco:1.5};
-/* Lo que sólo necesita Finanzas para ver cuánto acredita el banco: no viaja a la página del vendedor. */
-var CLAVES_INT = ['ivaBanco','percIvaBanco'];
+  ivaBanco:10.5, percIvaBanco:1.5, cupo:0};
+/* Lo que sólo necesita Finanzas (cuánto acredita el banco y el cupo de las líneas de descuento): no viaja a la página del vendedor. */
+var CLAVES_INT = ['ivaBanco','percIvaBanco','cupo'];
 
 var p2 = function(n){ return String(n).padStart(2,'0'); };
 var acota = function(v,a,b){ return Math.min(b,Math.max(a,v)); };
 var num = function(v,def){ v = Number(v); return isFinite(v) ? v : def; };
 var lista = function(a,max,largo){ return (Array.isArray(a)?a:[]).map(function(s){ return String(s).trim().slice(0,largo); }).filter(Boolean).slice(0,max); };
 var suma = function(a){ return a.reduce(function(s,x){ return s+x; },0); };
+
+/* ---------- CUIT (o CUIL): once cifras con su dígito verificador. Es el dato con que Finanzas busca en Nosis; el DNI no sirve. ---------- */
+var soloDig = function(s){ return String(s===undefined||s===null?'':s).replace(/\D/g,''); };
+function cuitOk(s){
+  var d = soloDig(s), m = [5,4,3,2,7,6,5,4,3,2], t = 0, i, v;
+  if (d.length!==11) return false;
+  for (i=0;i<10;i++) t += m[i]*Number(d.charAt(i));
+  v = 11 - (t%11); if (v===11) v = 0;
+  return v!==10 && v===Number(d.charAt(10));
+}
+function cuitFmt(s){ var d = soloDig(s); return d.length===11 ? d.slice(0,2)+'-'+d.slice(2,10)+'-'+d.slice(10) : String(s===undefined||s===null?'':s).trim(); }
+
+/* ---------- unidades habilitadas (versión 3.5): el listado que publica Finanzas. El vendedor elige de acá y no escribe la unidad.
+   i: identificación · d: marca y modelo · c: color · s: serie (0 km) o dominio (usados) · e: empresa que factura · u: '0km' o 'usado'
+   g: listado al que pertenece · a: año y k: kilómetros (usados). No lleva costos, márgenes ni precios. */
+function normStock(a){
+  var vistos = {}, out = [];
+  var t = function(v,n){ return String(v===undefined||v===null?'':v).replace(/\s+/g,' ').trim().slice(0,n); };
+  (Array.isArray(a)?a:[]).forEach(function(x){
+    if (!x || typeof x!=='object' || out.length>=600) return;
+    var o = {i:t(x.i,40), d:t(x.d,90), c:t(x.c,40), s:t(x.s,24), e:t(x.e,60), u:x.u==='usado'?'usado':'0km', g:t(x.g,40)};
+    var an = Math.round(num(x.a,0)), km = x.k===undefined||x.k===null||x.k==='' ? -1 : Math.round(num(x.k,-1));
+    if (an>=1950 && an<=2100) o.a = an;
+    if (km>=0 && km<=5000000) o.k = km;
+    if (!o.i || !o.d || !o.e || vistos[o.i]) return;
+    vistos[o.i] = 1; out.push(o);
+  });
+  return out;
+}
+function vehDe(par, id){ var l = (par && par.stock) || [], k; for (k=0;k<l.length;k++) if (l[k].i===id) return l[k]; return null; }
+/* Cómo se nombra la unidad en la cotización: marca y modelo, color y, en los usados, año y dominio. */
+function vehTexto(v){
+  if (!v) return '';
+  return [v.d, v.c, v.u==='usado' && v.a ? String(v.a) : '', v.u==='usado' && v.s ? 'dominio '+v.s : ''].filter(Boolean).join(' · ').slice(0,120);
+}
 
 /* ---------- fechas (mediodía local, sin saltos de hora) y días hábiles ---------- */
 var masDias = function(d,n){ return new Date(d.getFullYear(),d.getMonth(),d.getDate()+n,12); };
@@ -851,12 +957,15 @@ function norm(p){
   o.anticipoMin = acota(num(p.anticipoMin,0),0,100);
   o.vigencia = Math.round(acota(num(p.vigencia,1),0,10));
   o.exigirRegistro = p.exigirRegistro===undefined ? true : !!p.exigirRegistro;
+  o.tasasDec = [0,1,2].indexOf(Number(p.tasasDec))>=0 ? Number(p.tasasDec) : 0;
+  o.stock = normStock(p.stock);
   o.unidades = lista(p.unidades,300,120);
   o.feriados = lista(p.feriados,500,10).filter(isoValida).sort();
   o.textos = lista(p.textos,30,1500);
   o.legalOk = !!p.legalOk;
   o.ivaBanco = acota(num(p.ivaBanco,0),0,30);
   o.percIvaBanco = acota(num(p.percIvaBanco,0),0,10);
+  o.cupo = Math.round(acota(num(p.cupo,0),0,1e13));
   return o;
 }
 function ivaDe(par){ return par.iva/100; }
@@ -997,6 +1106,7 @@ function calcular(op, par, hoy){
 }
 
 return {SUG:SUG, FER_SUG:FER_SUG, CLAVES_INT:CLAVES_INT, norm:norm, ivaDe:ivaDe, plazoCalculo:plazoCalculo, liquidaBanco:liquidaBanco,
+  cuitOk:cuitOk, cuitFmt:cuitFmt, normStock:normStock, vehDe:vehDe, vehTexto:vehTexto,
   tasaEfectiva:tasaEfectiva, planCheques:planCheques, calcular:calcular,
   fechas:{masDias:masDias, masMeses:masMeses, difDias:difDias, aIso:aIso, deIso:deIso, diaDe:diaDe, isoValida:isoValida, mapaFer:mapaFer, esHabil:esHabil, habilesEntre:habilesEntre}};
 });
@@ -1006,18 +1116,18 @@ return {SUG:SUG, FER_SUG:FER_SUG, CLAVES_INT:CLAVES_INT, norm:norm, ivaDe:ivaDe,
 'use strict';
 var $ = function(id){ return document.getElementById(id); };
 var M = window.TCMotor;   /* motor de cálculo: el mismo archivo en la página de Finanzas y en la del vendedor */
-var VERSION = 'Versión 3.4 · 23-11-2026';
+var VERSION = 'Versión 3.5 · 25-11-2026';
 var LS_VEND = 'tc_vendedor_v1';
 var CLAVES_INT = M.CLAVES_INT;
 
 /* Textos legales sugeridos. Son un borrador hasta que los valide el asesor legal. */
 var TEXTOS_SUG = [
-  'Validez. Esta cotización vale 24 horas desde su emisión. Vencido ese plazo, los importes y la tasa deben cotizarse de nuevo. No es factura ni reserva de la unidad o producto cotizado.',
-  'Aprobación. La operación queda sujeta al análisis de riesgo crediticio y a la aprobación de Administración y Finanzas de Grupo AGN, que puede pedir otras condiciones de anticipo, plazo, cantidad u origen de los cheques, o no aceptarla. El cliente autoriza a consultar sus antecedentes en bases de información crediticia.',
-  'Cheques. Se reciben cheques de pago diferido o ECHEQ a la orden de {empresa}. Condición habitual: hasta {plazoSinVal} días de plazo y hasta {cuotasSinVal} cheques por operación. Plazos mayores, con un máximo de {plazoMax} días, más cheques o cheques de terceros requieren validación expresa de Finanzas. Los cheques de terceros deben ser endosados por el cliente, que responde por su pago.',
-  'Costo financiero. Incluye el interés a la tasa bonificada, los sellos y gastos bancarios de la negociación de los cheques y los impuestos que se detallan, y se factura al cliente. Se calcula hasta la fecha de acreditación de cada cheque: la fecha de pago, corrida al día hábil siguiente si cae en sábado, domingo o feriado, más {clearing} día(s) hábil(es). Puede estar incluido en el importe de los cheques o pagarse aparte, junto con el anticipo, el día de la operación: la cotización indica la forma elegida. La tasa bonificada rige solo para esta cotización.',
+  'Validez. Esta cotización vale 24 horas desde su emisión. Vencido ese plazo, los importes y la tasa deben cotizarse de nuevo. No es factura ni reserva de la unidad cotizada.',
+  'Aprobación. La operación queda sujeta al análisis de riesgo crediticio y a la aprobación de Grupo AGN, que puede pedir otras condiciones de anticipo, plazo, cantidad u origen de los cheques, o no aceptarla. El cliente autoriza a consultar sus antecedentes en bases de información crediticia.',
+  'Cheques. Se reciben cheques de pago diferido o ECHEQ a la orden de {empresa}, todos del mismo importe, hasta {cuotasMax} cheques por operación y hasta {plazoMax} días de plazo. Los cheques de terceros requieren el análisis crediticio de cada librador y deben ser endosados por el cliente, que responde por su pago.',
+  'Costo financiero. Incluye los intereses y los demás costos financieros de la negociación de los cheques, más los impuestos, y se factura al cliente. Se calcula hasta la fecha de acreditación de cada cheque: la fecha de pago, corrida al día hábil siguiente si cae en sábado, domingo o feriado, más {clearing} día(s) hábil(es). Puede estar incluido en el importe de los cheques o pagarse aparte, junto con el anticipo, el día de la operación: la cotización indica la forma elegida. La tasa informada rige solo para esta cotización.',
   'Cancelación de la deuda. La entrega de los cheques no cancela la deuda ni la reemplaza por otra: cada importe se considera pagado cuando el cheque se acredita. Grupo AGN puede endosar, ceder o descontar los cheques en entidades financieras.',
-  'Cheque rechazado. Si un cheque es rechazado por cualquier motivo, el cliente debe pagar su importe dentro de las 48 horas hábiles de ser notificado, más los gastos y multas bancarias y los intereses que correspondan desde la fecha de pago del cheque. Si no lo hace queda en mora sin necesidad de intimación, pierde la bonificación de tasa sobre el saldo pendiente, y Grupo AGN puede exigir el pago inmediato de los cheques aún no vencidos e iniciar las acciones previstas en la Ley 24.452.',
+  'Cheque rechazado. Si un cheque es rechazado por cualquier motivo, el cliente debe pagar su importe dentro de las 48 horas hábiles de ser notificado, más los gastos y multas bancarias y los intereses que correspondan desde la fecha de pago del cheque. Si no lo hace queda en mora sin necesidad de intimación, pierde las condiciones de tasa de esta cotización sobre el saldo pendiente, y Grupo AGN puede exigir el pago inmediato de los cheques aún no vencidos e iniciar las acciones previstas en la Ley 24.452.',
   'Jurisdicción. Para cualquier controversia son competentes los tribunales ordinarios de San Miguel de Tucumán. Si el cliente es consumidor final, los de su domicilio real.',
   'El cliente recibe copia de esta cotización y declara conocer y aceptar sus condiciones.'
 ];
@@ -1036,6 +1146,9 @@ var nDec = function(el){ var s=String(el.value).trim(); if(s.indexOf(',')>=0) s=
 var acota = function(v,a,b){ return Math.min(b,Math.max(a,v)); };
 var num = function(v,def){ v = Number(v); return isFinite(v) ? v : def; };
 var lista = function(a,max,largo){ return (Array.isArray(a)?a:[]).map(function(s){ return String(s).trim().slice(0,largo); }).filter(Boolean).slice(0,max); };
+var cap1 = function(t){ t = String(t||''); return t.charAt(0).toUpperCase()+t.slice(1); };
+/* Un porcentaje del importe (el anticipo): sin decimales cuando es redondo. */
+var fPctA = function(x){ var v = Math.round(x*1000)/10; return fPct(x, Math.abs(v-Math.round(v))<1e-9 ? 0 : 1); };
 
 /* ---------- lo que viene del motor ---------- */
 var FM = M.fechas, masDias = FM.masDias, difDias = FM.difDias, aIso = FM.aIso, deIso = FM.deIso, diaDe = FM.diaDe, isoValida = FM.isoValida, mapaFer = FM.mapaFer, habilesEntre = FM.habilesEntre;
@@ -1051,7 +1164,9 @@ var numero = nuevoNumero(), emitidaFija = null, rev = 0, ultimo = null, editado 
    próxima que se emita, si es para el mismo cliente. abierta: una cotización traída del sistema, que se ve y se descarga con las condiciones con
    las que se emitió, aunque Finanzas haya publicado otra tasa después. */
 var fija = null, base = null, abierta = null;
-var tocado = false, parStr = null, ferMal = 0, unidadesStr = null, regHechos = {}, tnaVista = null, vista = 'con';
+var tocado = false, parStr = null, ferMal = 0, regHechos = {}, tnaVista = null, vista = 'con';
+/* Versión 3.5. vehSel: la unidad elegida del listado que publicó Finanzas (el vendedor no la escribe). vehGrupo: el listado que se está mirando. */
+var vehSel = null, vehGrupo = '', stockStr = null, terSeq = 0, TERCEROS_MAX = 6;
 function nuevoNumero(){
   var d = new Date(), r = (Math.random().toString(36)+'000').slice(2,5).toUpperCase();
   return 'COT-'+String(d.getFullYear()).slice(2)+p2(d.getMonth()+1)+p2(d.getDate())+'-'+p2(d.getHours())+p2(d.getMinutes())+'-'+r;
@@ -1065,7 +1180,7 @@ var copia = function(a,b){ var o={}, k; for(k in a) if(Object.prototype.hasOwnPr
 function suelta(){ if (fija && regHechos[fija.numero]) base = fija; numero = nuevoNumero(); emitidaFija = null; fija = null; abierta = null; }
 function cambio(){ rev++; if (emitidaFija) suelta(); }
 var llano = function(s){ return String(s||'').toLowerCase().normalize('NFD').replace(/[\u0300-\u036f]/g,'').replace(/[^a-z0-9]+/g,' ').trim(); };
-/* La cotización nueva reemplaza a la anterior solo si es para el mismo cliente: el mismo CUIT o DNI o, si falta alguno, el mismo nombre. */
+/* La cotización nueva reemplaza a la anterior solo si es para el mismo cliente: el mismo CUIT o, si falta alguno, el mismo nombre. */
 function reemplazaDe(op){
   if (!base || !op) return '';
   var d1 = soloDig(base.doc||''), d2 = soloDig(op.doc||'');
@@ -1082,7 +1197,10 @@ function pubOk(){ return !!(A.pub && A.pub.v===3); }
 var API = 'https://menaenriquedaniel.app.n8n.cloud/webhook/';
 /* El módulo de Finanzas no comparte la sesión del cotizador: pide usuario y contraseña cada vez que se abre,
    la sesión vale sólo mientras esta pestaña está abierta y se cierra sola tras un rato sin uso. */
-var LS_SES = 'tc3_sesion_fin', AMBITO = 'finanzas', almacen = function(){ return window.sessionStorage; };
+/* MODO_COM: esta misma página, publicada como comercial.html, es el módulo de la Gerencia Comercial. Lo fija armar.py al compilar. */
+var MODO_COM = false;
+var ROL_PAGINA = MODO_COM ? 'comercial' : 'finanzas';
+var LS_SES = MODO_COM ? 'tc3_sesion_com' : 'tc3_sesion_fin', AMBITO = ROL_PAGINA, almacen = function(){ return window.sessionStorage; };
 var INACTIVIDAD_MIN = 30, ultimaActividad = Date.now();
 function tocaActividad(){ ultimaActividad = Date.now(); }
 function revisaInactividad(){
@@ -1159,7 +1277,7 @@ function alEnviarIngreso(e){
     llama('tc-sesion', {accion:'ingresar', usuario:u, clave:c, ambito:AMBITO}).then(function(j){
       b.disabled = false;
       if (j.ok!==true || !j.token){ ingMsg(sinRed(j) || j.mensaje || 'No se pudo ingresar. Probá de nuevo.'); return; }
-      if (j.rol!=='finanzas'){ ingMsg('Tu usuario no tiene acceso al módulo de Finanzas. Para cotizar entrá al cotizador de vendedores.'); return; }
+      if (j.rol!==ROL_PAGINA){ ingMsg('Tu usuario no tiene acceso al módulo '+(MODO_COM ? 'Comercial' : 'de Finanzas')+'. Para cotizar entrá al cotizador de vendedores.'); return; }
       S = {token:String(j.token), vence:Number(j.vence), usuario:String(j.usuario), nombre:String(j.nombre || j.usuario), rol:String(j.rol), debe:!!j.debeCambiar};
       guardaSesion(); configIngreso = j.config || null; hayConfigIngreso = true;
       if (S.debe){ claveEscrita = c; pintaQuien(); abreIngreso('cambiar'); return; }
@@ -1211,22 +1329,25 @@ function leeFeriados(){
   ferMal = mal; return ok;
 }
 function leerParamsForm(){
+  /* Desde la versión 3.5 el plazo y la cantidad de cheques son topes: ya no existe el tramo «con validación especial».
+     Se publican los dos valores iguales para que una página de una versión anterior los trate de la misma manera. */
+  var pm = nEnt($('p-plazomax')), cm = nEnt($('p-cuotasmax'));
   return {tna:nDec($('p-tna')), bonif:nDec($('p-bonif')), gastosAGN:nDec($('p-gastosagn')), margen:nDec($('p-margen')),
     sellos:nDec($('p-sellos')), comision:nDec($('p-comision')), otros:nDec($('p-otros')), metodo:$('p-metodo').value, clearing:nEnt($('p-clearing')),
     ivaBanco:nDec($('p-ivabanco')), percIvaBanco:nDec($('p-percivabanco')),
     iva:nDec($('p-iva')), iibb:nDec($('p-iibb')), tem:nDec($('p-tem')), debcred:nDec($('p-debcred')), percIIBB:nDec($('p-perciibb')),
-    plazoSinVal:nEnt($('p-plazosinval')), plazoMax:nEnt($('p-plazomax')), cuotasSinVal:nEnt($('p-cuotassinval')), cuotasMax:nEnt($('p-cuotasmax')),
-    anticipoMin:nDec($('p-anticipomin')), vigencia:nEnt($('p-vigencia')), exigirRegistro:$('p-exigir').checked,
-    unidades:listaTxt('p-unidades'), feriados:leeFeriados(), textos:listaTxt('p-textos'), legalOk:$('p-legalok').checked};
+    plazoSinVal:pm, plazoMax:pm, cuotasSinVal:cm, cuotasMax:cm,
+    anticipoMin:nDec($('p-anticipomin')), vigencia:nEnt($('p-vigencia')), exigirRegistro:$('p-exigir').checked, tasasDec:Number($('p-tasasdec').value)||0, cupo:nEnt($('p-cupo')),
+    stock:stockForm, unidades:[], feriados:leeFeriados(), textos:listaTxt('p-textos'), legalOk:$('p-legalok').checked};
 }
 function ponerParamsForm(p){
   $('p-tna').value=fNum(p.tna); $('p-bonif').value=fNum(p.bonif); $('p-gastosagn').value=fNum(p.gastosAGN); $('p-margen').value=fNum(p.margen);
   $('p-sellos').value=fNum(p.sellos); $('p-comision').value=fNum(p.comision); $('p-otros').value=fNum(p.otros); $('p-metodo').value=p.metodo; $('p-clearing').value=p.clearing;
   $('p-ivabanco').value=fNum(p.ivaBanco); $('p-percivabanco').value=fNum(p.percIvaBanco);
   $('p-iva').value=fNum(p.iva); $('p-iibb').value=fNum(p.iibb); $('p-tem').value=fNum(p.tem); $('p-debcred').value=fNum(p.debcred); $('p-perciibb').value=fNum(p.percIIBB);
-  $('p-plazosinval').value=p.plazoSinVal; $('p-plazomax').value=p.plazoMax; $('p-cuotassinval').value=p.cuotasSinVal; $('p-cuotasmax').value=p.cuotasMax;
-  $('p-anticipomin').value=fNum(p.anticipoMin); $('p-vigencia').value=p.vigencia; $('p-exigir').checked=!!p.exigirRegistro;
-  $('p-unidades').value=p.unidades.join('\n');
+  $('p-plazomax').value=p.plazoMax; $('p-cuotasmax').value=p.cuotasMax;
+  $('p-anticipomin').value=fNum(p.anticipoMin); $('p-vigencia').value=p.vigencia; $('p-exigir').checked=!!p.exigirRegistro; $('p-tasasdec').value=String(p.tasasDec); $('p-cupo').value=fInt(p.cupo||0);
+  stockForm = p.stock.map(function(v){ return copia(v, {}); }); stockMsg = ''; pintaStock();
   $('p-feriados').value=p.feriados.map(function(s){ return fFecha(deIso(s)); }).join('\n');
   $('p-textos').value=(p.textos.length ? p.textos : TEXTOS_SUG).join('\n');
   $('p-legalok').checked=!!p.legalOk;
@@ -1237,7 +1358,7 @@ function parForm(){ return norm(leerParamsForm()); }
 function sugeridosDesde(prev){
   var o = copia(SUG, {});
   if (prev && typeof prev==='object'){
-    ['tna','bonif','gastosAGN','sellos','clearing','metodo','plazoSinVal','plazoMax','cuotasSinVal','cuotasMax','anticipoMin','vigencia','unidades','feriados'].forEach(function(k){ if (prev[k]!==undefined && prev[k]!==null) o[k] = prev[k]; });
+    ['tna','bonif','gastosAGN','sellos','clearing','metodo','anticipoMin','vigencia','feriados'].forEach(function(k){ if (prev[k]!==undefined && prev[k]!==null) o[k] = prev[k]; });
     if (prev.legalOk && Array.isArray(prev.textos) && prev.textos.length){ o.textos = prev.textos; o.legalOk = true; }
   }
   return norm(o);
@@ -1263,11 +1384,39 @@ function estadoTasa(par, ahora){
   var hm = p2(pub.getHours())+':'+p2(pub.getMinutes())+' hs';
   return {nivel: h===0 ? 'ok' : (h>par.vigencia ? 'bloqueo' : 'aviso'), txt: hoy ? 'Publicada hoy '+hm : 'Publicada el '+fFecha(pub)+' '+hm, pub:pub, habiles:h};
 }
+/* Cheques de terceros: nombre y CUIT de cada librador, para que Finanzas los analice de entrada. */
+function agregaTercero(t){
+  var c = $('terceros'); if (c.querySelectorAll('.tercero').length>=TERCEROS_MAX) return null;
+  var f = el('div','tercero'), a = el('div','campo'), b = el('div','campo'), q = el('button','lin','Quitar');
+  var ia = el('input','ctl'), ib = el('input','ctl'), la = el('label','rot','Librador: nombre o razón social'), lb = el('label','rot','CUIT del librador');
+  terSeq++;
+  ia.type = 'text'; ia.maxLength = 80; ia.dataset.t = 'n'; ia.autocomplete = 'off'; ia.id = 'ter-n-'+terSeq; ia.value = t && t.n ? String(t.n) : '';
+  ib.type = 'text'; ib.maxLength = 13; ib.dataset.t = 'c'; ib.inputMode = 'numeric'; ib.autocomplete = 'off'; ib.placeholder = '11 números'; ib.id = 'ter-c-'+terSeq; ib.value = t && t.c ? String(t.c) : '';
+  la.htmlFor = ia.id; lb.htmlFor = ib.id;
+  q.type = 'button'; q.dataset.quita = '1'; q.setAttribute('aria-label','Quitar este librador');
+  a.appendChild(la); a.appendChild(ia); b.appendChild(lb); b.appendChild(ib); f.appendChild(a); f.appendChild(b); f.appendChild(q); c.appendChild(f);
+  return ia;
+}
+function ponTerceros(l){ $('terceros').textContent = ''; (Array.isArray(l) ? l : []).slice(0,TERCEROS_MAX).forEach(function(t){ agregaTercero(t); }); }
+function leerTerceros(){
+  return Array.prototype.map.call(document.querySelectorAll('#terceros .tercero'), function(f){
+    return {n:f.querySelector('[data-t="n"]').value.replace(/\s+/g,' ').trim().slice(0,80), c:soloDig(f.querySelector('[data-t="c"]').value).slice(0,11)};
+  });
+}
+/* La unidad sale del listado que publicó Finanzas y trae la empresa que factura: el vendedor no escribe ninguna de las dos. */
 function leerOp(par){
-  return {empresa:$('empresa').value.trim(), unidad:$('unidad').value, detalle:$('detalle').value.trim(), cliente:$('cliente').value.trim(),
-    doc:$('doc').value.trim(), vendedor:$('vendedor').value.trim(), precio:nEnt($('precio')), anticipo:nEnt($('antMonto')),
+  var vh = vehSel, origen = radio('origen')==='terceros' ? 'terceros' : 'propios';
+  return {empresa:vh ? vh.e : '', unidad:vh ? (vh.u==='usado' ? 'Vehículos usados' : 'Vehículos 0 km') : '', detalle:M.vehTexto(vh), veh:vh,
+    cliente:$('cliente').value.trim(), doc:M.cuitFmt($('doc').value), vendedor:$('vendedor').value.trim(), precio:nEnt($('precio')), anticipo:nEnt($('antMonto')),
     modo:radio('modo'), plazo:acota(nEnt($('plazo')),1,3650), cuotas:acota(nEnt($('cuotas'))||1,1,par.cuotasMax), primer:acota(nEnt($('primer')),1,3650),
-    frec:$('frec').value, tipo:radio('tipo'), forma:radio('forma')==='aparte'?'aparte':'dentro', origen:radio('origen'), nosis:radio('nosis')};
+    frec:$('frec').value, tipo:'iguales', forma:radio('forma')==='aparte'?'aparte':'dentro', origen:origen, terceros:origen==='terceros' ? leerTerceros() : []};
+}
+/* El anticipo no puede quedar por debajo del mínimo que publicó Finanzas: al salir del campo se lleva al mínimo. */
+function ajustaAnticipo(){
+  var par = parActual(); if (!par || !(par.anticipoMin>0)) return false;
+  var precio = nEnt($('precio')), min = Math.round(precio*par.anticipoMin/100);
+  if (!(precio>0) || nEnt($('antMonto'))>=min) return false;
+  $('antMonto').value = fInt(min); sincronizaAnticipo('monto'); return true;
 }
 
 /* ---------- dibujo ---------- */
@@ -1275,26 +1424,52 @@ function el(tag, cls, txt){ var e=document.createElement(tag); if(cls) e.classNa
 function pone(id, txt, vacio){ var e=$(id); e.textContent = txt || vacio || '—'; e.classList.toggle('vacio', !txt); }
 function leyendas(r){
   var par = r.par, base = par.textos.length ? par.textos : TEXTOS_SUG;
-  var v = {empresa:r.op.empresa || 'la empresa de Grupo AGN que factura', plazoSinVal:par.plazoSinVal, plazoMax:par.plazoMax, cuotasSinVal:par.cuotasSinVal, clearing:par.clearing};
+  var v = {empresa:r.op.empresa || 'la empresa de Grupo AGN que factura', plazoSinVal:par.plazoSinVal, plazoMax:par.plazoMax, cuotasSinVal:par.cuotasSinVal, cuotasMax:par.cuotasMax, clearing:par.clearing};
   return base.map(function(t){ return String(t).replace(/\{(\w+)\}/g, function(todo,k){ return v[k]!==undefined ? v[k] : todo; }); });
 }
-function pintaNosis(nosis){
-  var fn = $('f-nosis');
-  fn.className = 'estado '+(nosis==='apto'?'ok':nosis==='no'?'bad':'warn');
-  fn.textContent = nosis==='apto' ? 'Cliente apto: podés recibir los cheques una vez que Finanzas apruebe la operación.'
-    : nosis==='no' ? 'Cliente no apto: no ofrezcas financiación con cheques. La descarga del PDF queda bloqueada.'
-    : 'Podés cotizar, pero no recibas cheques hasta tener el Nosis del cliente en estado apto.';
-}
-function pintaChips(){
-  document.querySelectorAll('.chips').forEach(function(g){
-    var v = String(nDec($(g.dataset.para)));
-    g.querySelectorAll('.chip').forEach(function(c){ c.setAttribute('aria-pressed', String(c.dataset.v===v)); });
+function pintaChips(par){
+  document.querySelectorAll('.chips[data-para]').forEach(function(g){
+    var id = g.dataset.para, v = String(nDec($(id)));
+    g.querySelectorAll('.chip').forEach(function(c){
+      var n = Number(c.dataset.v);
+      c.setAttribute('aria-pressed', String(c.dataset.v===v));
+      /* lo que Finanzas no habilita no se ofrece: anticipos por debajo del mínimo, más cheques o más plazo que el tope */
+      c.hidden = !!par && ((id==='antPct' && n<par.anticipoMin) || (id==='cuotas' && n>par.cuotasMax) || (id==='plazo' && n>par.plazoMax));
+    });
   });
+}
+function vehLinea(v){
+  return [v.c, v.u==='usado' ? [v.a ? String(v.a) : '', v.k!==undefined ? fInt(v.k)+' km' : '', v.s ? 'dominio '+v.s : ''].filter(Boolean).join(' · ') : (v.s ? 'serie '+v.s : '')].filter(Boolean).join(' · ');
+}
+/* Listado de unidades: buscador, listados (uno por marca o tipo) y, una vez elegida, la unidad con la empresa que la factura. */
+function pintaVeh(par){
+  var stock = par ? par.stock : [], ss = JSON.stringify(stock)+'|'+(vehSel ? JSON.stringify(vehSel) : '')+'|'+vehGrupo+'|'+$('veh-busca').value;
+  if (ss===stockStr) return; stockStr = ss;
+  $('veh-sel').hidden = !vehSel; $('veh-elige').hidden = !!vehSel;
+  if (vehSel){ $('veh-sel-d').textContent = vehSel.d; $('veh-sel-s').textContent = [vehLinea(vehSel), vehSel.g].filter(Boolean).join(' · ') || '—'; $('veh-sel-e').textContent = vehSel.e; return; }
+  var grupos = []; stock.forEach(function(v){ if (v.g && grupos.indexOf(v.g)<0) grupos.push(v.g); });
+  if (vehGrupo && grupos.indexOf(vehGrupo)<0) vehGrupo = '';
+  var cg = $('veh-grupos'); cg.textContent = ''; cg.hidden = grupos.length<2;
+  [''].concat(grupos).forEach(function(g){ var b = el('button','chip', g || 'Todas'); b.type = 'button'; b.dataset.g = g; b.setAttribute('aria-pressed', String(g===vehGrupo)); cg.appendChild(b); });
+  var q = llano($('veh-busca').value).split(' ').filter(Boolean);
+  var l = stock.filter(function(v){ if (vehGrupo && v.g!==vehGrupo) return false; var t = llano([v.d, v.c, v.s, v.a||'', v.g, v.i].join(' ')); return q.every(function(p){ return t.indexOf(p)>=0; }); });
+  var c = $('veh-l'); c.textContent = '';
+  l.slice(0,60).forEach(function(v){
+    var b = el('button','veh-i'); b.type = 'button'; b.dataset.veh = v.i; b.setAttribute('role','option');
+    b.appendChild(el('b','',v.d)); b.appendChild(el('span','', [vehLinea(v), v.g].filter(Boolean).join(' · '))); c.appendChild(b);
+  });
+  $('veh-t').textContent = !stock.length ? 'Finanzas todavía no cargó el listado de unidades habilitadas.' : !l.length ? (vehGrupo ? 'Ninguna unidad de «'+vehGrupo+'» coincide con la búsqueda. Probá en «Todas».' : 'Ninguna unidad coincide con la búsqueda.')
+    : l.length>60 ? 'Se ven 60 de '+l.length+' unidades: escribí algo más para acotar.' : l.length===stock.length ? (stock.length===1 ? '1 unidad habilitada.' : stock.length+' unidades habilitadas.')+' Elegí una de la lista.' : l.length+' de '+stock.length+' unidades.';
+}
+function eligeVeh(id){
+  var par = parActual(), v = M.vehDe(par, id); if (!v) return;
+  vehSel = copia(v, {}); stockStr = null; editado = true; cambio(); pintar();
 }
 function pintaFranja(par, tasa, borr){
   var l = [], fin = A.esFin;
   if (!A.listo) l.push(A.lento ? ['', 'No se pudo leer la tasa del día todavía. Revisá la conexión: la página vuelve a intentar sola en unos minutos. Para probar ahora, tocá «Actualizar» en Mis cotizaciones.'] : ['info', 'Leyendo la tasa del día…']);
   if (A.modo==='sinacceso') l.push(['', 'No se pudo leer la configuración del sistema. Revisá la conexión: la página vuelve a intentar sola.']);
+  avisosUsuarios().forEach(function(t){ l.push(['warn', t]); });
   if (A.listo && A.modo!=='sinacceso'){
     if (!pubOk()) l.push(fin && A.editable ? ['info', A.previa ? 'Esta es la versión 3 del cotizador. Revisá los gastos del banco y los impuestos en el módulo de Finanzas y publicá para habilitar a los vendedores.'
         : 'Todavía no hay tasa publicada. Revisá los valores sugeridos del módulo de Finanzas y publicá para habilitar a los vendedores.']
@@ -1328,14 +1503,22 @@ function pintaFin(par, tasa, borr){
   var pf = parForm();
   $('fin-reparto-t').textContent = 'El cliente paga el '+pct(100-pf.bonif)+'% de la tasa del banco ('+fPct(pf.tna/100*(1-pf.bonif/100))+' TNA) y el '+pct(100-pf.gastosAGN)+'% de los sellos, la comisión y los otros gastos del banco. Grupo AGN absorbe el resto.'
     + (pf.margen>0 ? ' Además se le cobra un margen de '+fNum(pf.margen)+'% sobre el saldo financiado.' : '');
+  var fbt = $('fin-borr-t');
+  fbt.textContent = A.migra ? 'Esta versión convierte en topes los valores que antes eran «sin validación especial»: hasta '+pf.cuotasMax+' cheques y '+pf.plazoMax+' días. Revisalos en Política comercial y publicá.'
+    : 'Hay cambios sin publicar. Los vendedores siguen viendo los valores publicados.';
   var fer = pf.feriados, ult = fer.length ? fFecha(deIso(fer[fer.length-1])) : '';
   $('fin-fer-t').textContent = (fer.length ? fer.length+' feriados cargados, el último el '+ult+'. Después de esa fecha solo se corren sábados y domingos.' : 'Sin feriados cargados: solo se corren sábados y domingos.')
-    + (ferMal ? ' Hay '+ferMal+' fecha(s) que no se pudieron leer.' : '') + (pf.unidades.length ? ' '+pf.unidades.length+' unidades habilitadas.' : ' Sin listado de unidades: se puede cotizar cualquiera.');
-  var lp = $('fin-legal-p'); lp.textContent = pf.legalOk ? 'Validados' : 'Borrador sin validar'; lp.className = 'pill '+(pf.legalOk?'ok':'warn');
-  $('fin-pie').textContent = VERSION+'. Publicar guarda la tasa y todos los valores de este módulo, y deja constancia de fecha y hora.';
+    + (ferMal ? ' Hay '+ferMal+' fecha(s) que no se pudieron leer.' : '');
+  var viejos = !pf.legalOk && pf.textos.some(function(t){ return /bonificad|bonificaci/i.test(t); });
+  var lp = $('fin-legal-p'); lp.textContent = pf.legalOk ? 'Validados' : viejos ? 'Mencionan la bonificación' : 'Borrador sin validar'; lp.className = 'pill '+(pf.legalOk?'ok':'warn');
+  var ln = $('fin-legal-n'); ln.hidden = !viejos;
+  ln.textContent = 'Los textos cargados todavía hablan de «tasa bonificada» o de «bonificación». Para que la cotización no lo mencione, tocá «Cargar textos sugeridos» y publicá.';
+  var avu = avisosUsuarios(), pu = $('fin-usu-p'); pu.hidden = !avu.length; pu.textContent = avu.length===1 ? '1 aviso' : avu.length+' avisos';
+  $('fin-pie').textContent = VERSION+'. Publicar guarda la tasa, las unidades habilitadas y todos los valores de este módulo, y deja constancia de fecha y hora.';
 }
 
 function pintar(){
+  if (MODO_COM){ pintaComercial(); return; }
   if (emitidaFija && Date.now()-emitidaFija.getTime() >= 24*3600*1000) suelta();
   var par = parActual(), sp = par ? JSON.stringify(par) : '';
   if (sp !== parStr){ if (parStr !== null) cambio(); parStr = sp; }
@@ -1343,50 +1526,58 @@ function pintar(){
   document.body.classList.toggle('finanzas', !!A.esFin);
   pintaFranja(par, tasa, borr); pintaCond(par, tasa);
   pintaFin(par, tasa, borr); $('interno').hidden = !par;
-  var enCliente = document.body.classList.contains('cliente'), modo = radio('modo');
+  var enCliente = document.body.classList.contains('cliente'), modo = radio('modo'), deTerceros = radio('origen')==='terceros';
   $('hoja').hidden = !par; $('sin-tasa').hidden = !!par;
   $('blk-cuotas').hidden = modo!=='cuotas'; $('blk-uno').hidden = modo!=='uno';
-  pintaNosis(radio('nosis')); $('ejemplo').hidden = editado;
+  $('blk-terceros').hidden = !deTerceros;
+  if (deTerceros && !document.querySelector('#terceros .tercero')) agregaTercero();
+  $('b-tercero').hidden = document.querySelectorAll('#terceros .tercero').length>=TERCEROS_MAX;
+  $('ejemplo').hidden = editado;
+  /* La unidad elegida se toma siempre del listado vigente: si Finanzas corrigió la empresa o algún dato de esa unidad, la cotización usa lo publicado.
+     Una cotización abierta conserva la unidad con la que se emitió. */
+  if (par && vehSel && !abierta){ var vAct = M.vehDe(par, vehSel.i); if (vAct && JSON.stringify(vAct)!==JSON.stringify(vehSel)){ vehSel = copia(vAct, {}); stockStr = null; } }
+  pintaVeh(par);
   if (!par){
     $('f-saldo').textContent = f$(Math.max(0, nEnt($('precio'))-nEnt($('antMonto'))));
     $('sin-tasa-t').textContent = A.listo ? 'Todavía no hay tasa del día publicada' : 'Leyendo la tasa del día…';
-    $('avisos').textContent = ''; $('b-pdf').disabled = true; $('b-cliente').disabled = !enCliente; $('vista').hidden = true; $('f-forma').textContent = '';
-    pintaChips(); miniOk = false; miniPinta(); ultimo = null; return;
+    $('avisos').textContent = ''; $('b-pdf').disabled = true; $('b-cliente').disabled = !enCliente; $('vista').hidden = true; $('f-forma').textContent = ''; $('f-antmin').hidden = true; $('f-topes').textContent = '';
+    pintaChips(null); miniOk = false; miniPinta(); ultimo = null; return;
   }
   var op = leerOp(par), r = calcular(op, par, hoy); r.op=op; r.par=par; r.numero=numero; r.rev=rev;
   var vence = new Date(ahora.getTime()+24*3600*1000);
   var hay = r.n>0 && r.valido, aparte = r.forma==='aparte';
+  /* Las tasas que ve el cliente van con los decimales que definió Finanzas (por defecto, números redondos). Los importes no se redondean. */
+  var pc = function(x){ return fPct(x, par.tasasDec); };
 
-  /* listado de unidades habilitadas */
-  var us = par.unidades.join('\n');
-  if (us !== unidadesStr){ unidadesStr = us; var dl = $('unidades'); dl.textContent=''; par.unidades.forEach(function(u){ var o=document.createElement('option'); o.value=u; dl.appendChild(o); }); }
-
-  /* avisos, validaciones de Finanzas y bloqueo */
-  var errores = [], notas = [], esp = [];
+  /* avisos y bloqueos. Desde la versión 3.5 los topes que publica Finanzas (plazo, cantidad de cheques y anticipo mínimo) no se pueden pasar,
+     la unidad sale del listado habilitado y los cheques son todos del mismo importe. */
+  var errores = [], notas = [], esp = [], faltan = [];
   if (op.precio<=0) notas.push('Cargá el importe total a pagar para armar la cotización.');
   if (op.anticipo>op.precio && op.precio>0) errores.push('El anticipo supera el importe de la operación.');
+  var antMin = par.anticipoMin>0 && r.P>0 ? Math.round(r.P*par.anticipoMin/100) : 0;
+  if (antMin>0 && r.S>0 && r.A<antMin) errores.push('El anticipo mínimo es '+fNum(par.anticipoMin)+'% del importe: '+f$(antMin)+'.');
   if (op.modo==='cuotas' && nEnt($('cuotas'))>par.cuotasMax) notas.push('Se cotizan '+par.cuotasMax+' cheques: es el máximo por operación.');
   if (!r.valido) errores.push('Con esta tasa y este plazo no se pueden calcular los cheques. Acortá el plazo o consultá a Finanzas.');
-  var maxDias = 0;
-  r.filas.forEach(function(f,i){ maxDias = Math.max(maxDias, f.dias); if (f.dias>par.plazoMax) errores.push('El cheque '+(i+1)+' vence a '+f.dias+' días: supera el máximo de '+par.plazoMax+' días.'); });
-  if (op.nosis==='no') errores.push('Cliente no apto en Nosis: la financiación con cheques no está habilitada para esta operación.');
-  if (maxDias>par.plazoSinVal && maxDias<=par.plazoMax) esp.push('plazo mayor a '+par.plazoSinVal+' días');
-  if (r.n>par.cuotasSinVal) esp.push('más de '+par.cuotasSinVal+' cheques');
-  if (op.origen==='terceros' && r.n>0) esp.push('cheques de terceros');
-  if (par.anticipoMin>0 && r.P>0 && r.S>0 && r.A/r.P*100 < par.anticipoMin-1e-9) esp.push('anticipo menor al '+fNum(par.anticipoMin)+'%');
-  if (par.unidades.length && op.detalle && r.S>0){
-    var det = op.detalle.toLowerCase();
-    if (!par.unidades.some(function(u){ return u.toLowerCase()===det; })) esp.push('unidad fuera del listado habilitado');
+  r.filas.forEach(function(f,i){ if (f.dias>par.plazoMax) errores.push('El cheque '+(i+1)+' vence a '+f.dias+' días: supera el máximo de '+par.plazoMax+' días.'); });
+  /* Una cotización abierta conserva la unidad con la que se emitió, aunque el listado haya cambiado después. */
+  if (!abierta && !par.stock.length) errores.push('Finanzas todavía no cargó el listado de unidades habilitadas. Sin listado no se puede emitir.');
+  else if (!abierta && vehSel && !M.vehDe(par, vehSel.i)) errores.push('La unidad elegida ya no figura en el listado habilitado. Elegí otra.');
+  else if (!vehSel) faltan.push(['veh-busca', 'elegir la unidad del listado']);
+  if (!op.cliente) faltan.push(['cliente', 'el nombre del cliente']);
+  /* El cliente se identifica solo con su CUIT: es el dato con que Finanzas lo busca en Nosis. */
+  if (!M.cuitOk(op.doc)) faltan.push(['doc', op.doc ? 'un CUIT válido del cliente: son 11 números y el DNI no sirve' : 'el CUIT del cliente']);
+  if (op.origen==='terceros'){
+    if (!op.terceros.length || op.terceros.some(function(t){ return !t.n || !M.cuitOk(t.c); })) faltan.push(['terceros', 'el nombre y un CUIT válido de cada librador de los cheques']);
+    if (r.n>0) esp.push('cheques de terceros');
   }
-  if (esp.length) notas.push('Esta cotización necesita validación expresa de Finanzas: '+esp.join('; ')+'.');
   var rz = reemplazaDe(op);
   if (rz) notas.push('Esta cotización reemplaza a '+rz+': Finanzas la va a ver encadenada con la anterior.');
   var contado = op.precio>0 && r.S===0 && op.anticipo<=op.precio;
   if (contado) notas.push('Operación de contado: no queda saldo para financiar con cheques.');
+  if (faltan.length && !contado && op.precio>0 && !errores.length) notas.push('Para emitir falta '+faltan.map(function(x){ return x[1]; }).join('; ')+'.');
   var sinTasa = tasa.nivel==='bloqueo' || borr || A.modo==='sinacceso';
-  r.especiales = esp;
-  r.alertas = esp.map(function(t){ return t.charAt(0).toUpperCase()+t.slice(1); })
-    .concat(op.nosis==='pendiente' ? ['Nosis pendiente'] : []).concat(tasa.nivel==='aviso' ? ['Tasa del '+fFecha(tasa.pub)] : []);
+  r.especiales = esp; r.faltan = faltan;
+  r.alertas = esp.map(cap1).concat(tasa.nivel==='aviso' ? ['Tasa del '+fFecha(tasa.pub)] : []);
   r.bloqueado = errores.length>0 || contado || op.precio<=0 || sinTasa;
   var av = $('avisos'); av.textContent='';
   errores.forEach(function(t){ av.appendChild(el('div','aviso',t)); });
@@ -1395,90 +1586,70 @@ function pintar(){
 
   /* formulario */
   $('f-saldo').textContent = f$(r.S);
+  var fa = $('f-antmin'); fa.hidden = !(par.anticipoMin>0);
+  fa.textContent = 'Anticipo mínimo: '+fNum(par.anticipoMin)+'% del importe'+(antMin ? ' ('+f$(antMin)+')' : '')+'.';
+  $('f-topes').textContent = 'Hasta '+par.cuotasMax+(par.cuotasMax===1 ? ' cheque' : ' cheques, todos del mismo importe,')+' y hasta '+par.plazoMax+' días de plazo.';
   $('f-clearing').textContent = par.clearing===1 ? '1 día hábil' : par.clearing+' días hábiles';
   $('f-forma').textContent = !hay ? '' : aparte ? 'Los cheques son solo por el capital. El costo financiero, '+f$(r.pagoAparte)+', se paga el día de la operación junto con el anticipo.'
     : 'Cada cheque incluye capital y costo financiero. El día de la operación el cliente paga solo el anticipo.';
-  pintaChips();
+  pintaChips(par);
 
   /* vista: con impuestos es la cotización válida; sin impuestos es solo para comparar en pantalla */
   var sinV = vista==='sin' && hay && !!r.sin;
-  var v = sinV ? {filas:r.sin.filas, totalCheques:r.sin.totalCheques, pagoAparte:r.sin.pagoAparte, pagoHoy:r.sin.pagoHoy, costo:r.sin.costo, neto:r.sin.neto, iva:0, perc:0,
-      interes:r.sin.interes, gastos:r.sin.gastos, iibb:0, tem:0, debcred:0, ahorro:r.sin.ahorro, cft:r.cftSin, total:r.sin.totalOperacion}
-    : {filas:r.filas, totalCheques:r.totalCheques, pagoAparte:r.pagoAparte, pagoHoy:r.pagoHoy, costo:r.costoCliente, neto:r.neto, iva:r.iva, perc:r.perc,
-      interes:r.interes, gastos:r.gastos, iibb:r.iibb, tem:r.tem, debcred:r.debcred, ahorro:r.ahorro, cft:r.cft, total:r.totalOperacion};
+  var v = sinV ? {filas:r.sin.filas, totalCheques:r.sin.totalCheques, pagoAparte:r.sin.pagoAparte, pagoHoy:r.sin.pagoHoy, costo:r.sin.costo, neto:r.sin.neto, imp:0, cft:r.cftSin, total:r.sin.totalOperacion}
+    : {filas:r.filas, totalCheques:r.totalCheques, pagoAparte:r.pagoAparte, pagoHoy:r.pagoHoy, costo:r.costoCliente, neto:r.neto, imp:r.iva+r.perc, cft:r.cft, total:r.totalOperacion};
   $('vista').hidden = !hay; $('vista-con').checked = !sinV; $('vista-sin').checked = sinV;
-  $('vista-t').textContent = !hay ? '' : sinV ? 'Sin impuestos, el costo financiero sería '+f$(r.sin.costo)+' en lugar de '+f$(r.costoCliente)+'. Es una vista para comparar: no se puede descargar.'
-    : r.impuestos>0 ? 'Los impuestos suman '+f$(r.impuestos)+' al costo financiero: el '+fPct(r.impuestos/r.costoCliente,0)+' del total.' : 'Esta operación no tiene impuestos sobre el costo financiero.';
+  $('vista-t').textContent = !hay ? '' : sinV ? 'Sin impuestos, el costo financiero sería '+f$(r.sin.costo)+' en lugar de '+f$(r.costoCliente)+'. Es una vista para comparar: no se puede descargar ni se muestra al cliente.'
+    : r.impuestos>0 ? 'Del costo financiero, '+f$(r.impuestos)+' son impuestos (el IVA y los que ya vienen dentro del costo): el '+fPct(r.impuestos/r.costoCliente,0)+' del total. Es un dato para vos: no sale en la cotización.' : 'Esta operación no tiene impuestos sobre el costo financiero.';
   $('hoja').classList.toggle('sin-imp', sinV); $('o-sin').hidden = !sinV;
   var se = $('o-sello'), sl = '';
   se.hidden = !sl || sinV; se.textContent = sl;
 
-  /* hoja */
+  /* hoja para el cliente: solo lo necesario. Las tasas de la operación, los importes y el costo financiero en una línea, con los impuestos aparte. */
   $('o-numero').textContent = numero;
   $('o-empresa').textContent = op.empresa || 'Grupo AGN';
   $('o-emision').textContent = fFechaHora(ahora);
   $('o-vence').textContent = fFechaHora(vence); $('o-vence2').textContent = fFechaHora(vence);
-  pone('o-cliente', op.cliente, 'A completar'); pone('o-doc', op.doc, '—'); pone('o-vendedor', op.vendedor, 'A completar');
-  pone('o-unidad', op.unidad); pone('o-detalle', op.detalle, '—'); pone('o-orden', op.empresa, 'A completar');
+  pone('o-cliente', op.cliente, 'A completar'); pone('o-doc', op.doc, 'A completar'); pone('o-vendedor', op.vendedor, 'A completar');
+  pone('o-detalle', op.detalle, 'A elegir del listado'); pone('o-orden', op.empresa, '—');
   $('o-precio').textContent = f$(r.P);
-  $('o-ant-rot').textContent = 'Anticipo'+(r.P>0?' ('+fPct(r.A/r.P,1)+')':'');
+  $('o-ant-rot').textContent = 'Anticipo'+(r.P>0?' ('+fPctA(r.A/r.P)+')':'');
   $('o-ant').textContent = f$(r.A); $('o-saldo').textContent = f$(r.S);
   $('o-hoy').hidden = !(hay && aparte);
   $('o-hoy-t').textContent = 'A pagar el día de la operación: anticipo '+f$(r.A)+' + costo financiero '+f$(v.pagoAparte);
   $('o-hoy-v').textContent = f$(v.pagoHoy);
-  $('s-reparto').hidden = !hay || (r.sh>=1 && v.ahorro<=0); $('s-cheques').hidden = !hay; $('s-costos').hidden = !hay;
-  $('o-lema').textContent = Math.abs(r.sh-0.5)<1e-9 ? 'Usted paga la mitad de la tasa' : 'Grupo AGN bonifica el '+fPct(1-r.sh,0)+' de la tasa';
-  $('o-tna').textContent = fPct(r.rb)+' TNA';
-  $('o-rc').textContent = fPct(r.rc)+' TNA';
-  $('o-ra').textContent = fPct(r.rb-r.rc)+' TNA';
-  var wc = acota(r.sh*100,22,78);
-  $('o-b-cli').style.flex = '0 0 '+wc+'%'; $('o-b-agn').style.flex = '1 1 0';
+  $('s-cheques').hidden = !hay; $('s-costos').hidden = !hay;
   var cont = $('o-cheques'); cont.textContent=''; cont.classList.toggle('uno', r.n===1);
-  var hayImp = v.iva+v.perc>0, rotImp = v.perc>0 ? 'IVA y percepción' : 'IVA';
   v.filas.forEach(function(f,i){
     var c = el('div','cheque'); c.appendChild(el('div','talon', p2(i+1)+'/'+p2(r.n)));
     var b = el('div','ch');
     b.appendChild(el('small','', op.origen==='terceros' ? 'Cheque de terceros' : 'Cheque de pago diferido'));
     b.appendChild(el('strong','', f$(f.cheque)));
     b.appendChild(el('span','', 'Vence el '+fFecha(f.fecha)+' · a '+f.dias+' días'+(f.corrida?' · corrido a día hábil':'')));
-    var det2 = el('dl','ch-d'), pares = aparte ? [['Capital',f.capital]] : [['Capital',f.capital],['Costo financiero',f.neto]];
-    if (!aparte && hayImp) pares.push([rotImp,f.imp]);
-    pares.forEach(function(p){ det2.appendChild(el('dt','',p[0])); det2.appendChild(el('dd','',fInt(p[1]))); });
-    b.appendChild(det2);
     c.appendChild(b); cont.appendChild(c);
   });
   var frecT = op.frec==='mes' ? 'el mismo día de cada mes' : 'cada '+(op.frec==='15'?15:30)+' días';
-  r.sistema = r.n===1 ? 'Pago único' : (op.tipo==='iguales' ? 'Cheques de igual importe' : 'Capital fijo más interés');
+  r.sistema = r.n===1 ? 'Pago único' : 'Cheques de igual importe';
   r.pagos = r.n===1 ? '1 cheque a '+(r.filas[0]?r.filas[0].dias:0)+' días' : r.n+' cheques, '+frecT;
-  $('o-nch').textContent = r.n===1 ? '1 cheque' : r.n+' cheques'+(aparte ? ' por el capital' : op.tipo==='iguales' ? ' de igual importe' : ' con capital fijo');
+  $('o-nch').textContent = r.n===1 ? '1 cheque' : r.n+' cheques de igual importe'+(aparte ? ', por el capital' : '');
   $('o-totch').textContent = f$(v.totalCheques);
+  $('o-neto').textContent = f$(v.neto);
+  var hayImp = v.imp>0;
+  $('o-imp-rot').hidden = !hayImp; $('o-imp').hidden = !hayImp;
+  $('o-imp-rot').textContent = r.perc>0 ? 'Impuestos (IVA y percepciones)' : 'Impuestos (IVA)'; $('o-imp').textContent = f$(v.imp);
+  $('o-costo-rot').textContent = sinV ? 'Costo financiero sin impuestos' : 'Costo financiero total';
+  $('o-costo-pct').textContent = r.S>0 ? ' · '+pc(v.costo/r.S)+' del saldo financiado' : '';
   $('o-costo').textContent = f$(v.costo);
-  $('o-costo').previousElementSibling.textContent = sinV ? 'Costo financiero sin impuestos' : 'Costo financiero total';
-  $('o-costo-pct').textContent = r.S>0 ? fPct(v.costo/r.S)+' del saldo financiado' : '—';
-  $('o-ahorro').textContent = f$(v.ahorro); $('o-ahorro2').textContent = f$(v.ahorro);
-  $('o-plazo').textContent = hay ? Math.round(r.plazoProm)+' días' : '—';
-  var dg = $('o-desglose'); dg.textContent='';
-  var dfila = function(t,val,cls){ dg.appendChild(el('dt',cls||'',t)); dg.appendChild(el('dd',cls==='sub'?'sub':'',val)); };
-  dfila('Interés a tasa bonificada ('+fPct(r.rc)+' TNA)', f$(v.interes));
-  if (v.gastos>0) dfila('Sellos y gastos bancarios de la negociación de los cheques', f$(v.gastos));
-  if (r.margen>0) dfila('Cargo administrativo', f$(r.margen));
-  if (v.iibb>0) dfila('Ingresos Brutos', f$(v.iibb), 'imp');
-  if (v.tem>0) dfila('TEM (tributo municipal)', f$(v.tem), 'imp');
-  if (v.debcred>0) dfila('Impuesto a los débitos y créditos', f$(v.debcred), 'imp');
-  if (hayImp) dfila('Factura por intereses y gastos, neto de IVA', f$(v.neto), 'sub');
-  if (v.iva>0) dfila('IVA ('+fPct(r.ivaT,1)+')', f$(v.iva), 'imp');
-  if (v.perc>0) dfila('Percepción de Ingresos Brutos ('+fPct(par.percIIBB/100,2)+')', f$(v.perc), 'imp');
-  dfila(sinV ? 'Costo financiero sin impuestos' : 'Costo financiero total', f$(v.costo), 'sub');
-  $('o-tnac').textContent = fPct(r.rc);
-  $('o-tea').textContent = fPct(r.tea);
-  $('o-cft').textContent = fPct(v.cft);
-  $('o-cft-sub').textContent = sinV ? 'sin impuestos · con impuestos '+fPct(r.cft) : (r.impuestos>0 ? 'con gastos e impuestos · sin impuestos '+fPct(r.cftSin) : 'con gastos');
-  $('o-sistema').textContent = 'Sistema de pago: '+r.sistema.toLowerCase()+'. '+r.pagos.charAt(0).toUpperCase()+r.pagos.slice(1)+'. '
-    + (aparte ? 'Los cheques cubren solo el capital: el costo financiero se paga el día de la operación, junto con el anticipo.' : 'Cada cheque incluye capital y costo financiero: interés adelantado, gastos e impuestos.');
+  $('o-tnac').textContent = pc(r.rc);
+  $('o-tea').textContent = pc(r.tea);
+  $('o-cft').textContent = pc(v.cft);
+  $('o-cft-sub').textContent = sinV ? 'efectivo anual, sin impuestos' : (r.impuestos>0 ? 'efectivo anual, con impuestos' : 'efectivo anual');
+  $('o-sistema').textContent = 'Sistema de pago: '+(r.n===1 ? 'un cheque a '+(r.filas[0]?r.filas[0].dias:0)+' días' : r.n+' cheques de igual importe, '+frecT)+'. '
+    + (aparte ? 'Los cheques cubren solo el capital: el costo financiero se paga el día de la operación, junto con el anticipo.' : 'Cada cheque incluye capital y costo financiero.');
   $('o-total-rot').textContent = aparte ? 'Total de la operación (anticipo + costo financiero + cheques)' : 'Total de la operación (anticipo + cheques)';
   $('o-total').textContent = f$(v.total);
   var oe = $('o-especial'); oe.hidden = !esp.length || !hay;
-  oe.textContent = 'Condiciones sujetas a validación expresa de Finanzas: '+esp.join('; ')+'.';
+  oe.textContent = 'Cheques de terceros: la operación queda sujeta al análisis crediticio de cada librador.';
   var ley = $('o-ley'); ley.textContent=''; leyendas(r).forEach(function(t){ ley.appendChild(el('li','',t)); });
 
   /* costo para la empresa: solo Finanzas */
@@ -1486,7 +1657,6 @@ function pintar(){
   $('i-pct-precio').textContent = r.P>0 ? fPct(r.costoEmpresa/r.P) : '—';
   $('i-pct-saldo').textContent = r.S>0 ? fPct(r.costoEmpresa/r.S) : '—';
   $('i-tna').textContent = hay ? fPct(r.tnaEmpresa) : '—';
-  $('i-nosis').textContent = op.nosis==='apto'?'Apto':op.nosis==='no'?'No apto':'Pendiente';
   var lib = $('i-libro'); lib.textContent='';
   var fila = function(t,val,res){ lib.appendChild(el('dt',res?'res':'',t)); lib.appendChild(el('dd',res?'res':'',val)); };
   fila('Importe de los cheques a descontar', f$(r.totalCheques));
@@ -1501,15 +1671,18 @@ function pintar(){
   if (r.margen>0) fila('Margen adicional cobrado al cliente', '− '+f$(r.margen));
   fila('Costo total de la bonificación', f$(r.costoEmpresa), true);
   fila('Factura de intereses al cliente, neto de IVA', f$(r.neto));
-  fila('Ingresos Brutos, TEM y débitos y créditos de esa factura: los paga el cliente', f$(r.iibb+r.tem+r.debcred));
+  fila('   Interés a la tasa del cliente ('+fPct(r.rc)+' TNA)', f$(r.interes));
+  if (r.gastos>0) fila('   Sellos y gastos bancarios trasladados', f$(r.gastos));
+  fila('   Ingresos Brutos, TEM y débitos y créditos de esa factura: los paga el cliente', f$(r.iibb+r.tem+r.debcred));
   if (r.iva+r.perc>0) fila('IVA y percepciones cobrados al cliente, a ingresar al fisco', f$(r.iva+r.perc));
+  fila('Tasas exactas de la operación: TNA del cliente, TEA y CFT', fPct(r.rc)+' · '+fPct(r.tea)+' · '+fPct(r.cft));
   fila(aparte ? 'Caja de la operación hoy: anticipo + costo financiero + acreditación' : 'Caja de la operación hoy: anticipo + acreditación', f$(r.A+r.pagoAparte+r.netoB));
   fila('Plazo promedio de los cheques, con acreditación', hay ? Math.round(r.plazoProm)+' días' : '—');
-  var tot = r.costoBanco>0 ? r.costoBanco : 1, pc = acota(r.bancoCliente/tot,0,1);
+  var tot = r.costoBanco>0 ? r.costoBanco : 1, pcli = acota(r.bancoCliente/tot,0,1);
   $('i-rep-t').textContent = 'Cómo se reparte lo que cobra el banco ('+f$(r.costoBanco)+')';
-  $('i-b-cli').style.flex = '0 0 '+acota(pc*100,18,82)+'%'; $('i-b-agn').style.flex='1 1 0';
-  $('i-rep-cli').textContent = 'Cliente '+fPct(pc,1);
-  $('i-rep-agn').textContent = 'Empresa '+fPct(1-pc,1);
+  $('i-b-cli').style.flex = '0 0 '+acota(pcli*100,18,82)+'%'; $('i-b-agn').style.flex='1 1 0';
+  $('i-rep-cli').textContent = 'Cliente '+fPct(pcli,1);
+  $('i-rep-agn').textContent = 'Empresa '+fPct(1-pcli,1);
 
   /* botón PDF: la vista sin impuestos no se descarga */
   var bp = $('b-pdf'); bp.disabled = r.bloqueado || sinV;
@@ -1525,20 +1698,25 @@ function pintar(){
 }
 
 /* ---------- registro de cotizaciones emitidas ---------- */
-var ETIQ = {pendiente:{t:'Pendiente de validación', c:'warn'}, aprobada:{t:'Aprobada', c:'ok'}, observada:{t:'Observada', c:'warn'}, rechazada:{t:'Rechazada', c:'bad'}, vencida:{t:'Vencida sin validar', c:'gris'},
+var ETIQ = {pendiente:{t:'Pendiente de validación', c:'warn'}, aprobada:{t:'Aprobada por Finanzas · falta Comercial', c:'warn'}, autorizada:{t:'Autorizada', c:'ok'}, noautorizada:{t:'No autorizada por Comercial', c:'bad'},
+  observada:{t:'Observada', c:'warn'}, rechazada:{t:'Rechazada', c:'bad'}, vencida:{t:'Vencida sin validar', c:'gris'}, sinautorizar:{t:'Vencida sin autorizar', c:'gris'},
   registrada:{t:'Registrada', c:'ok'}, caducada:{t:'Vencida', c:'gris'}};
+/* Estado que se muestra. rec.estado es la revisión de Finanzas (pendiente, aprobada, observada o rechazada) y rec.com, la decisión de la
+   Gerencia Comercial sobre una cotización que Finanzas aprobó ('autorizada' o 'no_autorizada'). La operación queda firme con las dos. */
 function estadoDe(rec){
   if (rec.estado==='registrada') return rec.vence && Date.now()>rec.vence ? 'caducada' : 'registrada';
-  var e = ETIQ[rec.estado] && rec.estado!=='vencida' && rec.estado!=='caducada' ? rec.estado : 'pendiente';
-  if (e==='pendiente' && rec.vence && Date.now()>rec.vence) e='vencida';
+  var e = ['aprobada','observada','rechazada'].indexOf(rec.estado)>=0 ? rec.estado : 'pendiente', vencio = !!rec.vence && Date.now()>rec.vence;
+  if (e==='pendiente') return vencio ? 'vencida' : 'pendiente';
+  if (e==='aprobada') return rec.com==='autorizada' ? 'autorizada' : rec.com==='no_autorizada' ? 'noautorizada' : vencio ? 'sinautorizar' : 'aprobada';
   return e;
 }
-/* Lo que se registra de cada cotización emitida: la operación, los cheques y los valores con los que se calculó. */
+/* Lo que se registra de cada cotización emitida: la operación, la unidad del listado, los cheques y los valores con los que se calculó. */
 function armaRegistro(r, emitida){
-  var op = r.op, par = r.par, c = function(s,n){ return String(s||'').slice(0,n); };
-  return {v:3, numero:r.numero, ts:emitida.toISOString(), tsNum:emitida.getTime(), vence:emitida.getTime()+864e5, configId:(abierta && abierta.configId) || (A.pub && (A.pub.id || A.pub.publicada)) || '',
-    vendedor:c(op.vendedor,80), cliente:c(op.cliente,120), doc:c(op.doc,20), empresa:c(op.empresa,80), unidad:c(op.unidad,60), detalle:c(op.detalle,120),
-    importe:r.P, anticipo:r.A, saldo:r.S, forma:r.forma, modo:op.modo, tipo:op.tipo, origen:op.origen, nosis:op.nosis,
+  var op = r.op, par = r.par, c = function(s,n){ return String(s||'').slice(0,n); }, vh = op.veh ? M.normStock([op.veh])[0] || null : null;
+  return {v:3, pv:35, numero:r.numero, ts:emitida.toISOString(), tsNum:emitida.getTime(), vence:emitida.getTime()+864e5, configId:(abierta && abierta.configId) || (A.pub && (A.pub.id || A.pub.publicada)) || '',
+    vendedor:c(op.vendedor,80), cliente:c(op.cliente,120), doc:c(op.doc,20), empresa:c(op.empresa,80), unidad:c(op.unidad,60), detalle:c(op.detalle,120), veh:vh,
+    importe:r.P, anticipo:r.A, saldo:r.S, forma:r.forma, modo:op.modo, tipo:'iguales', origen:op.origen,
+    terceros:(op.terceros||[]).slice(0,TERCEROS_MAX).map(function(t){ return {n:c(t.n,80), c:c(t.c,11)}; }),
     plazo:op.plazo, primer:op.primer, frec:op.frec, reemplaza:reemplazaDe(op),
     cheques:r.filas.map(function(f){ return {f:aIso(f.fecha), d:f.dias, t:f.t, k:f.capital, n:f.cheque}; }),
     total:r.totalCheques, pagoAparte:r.pagoAparte, costoCliente:Math.round(r.costoCliente), facturaNeto:r.neto, iva:r.iva+r.perc,
@@ -1546,7 +1724,8 @@ function armaRegistro(r, emitida){
     iibb:par.iibb, tem:par.tem, debcred:par.debcred, ivaPct:par.iva, margen:par.margen,
     tea:Math.round(r.tea*1e4)/100, cft:Math.round(r.cft*1e4)/100, alertas:r.alertas.slice(0,8), estado:'pendiente', nota:''};
 }
-function itemReg(rec, conAcciones, lista){
+/* modo: '' en «Mis cotizaciones» del vendedor, 'fin' en el registro de Finanzas, 'com' en el módulo de la Gerencia Comercial. */
+function itemReg(rec, modo, lista){
   var it = el('div','reg-item'), e = estadoDe(rec), cab = el('div','reg-cab'), ch = rec.cheques||[];
   var sig = (lista||[]).filter(function(x){ return !!x.reemplaza && x.reemplaza===rec.numero; })[0];
   var ant = rec.reemplaza ? (lista||[]).filter(function(x){ return x.numero===rec.reemplaza; })[0] : null;
@@ -1556,21 +1735,46 @@ function itemReg(rec, conAcciones, lista){
   var maxd = ch.reduce(function(m,c){ return Math.max(m,c.d||0); },0);
   it.appendChild(el('p','reg-num', 'Emitida '+(rec.tsNum?fFechaHora(new Date(rec.tsNum)):'—')+(rec.vendedor?' · '+rec.vendedor:'')+' · saldo '+f$(rec.saldo||0)+' · '+ch.length+(ch.length===1?' cheque':' cheques')+' por '+f$(rec.total||0)
     +(rec.pagoAparte>0?' + '+f$(rec.pagoAparte)+' aparte':'')+' · hasta '+maxd+' días'));
-  if (conAcciones){
-    var c = costoRegistro(rec);
-    it.appendChild(el('p','reg-num', 'Tasa '+fPct((rec.tna||0)/100)+' · bonificación '+fNum(rec.bonif||0)+'% de tasa y '+fNum(rec.gastosAGN||0)+'% de gastos · costo para la empresa '+f$(c)+(rec.importe>0?' ('+fPct(c/rec.importe)+' del importe)':'')));
-    if (rec.revisadaPor) it.appendChild(el('p','reg-num', 'Revisada por '+rec.revisadaPor+(rec.revisada ? ' el '+fFechaHora(new Date(rec.revisada)) : '')));
+  if (modo){
+    var c = costoRegistro(rec), vh = rec.veh||{};
+    it.appendChild(el('p','reg-num', 'Cliente: '+(rec.doc ? 'CUIT '+rec.doc : 'sin CUIT cargado')+' · Factura '+(rec.empresa||'—')+(vh.s ? ' · '+(vh.u==='usado' ? 'dominio ' : 'serie ')+vh.s : '')+(vh.g ? ' · '+vh.g : '')
+      +(modo==='com' && rec.vence ? ' · vence el '+fFechaHora(new Date(rec.vence)) : '')));
+    if (rec.origen==='terceros') it.appendChild(el('p','reg-num', 'Cheques de terceros. Libradores: '+((rec.terceros||[]).length ? rec.terceros.map(function(t){ return (t.n||'sin nombre')+' (CUIT '+(t.c||'sin cargar')+')'; }).join('; ') : 'sin datos cargados')+'.'));
+    it.appendChild(el('p', modo==='com' ? 'reg-costo' : 'reg-num', 'Costo para la empresa '+f$(c)+(rec.importe>0 ? ' ('+fPct(c/rec.importe)+' del importe)' : '')
+      +(modo==='fin' ? ' · tasa '+fPct((rec.tna||0)/100)+' · bonificación '+fNum(rec.bonif||0)+'% de tasa y '+fNum(rec.gastosAGN||0)+'% de gastos'
+        : ' · importe '+f$(rec.importe||0)+' · anticipo '+(rec.importe>0 ? fPctA((rec.anticipo||0)/rec.importe) : '—')+' · costo financiero del cliente '+f$(rec.costoCliente||0))));
+    if (rec.revisadaPor) it.appendChild(el('p','reg-num', 'Finanzas: revisada por '+rec.revisadaPor+(rec.revisada ? ' el '+fFechaHora(new Date(rec.revisada)) : '')+' · Nosis '+(rec.nosisFin==='apto' ? 'apto' : rec.nosisFin==='no' ? 'no apto' : 'sin verificar')));
+    if (rec.com && rec.comPor) it.appendChild(el('p','reg-num', 'Gerencia Comercial: '+(rec.com==='autorizada' ? 'autorizada' : 'no autorizada')+' por '+rec.comPor+(rec.comFecha ? ' el '+fFechaHora(new Date(rec.comFecha)) : '')));
   }
   if (rec.reemplaza || sig) it.appendChild(el('p','reg-num', (rec.reemplaza ? 'Reemplaza a '+rec.reemplaza+(ant ? ' ('+ETIQ[estadoDe(ant)].t.toLowerCase()+(ant.usuario && rec.usuario && ant.usuario!==rec.usuario ? ', de otro vendedor' : '')+')' : '') : '')+(rec.reemplaza && sig ? ' · ' : '')+(sig ? 'Reemplazada por '+sig.numero : '')));
   if ((rec.alertas||[]).length){ var al = el('div','reg-al'); rec.alertas.forEach(function(t){ al.appendChild(el('span','pill warn',String(t))); }); it.appendChild(al); }
-  if (rec.nota && !conAcciones) it.appendChild(el('p','reg-nota','Finanzas: '+rec.nota));
-  if (conAcciones){
-    var ac = el('div','reg-ac'), inp = el('input','ctl'); inp.type='text'; inp.id='nota-'+rec.numero; inp.maxLength=300; inp.placeholder='Nota para el vendedor (opcional)'; inp.value=rec.nota||''; inp.setAttribute('aria-label','Nota para '+rec.numero);
-    ac.appendChild(inp);
+  if (rec.nota && modo!=='fin') it.appendChild(el('p','reg-nota','Finanzas: '+rec.nota));
+  if (rec.comNota && modo!=='com') it.appendChild(el('p','reg-nota','Gerencia Comercial: '+rec.comNota));
+  if (modo==='fin'){
+    /* Revisión de Finanzas: el Nosis lo verifica Finanzas (no el vendedor) y hace falta que esté apto para aprobar. */
+    var ac = el('div','reg-ac'), sn = el('select','ctl nosis'), inp = el('input','ctl');
+    sn.id = 'nosis-'+rec.numero; sn.setAttribute('aria-label','Nosis de '+rec.numero);
+    [['','Nosis: sin verificar'],['apto','Nosis: apto'],['no','Nosis: no apto']].forEach(function(o){ var x = el('option','',o[1]); x.value = o[0]; sn.appendChild(x); });
+    sn.value = rec.nosisFin==='apto' || rec.nosisFin==='no' ? rec.nosisFin : '';
+    inp.type='text'; inp.id='nota-'+rec.numero; inp.maxLength=300; inp.placeholder='Nota para el vendedor (opcional)'; inp.value=rec.nota||''; inp.setAttribute('aria-label','Nota para '+rec.numero);
+    ac.appendChild(sn); ac.appendChild(inp);
     [['aprobada','Aprobar'],['observada','Observar'],['rechazada','Rechazar']].forEach(function(b){
       var bt = el('button','btn sec',b[1]); bt.type='button'; bt.dataset.rev=b[0]; bt.dataset.num=rec.numero; bt.setAttribute('aria-pressed', String(rec.estado===b[0])); ac.appendChild(bt);
     });
     it.appendChild(ac);
+  }
+  if (modo==='com'){
+    /* Gerencia Comercial: decide sobre lo que Finanzas aprobó y sigue vigente. */
+    var decidible = rec.estado==='aprobada' && !(rec.vence && Date.now()>rec.vence);
+    if (decidible){
+      var ac2 = el('div','reg-ac'), in2 = el('input','ctl');
+      in2.type='text'; in2.id='comnota-'+rec.numero; in2.maxLength=300; in2.placeholder='Nota para el vendedor y Finanzas (opcional)'; in2.value=rec.comNota||''; in2.setAttribute('aria-label','Nota de '+rec.numero);
+      ac2.appendChild(in2);
+      [['autorizada','Autorizar'],['no_autorizada','No autorizar']].forEach(function(b){
+        var bt = el('button','btn sec',b[1]); bt.type='button'; bt.dataset.com=b[0]; bt.dataset.num=rec.numero; bt.setAttribute('aria-pressed', String(rec.com===b[0])); ac2.appendChild(bt);
+      });
+      it.appendChild(ac2);
+    } else if (rec.comNota) it.appendChild(el('p','reg-nota','Tu nota: '+rec.comNota));
   }
   return it;
 }
@@ -1607,7 +1811,7 @@ function pintaRegistro(){
   var ver = Math.min(A.regVer||REG_PASO, orden.length), resta = orden.length-ver;
   $('reg-t').textContent = A.reg.length ? (A.reg.length===1 ? '1 cotización registrada' : A.reg.length+' cotizaciones registradas')+', '+(pend===1 ? '1 pendiente' : pend+' pendientes')+' de validación.'
     +(A.reg.length>1 ? ' Arriba, las pendientes; después, las más recientes.' : '')+(A.reg.length>=REG_TOPE ? ' Se ven las '+REG_TOPE+' últimas: las anteriores están en el reporte en Excel.' : '') : 'Todavía no hay cotizaciones registradas.';
-  orden.slice(0,ver).forEach(function(n){ c.appendChild(itemReg(porNum[n],true,A.reg)); });
+  orden.slice(0,ver).forEach(function(n){ c.appendChild(itemReg(porNum[n],'fin',A.reg)); });
   $('reg-mas').hidden = resta<=0;
   $('reg-mas-t').textContent = 'Se ven '+ver+' de '+orden.length+'.';
   $('b-reg-mas').textContent = 'Ver '+Math.min(REG_PASO,resta)+' más';
@@ -1620,14 +1824,225 @@ function cargarRegistro(){
     A.regOrden = ordenRegistro(A.reg); A.regVer = REG_PASO; pintaRegistro();
   });
 }
+/* La revisión de Finanzas cubre las condiciones financieras y el Nosis (del cliente y, si los cheques son de terceros, de cada librador):
+   para aprobar hace falta marcarlo como apto. Cada revisión reinicia la autorización de la Gerencia Comercial. */
 function revisar(num, estado){
-  var rec = (A.reg||[]).filter(function(x){ return x.numero===num; })[0]; if (!rec || !ETIQ[estado]) return;
-  var nota = ($('nota-'+num) ? $('nota-'+num).value.trim() : '').slice(0,300);
-  llama('tc-finanzas', {accion:'revisar', numero:num, estado:estado, nota:nota}).then(function(j){
+  var rec = (A.reg||[]).filter(function(x){ return x.numero===num; })[0]; if (!rec || ['aprobada','observada','rechazada'].indexOf(estado)<0) return;
+  var nota = ($('nota-'+num) ? $('nota-'+num).value.trim() : '').slice(0,300), nosis = $('nosis-'+num) ? $('nosis-'+num).value : '';
+  if (estado==='aprobada' && nosis!=='apto'){
+    toast('Para aprobar, primero marcá el Nosis como apto: el del cliente'+(rec.origen==='terceros' ? ' y el de cada librador de los cheques' : '')+'.', true);
+    try{ $('nosis-'+num).focus(); }catch(e){} return;
+  }
+  llama('tc-finanzas', {accion:'revisar', numero:num, estado:estado, nota:nota, nosis:nosis}).then(function(j){
     if (j.ok!==true){ if (!caida(j)) toast(sinRed(j) || j.mensaje || 'No se pudo guardar la revisión. Probá de nuevo.', true); return; }
-    rec.estado = estado; rec.nota = nota; rec.revisadaPor = j.revisadaPor || (S && S.usuario) || ''; rec.revisada = new Date().toISOString();
-    pintaRegistro(); toast('Cotización '+num+': '+ETIQ[estado].t.toLowerCase()+'.');
+    rec.estado = estado; rec.nota = nota; rec.nosisFin = nosis; rec.revisadaPor = j.revisadaPor || (S && S.usuario) || ''; rec.revisada = new Date().toISOString();
+    rec.com = ''; rec.comNota = ''; rec.comPor = ''; rec.comFecha = '';
+    pintaRegistro();
+    toast('Cotización '+num+': '+(estado==='aprobada' ? 'aprobada por Finanzas. Ahora la tiene que autorizar la Gerencia Comercial.' : estado==='observada' ? 'observada.' : 'rechazada.'));
   });
+}
+/* --- Gerencia Comercial (versión 3.5): autoriza o no las operaciones que Finanzas aprobó. Todo queda guardado en el sistema (n8n). --- */
+function ordenComercial(l){
+  var pend = function(x){ return estadoDe(x)==='aprobada' ? 0 : 1; };
+  return l.slice().sort(function(a,b){ return pend(a)-pend(b) || (b.tsNum||0)-(a.tsNum||0); }).map(function(x){ return x.numero; });
+}
+function pintaComercial(){
+  if (!A.com) return;
+  var c = $('com-l'), porNum = {}; c.textContent = '';
+  A.com.forEach(function(x){ porNum[x.numero] = x; });
+  var orden = (A.comOrden||[]).filter(function(n){ return !!porNum[n]; });
+  A.com.forEach(function(x){ if (orden.indexOf(x.numero)<0) orden.push(x.numero); });
+  var pend = A.com.filter(function(x){ return estadoDe(x)==='aprobada'; }).length, ver = Math.min(A.comVer||REG_PASO, orden.length), resta = orden.length-ver;
+  $('com-t').textContent = !A.com.length ? 'No hay operaciones aprobadas por Finanzas para autorizar.'
+    : (pend===0 ? 'No hay operaciones esperando tu autorización.' : (pend===1 ? '1 operación espera' : pend+' operaciones esperan')+' tu autorización.')+(A.com.length>pend ? ' Debajo, las que ya resolviste o las que vencieron.' : '');
+  orden.slice(0,ver).forEach(function(n){ c.appendChild(itemReg(porNum[n],'com',A.com)); });
+  $('com-mas').hidden = resta<=0; $('com-mas-t').textContent = 'Se ven '+ver+' de '+orden.length+'.'; $('b-com-mas').textContent = 'Ver '+Math.min(REG_PASO,resta)+' más';
+  $('com-pie').textContent = VERSION+'. Cada cotización vale 24 horas desde su emisión: pasado ese plazo ya no se puede autorizar y el vendedor tiene que cotizar de nuevo.';
+}
+function cargarComercial(){
+  $('com-t').textContent = 'Leyendo las operaciones…';
+  return llama('tc-comercial', {accion:'lista'}).then(function(j){
+    if (j.ok!==true){
+      if (caida(j)) return;
+      if (j.motivo==='permiso'){ cierraLocal(j.mensaje || 'Tu usuario no tiene acceso al módulo Comercial.'); return; }
+      $('com-t').textContent = sinRed(j) || 'No se pudieron leer las operaciones. Probá de nuevo con Actualizar.'; return;
+    }
+    A.com = (Array.isArray(j.cotizaciones) ? j.cotizaciones : []).filter(function(x){ return x && x.numero; });
+    A.comOrden = ordenComercial(A.com); A.comVer = REG_PASO; pintaComercial();
+  });
+}
+function autorizar(num, decision){
+  var rec = (A.com||[]).filter(function(x){ return x.numero===num; })[0]; if (!rec || (decision!=='autorizada' && decision!=='no_autorizada')) return;
+  var nota = ($('comnota-'+num) ? $('comnota-'+num).value.trim() : '').slice(0,300);
+  llama('tc-comercial', {accion:'autorizar', numero:num, decision:decision, nota:nota}).then(function(j){
+    if (j.ok!==true){
+      if (!caida(j)) toast(sinRed(j) || j.mensaje || 'No se pudo guardar la decisión. Probá de nuevo.', true);
+      if (j.motivo==='estado') cargarComercial();
+      return;
+    }
+    rec.com = decision; rec.comNota = nota; rec.comPor = j.por || (S && S.usuario) || ''; rec.comFecha = j.fecha || new Date().toISOString();
+    pintaComercial();
+    toast('Cotización '+num+': '+(decision==='autorizada' ? 'autorizada. El vendedor y Finanzas reciben el aviso.' : 'no autorizada. El vendedor y Finanzas reciben el aviso.'));
+  });
+}
+/* --- Finanzas 3.5: unidades habilitadas. Se cargan de los listados de stock en Excel. Del archivo se leen solo los datos que identifican
+   cada unidad; los costos, márgenes y precios no se leen. Un .xlsx es un ZIP con hojas en XML: se abre acá, sin librerías externas. --- */
+var stockForm = [], stockInfo = {}, stockMsg = '';
+var RAZONES = {naum:'AG Naum S.A.', noa:'AG Noa S.A.', sangon:'SANGON CORP S.A.', leon:'LeonAlperovich Group SRL'};
+/* Qué empresa factura cada unidad 0 km, según la marca. Los usados los factura AG Noa. */
+var MARCAS_0KM = [[/^FORD\b/i, 'Ford 0 km', RAZONES.naum, 'FORD'], [/^NISSAN\b/i, 'Nissan 0 km', RAZONES.noa, 'NISSAN'], [/^JAC\b/i, 'JAC 0 km', RAZONES.sangon, 'JAC'], [/^GAC\b/i, 'GAC 0 km', RAZONES.sangon, 'GAC'],
+  [/^(DONGFENG|DONG FENG|DFM|DFSK)\b/i, 'DongFeng 0 km', RAZONES.sangon, 'DONGFENG'], [/^HYUNDAI\b/i, 'Hyundai 0 km', RAZONES.leon, 'HYUNDAI']];
+function zipEntradas(buf){
+  var dv = new DataView(buf), n = buf.byteLength, i, fin = -1;
+  for (i=n-22; i>=0 && i>=n-66000; i--) if (dv.getUint32(i,true)===0x06054b50){ fin = i; break; }
+  if (fin<0) throw new Error('zip');
+  var cant = dv.getUint16(fin+10,true), off = dv.getUint32(fin+16,true), dec = new TextDecoder('utf-8'), out = {}, k;
+  for (k=0;k<cant;k++){
+    if (off+46>n || dv.getUint32(off,true)!==0x02014b50) throw new Error('zip');
+    var tn = dv.getUint16(off+28,true), te = dv.getUint16(off+30,true), tk = dv.getUint16(off+32,true);
+    out[dec.decode(new Uint8Array(buf, off+46, tn))] = {metodo:dv.getUint16(off+10,true), tam:dv.getUint32(off+20,true), local:dv.getUint32(off+42,true)};
+    off += 46+tn+te+tk;
+  }
+  return out;
+}
+function zipTexto(buf, e){
+  var dv = new DataView(buf), ini = e.local+30+dv.getUint16(e.local+26,true)+dv.getUint16(e.local+28,true), datos = new Uint8Array(buf, ini, e.tam);
+  if (e.metodo===0) return Promise.resolve(new TextDecoder('utf-8').decode(datos));
+  if (e.metodo!==8 || !('DecompressionStream' in window)) return Promise.reject(new Error('compresion'));
+  return new Response(new Blob([datos]).stream().pipeThrough(new DecompressionStream('deflate-raw'))).text();
+}
+function xlTexto(nodo){
+  var s = ''; Array.prototype.forEach.call(nodo.getElementsByTagNameNS('*','t'), function(t){ if (t.parentNode && t.parentNode.localName==='rPh') return; s += t.textContent; }); return s;
+}
+function xlFilas(doc, ss){
+  var filas = [];
+  Array.prototype.forEach.call(doc.getElementsByTagNameNS('*','row'), function(row){
+    var f = [], i;
+    Array.prototype.forEach.call(row.getElementsByTagNameNS('*','c'), function(c){
+      var m = /^([A-Z]+)/.exec(c.getAttribute('r') || ''), col = f.length, k, t = c.getAttribute('t'), v = c.getElementsByTagNameNS('*','v')[0];
+      if (m){ col = 0; for (k=0;k<m[1].length;k++) col = col*26 + (m[1].charCodeAt(k)-64); col--; }
+      if (col>200) return;
+      f[col] = t==='s' ? (ss[Number(v ? v.textContent : -1)] || '') : t==='inlineStr' ? xlTexto(c) : (v ? v.textContent : '');
+    });
+    for (i=0;i<f.length;i++) if (f[i]===undefined) f[i] = '';
+    filas.push(f);
+  });
+  return filas;
+}
+/* Devuelve las hojas del libro: [{nombre, filas:[[celda, …], …]}]. Las celdas llegan como texto. */
+function xlLeer(buf){
+  var ent = zipEntradas(buf), xml = function(t){ return new DOMParser().parseFromString(t, 'application/xml'); };
+  var lee = function(n){ return ent[n] ? zipTexto(buf, ent[n]) : Promise.resolve(''); };
+  return Promise.all([lee('xl/workbook.xml'), lee('xl/_rels/workbook.xml.rels'), lee('xl/sharedStrings.xml')]).then(function(a){
+    if (!a[0]) throw new Error('libro');
+    var rels = {}, ss = [];
+    if (a[1]) Array.prototype.forEach.call(xml(a[1]).getElementsByTagNameNS('*','Relationship'), function(r){ rels[r.getAttribute('Id')] = r.getAttribute('Target') || ''; });
+    if (a[2]) Array.prototype.forEach.call(xml(a[2]).getElementsByTagNameNS('*','si'), function(si){ ss.push(xlTexto(si)); });
+    var hojas = Array.prototype.map.call(xml(a[0]).getElementsByTagNameNS('*','sheet'), function(s){
+      var rid = s.getAttribute('r:id') || s.getAttributeNS('http://schemas.openxmlformats.org/officeDocument/2006/relationships','id') || '', t = rels[rid] || '';
+      return {nombre:s.getAttribute('name') || '', ruta: t.charAt(0)==='/' ? t.slice(1) : 'xl/'+t};
+    });
+    return Promise.all(hojas.map(function(h){ return lee(h.ruta).then(function(t){ h.filas = t ? xlFilas(xml(t), ss) : []; return h; }); }));
+  });
+}
+/* Interpreta un libro como listado de stock. Reconoce dos formatos: el reporte de stock contable de 0 km (Código, Serie, Marca/Modelo, Color,
+   Asignado?) y el listado de usados (Marca Modelo, Año, Dominio, Color, Km). solo60: si hay una hoja «Más de 60 días», se toma esa. */
+function stockDeLibro(libro, solo60){
+  var cand = [];
+  libro.forEach(function(h){
+    for (var i=0;i<Math.min(h.filas.length,15);i++){ var cs = h.filas[i].map(llano); if (cs.indexOf('marca modelo')>=0){ cand.push({h:h, cab:i, cols:cs}); return; } }
+  });
+  if (!cand.length) return {error:'no tiene una columna «Marca/Modelo»: no parece un listado de stock'};
+  var es60 = function(c){ return /60/.test(c.h.nombre) && /d[ií]as/i.test(c.h.nombre); }, de60 = cand.filter(es60)[0];
+  var tabla = solo60 && de60 ? de60 : cand.filter(function(c){ return /completo/i.test(c.h.nombre); })[0] || cand.filter(function(c){ return !es60(c); })[0] || cand[0];
+  var col = function(n){ return tabla.cols.indexOf(n); };
+  var cM = col('marca modelo'), cCod = col('codigo'), cSer = col('serie'), cCol = col('color'), cAsig = col('asignado'), cDom = col('dominio'), cAn = col('ano'), cKm = col('km'), cEst = col('estado');
+  var usados = cDom>=0, items = [], info = {}, vistos = {}, omit = {asignadas:0, marca:0, sinId:0, repetidas:0}, i;
+  for (i=tabla.cab+1;i<tabla.h.filas.length;i++){
+    var f = tabla.h.filas[i], g = function(c){ return c>=0 && f[c]!==undefined ? String(f[c]).replace(/\s+/g,' ').trim() : ''; }, d = g(cM), it;
+    if (!d) continue;
+    if (usados){
+      var dom = g(cDom).toUpperCase().replace(/[^A-Z0-9]/g,''); if (!dom){ omit.sinId++; continue; }
+      it = {i:'USADO-'+dom, d:d.toUpperCase(), c:g(cCol).toUpperCase(), s:dom, e:RAZONES.noa, u:'usado', g:'Usados'};
+      var an = Number(g(cAn)), km = g(cKm);
+      if (an>=1950 && an<=2100) it.a = Math.round(an);
+      if (km!=='' && isFinite(Number(km)) && Number(km)>=0) it.k = Math.round(Number(km));
+      if (g(cEst)) info[it.i] = g(cEst);
+    } else {
+      if (/^s/i.test(g(cAsig))){ omit.asignadas++; continue; }
+      var mk = MARCAS_0KM.filter(function(m){ return m[0].test(d); })[0];
+      if (!mk){ omit.marca++; continue; }
+      var cod = g(cCod) || g(cSer); if (!cod){ omit.sinId++; continue; }
+      it = {i:mk[3]+'-'+cod, d:d.toUpperCase(), c:g(cCol).toUpperCase(), s:g(cSer).toUpperCase(), e:mk[2], u:'0km', g:mk[1]};
+    }
+    if (vistos[it.i]){ omit.repetidas++; continue; }
+    vistos[it.i] = 1; items.push(it);
+  }
+  return {items:M.normStock(items), info:info, hoja:tabla.h.nombre, hojas:cand.length, omit:omit};
+}
+function pintaStock(){
+  var c = $('stock-l'); c.textContent = '';
+  var grupos = [], por = {};
+  stockForm.forEach(function(v){ if (!por[v.g]){ por[v.g] = []; grupos.push(v.g); } por[v.g].push(v); });
+  var n = stockForm.length, p = $('fin-stock-p'); p.textContent = n ? n+(n===1 ? ' unidad' : ' unidades') : 'Sin listado'; p.className = 'pill '+(n ? 'ok' : 'warn');
+  $('stock-t').textContent = stockMsg || (n ? (n===1 ? '1 unidad habilitada' : n+' unidades habilitadas')+' en '+(grupos.length===1 ? '1 listado' : grupos.length+' listados')+'. Para actualizarlas, cargá el Excel nuevo de ese listado.'
+    : 'Todavía no hay unidades habilitadas: los vendedores no pueden emitir. Cargá los listados de stock en Excel y publicá.');
+  $('b-stock-vaciar').hidden = !n;
+  grupos.forEach(function(g, gi){
+    var d = el('details','stock-g'), l = por[g], campo = el('div','campo'), lab = el('label','rot','Empresa que factura este listado (sale en «Cheques a la orden de»)'), inp = el('input','ctl');
+    d.appendChild(el('summary','', (g || 'Sin listado')+' · '+l.length+(l.length===1 ? ' unidad' : ' unidades')+' · factura '+l[0].e));
+    inp.type = 'text'; inp.maxLength = 60; inp.value = l[0].e; inp.id = 'stock-e-'+gi; inp.dataset.grupo = g; lab.htmlFor = inp.id;
+    campo.appendChild(lab); campo.appendChild(inp); d.appendChild(campo);
+    l.forEach(function(v){
+      var f = el('div','stock-u'), t = el('span',''), q = el('button','lin','Quitar');
+      t.appendChild(el('b','',v.d)); t.appendChild(document.createTextNode(' · '+[vehLinea(v), stockInfo[v.i] || ''].filter(Boolean).join(' · ')));
+      q.type = 'button'; q.dataset.quita = v.i; q.setAttribute('aria-label','Quitar '+v.d+' del listado');
+      f.appendChild(t); f.appendChild(q); d.appendChild(f);
+    });
+    c.appendChild(d);
+  });
+}
+function cargaStock(archivos){
+  var lista = Array.prototype.slice.call(archivos || []), solo60 = $('stock-60').checked;
+  if (!lista.length) return Promise.resolve();
+  $('stock-t').textContent = 'Leyendo '+(lista.length===1 ? 'el archivo' : 'los '+lista.length+' archivos')+'…';
+  var uno = function(a){
+    return a.arrayBuffer().then(xlLeer).then(function(libro){ var r = stockDeLibro(libro, solo60); r.nombre = a.name; return r; },
+      function(e){ return {nombre:a.name, error: e && e.message==='compresion' ? 'este navegador no puede abrir el archivo: probá con Chrome o Edge actualizados' : 'no se pudo leer: tiene que ser un Excel en formato .xlsx'}; });
+  };
+  return Promise.all(lista.map(uno)).then(function(rs){
+    var nuevos = [], grupos = {}, bien = [], mal = [];
+    rs.forEach(function(r){
+      if (r.error || !r.items.length){ mal.push(r.nombre+': '+(r.error || 'no trae unidades para habilitar'+(r.omit && r.omit.marca ? ' (marcas sin empresa asignada)' : ''))); return; }
+      var porG = {};
+      r.items.forEach(function(it){ grupos[it.g] = 1; porG[it.g] = (porG[it.g]||0)+1; nuevos.push(it); if (r.info[it.i]) stockInfo[it.i] = r.info[it.i]; });
+      var o = r.omit, sal = [];
+      if (o.asignadas) sal.push(o.asignadas+' ya asignadas'); if (o.marca) sal.push(o.marca+' de marcas sin empresa asignada'); if (o.sinId) sal.push(o.sinId+' sin código ni dominio'); if (o.repetidas) sal.push(o.repetidas+' repetidas');
+      bien.push(Object.keys(porG).map(function(g){ return g+': '+porG[g]; }).join(', ')+(r.hojas>1 ? ' (hoja «'+r.hoja+'»)' : '')+(sal.length ? '; se dejaron afuera '+sal.join(', ') : ''));
+    });
+    if (nuevos.length){
+      /* cargar un listado reemplaza las unidades que había de ese mismo listado */
+      var vistos = {};
+      stockForm = stockForm.filter(function(x){ return !grupos[x.g]; }).concat(nuevos).filter(function(x){ if (vistos[x.i]) return false; vistos[x.i] = 1; return true; });
+      tocado = true;
+    }
+    stockMsg = (bien.length ? 'Cargado. '+bien.join(' · ')+'. Falta publicar para que lo vean los vendedores.' : '')+(mal.length ? (bien.length ? ' ' : '')+'No se pudo cargar: '+mal.join(' · ')+'.' : '');
+    pintaStock(); stockMsg = ''; pintar();
+    toast(nuevos.length ? 'Listado cargado: '+stockForm.length+' unidades habilitadas en total. Revisalo y publicá.'+(mal.length ? ' Hubo archivos que no se pudieron leer.' : '') : 'No se cargó ninguna unidad. Mirá el detalle en «Unidades habilitadas».', !nuevos.length || mal.length>0);
+  });
+}
+/* Avisos para Finanzas: quien no tiene correo cargado no recibe los avisos del sistema, y sin Gerencia Comercial nadie autoriza. */
+function avisosUsuarios(){
+  var u = A.usuAviso, l = [];
+  if (!u || MODO_COM) return l;
+  if ((u.finSinCorreo||[]).length) l.push((u.finSinCorreo.length===1 ? 'El usuario de Finanzas '+u.finSinCorreo[0]+' no tiene' : 'Los usuarios de Finanzas '+u.finSinCorreo.join(', ')+' no tienen')+' correo cargado: no recibe'+(u.finSinCorreo.length===1 ? '' : 'n')+' el aviso de cada cotización nueva ni las respuestas de los vendedores. Cargalo en Usuarios.');
+  if (u.comerciales===0) l.push('Todavía no hay ningún usuario activo de la Gerencia Comercial: las operaciones que apruebes no van a tener quién las autorice. Dalo de alta en Usuarios.');
+  else if ((u.comSinCorreo||[]).length) l.push((u.comSinCorreo.length===1 ? 'El usuario de la Gerencia Comercial '+u.comSinCorreo[0]+' no tiene' : 'Los usuarios de la Gerencia Comercial '+u.comSinCorreo.join(', ')+' no tienen')+' correo cargado: no le'+(u.comSinCorreo.length===1 ? '' : 's')+' llega el aviso de operación para autorizar.');
+  return l;
+}
+function usuAvisoDe(lista){
+  var act = (lista||[]).filter(function(x){ return x.activo; }), sin = function(rol){ return act.filter(function(x){ return x.rol===rol && !x.correo; }).map(function(x){ return x.usuario; }); };
+  return {finSinCorreo:sin('finanzas'), comSinCorreo:sin('comercial'), comerciales:act.filter(function(x){ return x.rol==='comercial'; }).length};
 }
 /* --- Finanzas 3.4: reporte en Excel por período. Se arma acá, sin librerías externas: un .xlsx es un ZIP con hojas en XML. ---
    Tres hojas: Resumen (indicadores y aperturas), Cotizaciones (una fila por cotización) y Cheques (una fila por cheque).
@@ -1732,10 +2147,11 @@ function reporteExcel(lista, ini, fin, truncado){
   var L = lista.slice().sort(function(a,b){ return (a.tsNum||0)-(b.tsNum||0); }), reemp = {}, costo = {};
   L.forEach(function(x){ if (x.reemplaza) reemp[x.reemplaza] = x.numero; costo[x.numero] = Math.round(costoRegistro(x)); });
   var vig = function(x){ return !reemp[x.numero]; }, est = function(x){ return estadoDe(x); };
-  var ops = L.filter(vig), apr = ops.filter(function(x){ return est(x)==='aprobada'; });
+  /* apr: aprobadas por Finanzas, con o sin la decisión de la Gerencia Comercial. aut: además autorizadas por la Gerencia Comercial. */
+  var ops = L.filter(vig), apr = ops.filter(function(x){ return x.estado==='aprobada'; }), aut = ops.filter(function(x){ return est(x)==='autorizada'; });
   var pc = function(v){ return {v:(Number(v)||0)/100, s:XL.pct}; }, $c = function(v){ return {v:Math.round(Number(v)||0), s:XL.$}; };
   var tot = function(l){ var t = {n:l.length, imp:0, ant:0, sal:0, ch:0, ap:0, cc:0, ce:0}; l.forEach(function(x){ t.imp += x.importe||0; t.ant += x.anticipo||0; t.sal += x.saldo||0; t.ch += x.total||0; t.ap += x.pagoAparte||0; t.cc += x.costoCliente||0; t.ce += costo[x.numero]; }); return t; };
-  var TL = tot(L), TO = tot(ops), TA = tot(apr), r = [], blanco = function(){ r.push([]); };
+  var TL = tot(L), TO = tot(ops), TA = tot(apr), TU = tot(aut), r = [], blanco = function(){ r.push([]); };
   var cab = function(l){ r.push(l.map(function(t){ return {v:t, s:XL.cab}; })); };
   var quien = S ? (S.nombre ? S.nombre+' ('+S.usuario+')' : S.usuario) : '';
   r.push([{v:'Tasa Compartida · Grupo AGN · Reporte de cotizaciones', s:XL.tit}]);
@@ -1744,51 +2160,55 @@ function reporteExcel(lista, ini, fin, truncado){
   if (truncado) r.push([{v:'ATENCIÓN: el período tiene más de 3.000 cotizaciones y este reporte quedó incompleto (faltan las más antiguas). Pedilo de nuevo con un período más corto.', s:XL.alerta}]);
   blanco();
   r.push([{v:'Indicadores', s:XL.sec}]);
-  cab(['', 'Todas las cotizaciones', 'Operaciones', 'Aprobadas']);
-  var fila = function(t, k, s){ r.push([t, {v:TL[k], s:s}, {v:TO[k], s:s}, {v:TA[k], s:s}]); };
+  cab(['', 'Todas las cotizaciones', 'Operaciones', 'Aprobadas por Finanzas', 'Autorizadas por Comercial']);
+  var fila = function(t, k, s){ r.push([t, {v:TL[k], s:s}, {v:TO[k], s:s}, {v:TA[k], s:s}, {v:TU[k], s:s}]); };
   fila('Cantidad', 'n', XL.ent); fila('Importe total', 'imp', XL.$); fila('Anticipos', 'ant', XL.$); fila('Saldo financiado', 'sal', XL.$); fila('Total en cheques', 'ch', XL.$);
   fila('Costo financiero pagado aparte', 'ap', XL.$); fila('Costo financiero del cliente', 'cc', XL.$); fila('Costo para la empresa', 'ce', XL.$);
   var cociente = function(a,b){ return b>0 ? {v:a/b, s:XL.pct} : ''; };
-  r.push(['Costo para la empresa / importe total', cociente(TL.ce,TL.imp), cociente(TO.ce,TO.imp), cociente(TA.ce,TA.imp)]);
-  r.push(['Costo financiero del cliente / saldo', cociente(TL.cc,TL.sal), cociente(TO.cc,TO.sal), cociente(TA.cc,TA.sal)]);
-  r.push([{v:'Operaciones: las cotizaciones que no fueron reemplazadas por otra del período (cada recotización cuenta una sola vez, en su última versión). Estado a la hora de generar el reporte.', s:XL.nota}]);
+  r.push(['Costo para la empresa / importe total', cociente(TL.ce,TL.imp), cociente(TO.ce,TO.imp), cociente(TA.ce,TA.imp), cociente(TU.ce,TU.imp)]);
+  r.push(['Costo financiero del cliente / saldo', cociente(TL.cc,TL.sal), cociente(TO.cc,TO.sal), cociente(TA.cc,TA.sal), cociente(TU.cc,TU.sal)]);
+  r.push([{v:'Operaciones: las cotizaciones que no fueron reemplazadas por otra del período (cada recotización cuenta una sola vez, en su última versión). Aprobadas por Finanzas: con o sin la decisión de la Gerencia Comercial. Autorizadas: aprobadas por Finanzas y autorizadas por la Gerencia Comercial. Estado a la hora de generar el reporte.', s:XL.nota}]);
   blanco();
   r.push([{v:'Operaciones por estado', s:XL.sec}]);
   cab(['Estado', 'Operaciones', 'Saldo financiado', 'Costo financiero del cliente', 'Costo para la empresa']);
-  ['pendiente','aprobada','observada','rechazada','vencida'].forEach(function(e){
+  ['pendiente','aprobada','autorizada','noautorizada','observada','rechazada','vencida','sinautorizar'].forEach(function(e){
     var t = tot(ops.filter(function(x){ return est(x)===e; })); if (!t.n) return;
     r.push([ETIQ[e].t, {v:t.n, s:XL.ent}, $c(t.sal), $c(t.cc), $c(t.ce)]);
   });
   r.push([{v:'Total', s:XL.neg}, {v:TO.n, s:XL.entn}, {v:TO.sal, s:XL.$n}, {v:TO.cc, s:XL.$n}, {v:TO.ce, s:XL.$n}]);
   var apertura = function(titulo, rotulo, clave){
     blanco(); r.push([{v:titulo, s:XL.sec}]);
-    cab([rotulo, 'Cotizaciones', 'Operaciones', 'Aprobadas', 'Saldo de las operaciones', 'Saldo aprobado', 'Costo para la empresa (aprobadas)']);
+    cab([rotulo, 'Cotizaciones', 'Operaciones', 'Aprobadas por Finanzas', 'Autorizadas', 'Saldo de las operaciones', 'Saldo autorizado', 'Costo para la empresa (autorizadas)']);
     var g = {}; L.forEach(function(x){ var k = clave(x) || 'Sin dato'; (g[k] = g[k] || []).push(x); });
-    Object.keys(g).map(function(k){ var l = g[k], o = l.filter(vig), a = o.filter(function(x){ return est(x)==='aprobada'; }); return {k:k, n:l.length, o:tot(o), a:tot(a)}; })
+    Object.keys(g).map(function(k){ var l = g[k], o = l.filter(vig); return {k:k, n:l.length, o:tot(o), a:tot(o.filter(function(x){ return x.estado==='aprobada'; })), u:tot(o.filter(function(x){ return est(x)==='autorizada'; }))}; })
       .sort(function(a,b){ return b.o.sal-a.o.sal || a.k.localeCompare(b.k); })
-      .forEach(function(t){ r.push([t.k, {v:t.n, s:XL.ent}, {v:t.o.n, s:XL.ent}, {v:t.a.n, s:XL.ent}, $c(t.o.sal), $c(t.a.sal), $c(t.a.ce)]); });
-    r.push([{v:'Total', s:XL.neg}, {v:TL.n, s:XL.entn}, {v:TO.n, s:XL.entn}, {v:TA.n, s:XL.entn}, {v:TO.sal, s:XL.$n}, {v:TA.sal, s:XL.$n}, {v:TA.ce, s:XL.$n}]);
+      .forEach(function(t){ r.push([t.k, {v:t.n, s:XL.ent}, {v:t.o.n, s:XL.ent}, {v:t.a.n, s:XL.ent}, {v:t.u.n, s:XL.ent}, $c(t.o.sal), $c(t.u.sal), $c(t.u.ce)]); });
+    r.push([{v:'Total', s:XL.neg}, {v:TL.n, s:XL.entn}, {v:TO.n, s:XL.entn}, {v:TA.n, s:XL.entn}, {v:TU.n, s:XL.entn}, {v:TO.sal, s:XL.$n}, {v:TU.sal, s:XL.$n}, {v:TU.ce, s:XL.$n}]);
   };
   apertura('Por vendedor', 'Vendedor', function(x){ return x.vendedor; });
+  apertura('Por empresa que factura', 'Empresa', function(x){ return x.empresa; });
   apertura('Por unidad de negocio', 'Unidad de negocio', function(x){ return x.unidad; });
-  blanco(); r.push([{v:'Cheques previstos de las operaciones aprobadas, por mes de pago', s:XL.sec}]);
+  blanco(); r.push([{v:'Cheques previstos de las operaciones autorizadas, por mes de pago', s:XL.sec}]);
   cab(['Mes de pago', 'Cheques', 'Valor de los cheques', 'Capital']);
   var meses = {};
-  apr.forEach(function(x){ (x.cheques||[]).forEach(function(c){ var m = String(c.f||'').slice(0,7); if (!m) return; var t = meses[m] = meses[m] || {n:0, v:0, k:0}; t.n++; t.v += c.n||0; t.k += c.k||0; }); });
+  aut.forEach(function(x){ (x.cheques||[]).forEach(function(c){ var m = String(c.f||'').slice(0,7); if (!m) return; var t = meses[m] = meses[m] || {n:0, v:0, k:0}; t.n++; t.v += c.n||0; t.k += c.k||0; }); });
   var tm = {n:0, v:0, k:0};
   Object.keys(meses).sort().forEach(function(m){ var t = meses[m]; tm.n += t.n; tm.v += t.v; tm.k += t.k; r.push([{v:xlDia(m+'-01'), s:XL.mes}, {v:t.n, s:XL.ent}, $c(t.v), $c(t.k)]); });
   r.push([{v:'Total', s:XL.neg}, {v:tm.n, s:XL.entn}, {v:tm.v, s:XL.$n}, {v:tm.k, s:XL.$n}]);
-  r.push([{v:'Son los cheques de cotizaciones aprobadas: la venta puede no haberse concretado. La fecha es la de pago del cheque, sin los días de acreditación.', s:XL.nota}]);
+  r.push([{v:'Son los cheques de operaciones autorizadas: la venta puede no haberse concretado. La fecha es la de pago del cheque, sin los días de acreditación.', s:XL.nota}]);
 
-  var c1 = ['Emitida','Vence','Número','Estado','Vendedor','Usuario','Cliente','CUIT o DNI','Empresa','Unidad de negocio','Unidad o producto','Importe total','Anticipo','Saldo','Costo financiero','Cheques','Total cheques','Pago aparte',
-    'Costo financiero del cliente','Plazo máximo (días)','Tasa del día (TNA)','Bonificación de tasa','Bonificación de gastos','TEA','CFTEA','Costo para la empresa','Costo empresa / importe','Alertas','Nota de Finanzas','Revisada por','Revisada','Reemplaza a','Reemplazada por'];
+  var c1 = ['Emitida','Vence','Número','Estado','Vendedor','Usuario','Cliente','CUIT','Empresa','Unidad de negocio','Unidad','Serie o dominio','Importe total','Anticipo','Saldo','Costo financiero','Cheques','Total cheques','Pago aparte',
+    'Costo financiero del cliente','Plazo máximo (días)','Origen de los cheques','Libradores','Tasa del día (TNA)','Bonificación de tasa','Bonificación de gastos','TEA','CFTEA','Costo para la empresa','Costo empresa / importe','Alertas',
+    'Nosis','Nota de Finanzas','Revisada por','Revisada','Autorización comercial','Autorizó','Fecha de la autorización','Nota de la Gerencia Comercial','Reemplaza a','Reemplazada por'];
   var h2 = [c1.map(function(t){ return {v:t, s:XL.cab}; })];
   L.forEach(function(x){
-    var ch = x.cheques||[], rev = x.revisada ? Date.parse(x.revisada) : 0;
-    h2.push([{v:x.tsNum ? xlSerie(x.tsNum) : '', s:XL.fh}, {v:x.vence ? xlSerie(x.vence) : '', s:XL.fh}, x.numero, ETIQ[est(x)].t, x.vendedor, x.usuario, x.cliente, x.doc, x.empresa, x.unidad, x.detalle,
+    var ch = x.cheques||[], rev = x.revisada ? Date.parse(x.revisada) : 0, cf = x.comFecha ? Date.parse(x.comFecha) : 0, vh = x.veh||{};
+    h2.push([{v:x.tsNum ? xlSerie(x.tsNum) : '', s:XL.fh}, {v:x.vence ? xlSerie(x.vence) : '', s:XL.fh}, x.numero, ETIQ[est(x)].t, x.vendedor, x.usuario, x.cliente, x.doc, x.empresa, x.unidad, x.detalle, vh.s || '',
       $c(x.importe), $c(x.anticipo), $c(x.saldo), x.forma==='aparte' ? 'Aparte' : 'Dentro de los cheques', {v:ch.length, s:XL.ent}, $c(x.total), $c(x.pagoAparte), $c(x.costoCliente),
-      {v:ch.reduce(function(m,c){ return Math.max(m,c.d||0); },0), s:XL.ent}, pc(x.tna), pc(x.bonif), pc(x.gastosAGN), pc(x.tea), pc(x.cft), $c(costo[x.numero]), x.importe>0 ? {v:costo[x.numero]/x.importe, s:XL.pct} : '',
-      (x.alertas||[]).join(' | '), x.nota, x.revisadaPor, {v:rev ? xlSerie(rev) : '', s:XL.fh}, x.reemplaza, reemp[x.numero] || '']);
+      {v:ch.reduce(function(m,c){ return Math.max(m,c.d||0); },0), s:XL.ent}, x.origen==='terceros' ? 'De terceros' : 'Propios del cliente', (x.terceros||[]).map(function(t){ return (t.n||'')+' (CUIT '+(t.c||'')+')'; }).join(' | '),
+      pc(x.tna), pc(x.bonif), pc(x.gastosAGN), pc(x.tea), pc(x.cft), $c(costo[x.numero]), x.importe>0 ? {v:costo[x.numero]/x.importe, s:XL.pct} : '',
+      (x.alertas||[]).join(' | '), x.nosisFin==='apto' ? 'Apto' : x.nosisFin==='no' ? 'No apto' : (x.revisadaPor ? 'Sin verificar' : ''), x.nota, x.revisadaPor, {v:rev ? xlSerie(rev) : '', s:XL.fh},
+      x.com==='autorizada' ? 'Autorizada' : x.com==='no_autorizada' ? 'No autorizada' : '', x.comPor || '', {v:cf ? xlSerie(cf) : '', s:XL.fh}, x.comNota || '', x.reemplaza, reemp[x.numero] || '']);
   });
   var c3 = ['Cotización','Emitida','Estado','Operación','Vendedor','Cliente','Costo financiero','Cheque','Fecha de pago','Días','Valor del cheque','Capital'];
   var h3 = [c3.map(function(t){ return {v:t, s:XL.cab}; })];
@@ -1800,8 +2220,8 @@ function reporteExcel(lista, ini, fin, truncado){
     });
   });
   return xlLibro([
-    {nombre:'Resumen', filas:r, anchos:[44,22,22,22,24,22,30], sinGrilla:true, apaisado:true, ajustar:true},
-    {nombre:'Cotizaciones', filas:h2, anchos:[16,16,22,22,20,14,28,15,18,22,28,15,14,15,20,9,15,14,16,10,11,11,11,9,9,15,12,34,34,13,16,22,22], congelar:true, filtro:true, apaisado:true},
+    {nombre:'Resumen', filas:r, anchos:[44,22,22,24,24,24,22,32], sinGrilla:true, apaisado:true, ajustar:true},
+    {nombre:'Cotizaciones', filas:h2, anchos:[16,16,22,30,20,14,28,15,22,18,40,14,15,14,15,20,9,15,14,16,10,18,40,11,11,11,9,9,15,12,34,13,34,13,16,18,13,16,34,22,22], congelar:true, filtro:true, apaisado:true},
     {nombre:'Cheques', filas:h3, anchos:[22,16,22,30,20,28,20,9,13,8,16,16], congelar:true, filtro:true, apaisado:true}
   ], 'Reporte Tasa Compartida '+fFecha(ini)+' al '+fFecha(fin));
 }
@@ -1827,7 +2247,101 @@ function bajarReporte(){
     }, function(e){ avisaFallo(e, 'El reporte'); });
   }, function(){ libera(); t.textContent = 'No se pudo armar el reporte.'; toast('No se pudo armar el reporte. Probá de nuevo.', true); });
 }
+/* --- Finanzas 3.5: tablero de gestión sobre el registro. Cifras y barras finas de un solo color; cada valor va escrito junto a su barra,
+   así que nada depende del color ni de pasar el cursor. Los mismos números, con todo el detalle, están en el reporte en Excel. --- */
+var MESES = ['enero','febrero','marzo','abril','mayo','junio','julio','agosto','septiembre','octubre','noviembre','diciembre'];
+function compacto(n){ var a = Math.abs(n||0); return a>=1e6 ? '$ '+String((Math.round(n/1e5)/10).toFixed(1)).replace('.',',').replace(/\B(?=(\d{3})+(?!\d))/g,'.')+' M' : f$(n||0); }
+/* Los números del tablero. «Operaciones» = cotizaciones del período no reemplazadas por otra del período, como en el reporte. */
+function tableroDatos(lista){
+  var L = lista.slice().sort(function(a,b){ return (a.tsNum||0)-(b.tsNum||0); }), reemp = {}, costo = {};
+  L.forEach(function(x){ if (x.reemplaza) reemp[x.reemplaza] = x.numero; costo[x.numero] = Math.round(costoRegistro(x)); });
+  var esAut = function(x){ return estadoDe(x)==='autorizada'; };
+  var ops = L.filter(function(x){ return !reemp[x.numero]; }), apr = ops.filter(function(x){ return x.estado==='aprobada'; }), aut = ops.filter(esAut);
+  var tot = function(l){
+    var t = {n:l.length, imp:0, sal:0, cc:0, ce:0, kd:0, max:0};
+    l.forEach(function(x){ t.imp += x.importe||0; t.sal += x.saldo||0; t.cc += x.costoCliente||0; t.ce += costo[x.numero]; (x.cheques||[]).forEach(function(c){ t.kd += (c.k||0)*(c.t||0); }); if (x.importe>0) t.max = Math.max(t.max, costo[x.numero]/x.importe); });
+    return t;
+  };
+  var grupo = function(clave){
+    var g = {}, o = [];
+    ops.forEach(function(x){ var k = clave(x) || 'Sin dato'; if (!g[k]){ g[k] = {k:k, ops:0, aut:0, sal:0, ce:0}; o.push(g[k]); } g[k].ops++; if (esAut(x)){ g[k].aut++; g[k].sal += x.saldo||0; g[k].ce += costo[x.numero]; } });
+    return o.sort(function(a,b){ return b.sal-a.sal || b.ops-a.ops || a.k.localeCompare(b.k); });
+  };
+  var meses = {}, hoy = aIso(hoy0()), porVencer = 0;
+  aut.forEach(function(x){ (x.cheques||[]).forEach(function(c){ var m = String(c.f||'').slice(0,7); if (!m) return; var t = meses[m] = meses[m] || {m:m, n:0, v:0}; t.n++; t.v += c.n||0; if (String(c.f)>=hoy) porVencer += c.n||0; }); });
+  return {L:tot(L), O:tot(ops), A:tot(apr), U:tot(aut), vend:grupo(function(x){ return x.vendedor; }), emp:grupo(function(x){ return x.empresa; }),
+    meses:Object.keys(meses).sort().map(function(m){ return meses[m]; }), porVencer:porVencer};
+}
+function pintaTablero(lista){
+  var T = tableroDatos(lista), caja = $('tab'), cupo = (A.int && Number(A.int.cupo)) || 0; caja.textContent = ''; caja.hidden = false;
+  var sec = function(titulo){ var s = el('div','tab-sec'); s.appendChild(el('h3','',titulo)); caja.appendChild(s); return s; };
+  var cifra = function(c, rot, val, sub){ var d = el('div'); d.appendChild(el('span','',rot)); d.appendChild(el('b','',val)); if (sub) d.appendChild(el('em','',sub)); c.appendChild(d); };
+  var parte = function(a,b){ return b>0 ? fPct(a/b,0) : '—'; };
+  /* filas: [nombre, valor de la barra, texto que va al lado, detalle para quien pasa el cursor o usa lector de pantalla] */
+  var barras = function(s, filas){
+    var b = el('div','tab-b'), max = filas.reduce(function(m,f){ return Math.max(m,f[1]); },0);
+    filas.forEach(function(f){
+      var r = el('div','tab-f'), p = el('div'), i = el('i');
+      r.tabIndex = 0; r.title = f[0]+': '+f[3]; r.setAttribute('role','img'); r.setAttribute('aria-label', f[0]+': '+f[3]);
+      i.style.width = (max>0 ? Math.max(0, f[1]/max*100) : 0)+'%'; if (!(f[1]>0)) i.style.minWidth = '0'; p.appendChild(i);
+      r.appendChild(el('span','',f[0])); r.appendChild(p); r.appendChild(el('b','',f[2])); b.appendChild(r);
+    });
+    s.appendChild(b);
+  };
+  var s1 = sec('Indicadores del período'), k = el('div','tab-k'); s1.appendChild(k);
+  cifra(k, 'Operaciones cotizadas', fInt(T.O.n), T.L.n>T.O.n ? T.L.n+' cotizaciones, con las recotizaciones' : 'sin recotizaciones');
+  cifra(k, 'Aprobadas por Finanzas', fInt(T.A.n), parte(T.A.n,T.O.n)+' de las operaciones');
+  cifra(k, 'Autorizadas por Comercial', fInt(T.U.n), parte(T.U.n,T.O.n)+' de las operaciones');
+  cifra(k, 'Saldo financiado autorizado', compacto(T.U.sal), 'de '+compacto(T.O.sal)+' cotizados');
+  cifra(k, 'Costo para la empresa', compacto(T.U.ce), T.U.imp>0 ? fPct(T.U.ce/T.U.imp)+' del importe autorizado' : 'de las operaciones autorizadas');
+  cifra(k, 'Mayor costo en una operación', T.U.n ? fPct(T.U.max) : '—', 'del importe, entre las autorizadas');
+  cifra(k, 'Plazo promedio', T.U.sal>0 ? Math.round(T.U.kd/T.U.sal)+' días' : '—', 'de las autorizadas, con acreditación');
+  if (!T.L.n){ s1.appendChild(el('p','tab-n','No hay cotizaciones emitidas en el período.')); return; }
+  var s2 = sec('Del cotizado al autorizado');
+  barras(s2, [['Operaciones cotizadas', T.O.n, T.O.n+' · '+compacto(T.O.sal), T.O.n+' operaciones por '+f$(T.O.sal)+' de saldo'],
+    ['Aprobadas por Finanzas', T.A.n, T.A.n+' · '+compacto(T.A.sal), T.A.n+' operaciones por '+f$(T.A.sal)+' de saldo'],
+    ['Autorizadas por Comercial', T.U.n, T.U.n+' · '+compacto(T.U.sal), T.U.n+' operaciones por '+f$(T.U.sal)+' de saldo']]);
+  s2.appendChild(el('p','tab-n','El sistema registra hasta la autorización de la Gerencia Comercial: no sabe si la venta se concretó. La proporción de autorizadas es la mejor aproximación a la tasa de cierre.'));
+  var s3 = sec('Cheques de las operaciones autorizadas, por mes de pago');
+  if (T.meses.length) barras(s3, T.meses.map(function(m){ var p = m.m.split('-'), nom = MESES[Number(p[1])-1]+' '+p[0]; return [nom, m.v, compacto(m.v)+' · '+m.n+(m.n===1 ? ' cheque' : ' cheques'), m.n+(m.n===1 ? ' cheque' : ' cheques')+' por '+f$(m.v)]; }));
+  else s3.appendChild(el('p','tab-n','Todavía no hay operaciones autorizadas en el período.'));
+  if (cupo>0){
+    var uso = T.porVencer/cupo, me = el('div','tab-m'), mi = el('i'); mi.style.width = acota(uso*100,0,100)+'%'; me.appendChild(mi);
+    me.setAttribute('role','img'); me.setAttribute('aria-label','Uso del cupo: '+fPct(uso,0));
+    s3.appendChild(el('p','tab-n','Uso del cupo de las líneas: '+fPct(uso,0)+'. Cheques todavía no vencidos por '+f$(T.porVencer)+' sobre un cupo de '+f$(cupo)+'.')); s3.appendChild(me);
+  }
+  s3.appendChild(el('p','tab-n','Son cheques de operaciones autorizadas en el período elegido: es el compromiso potencial sobre las líneas de descuento, no lo ya descontado.'+(cupo>0 ? '' : ' Para ver el uso del cupo, cargalo en Política comercial.')));
+  var porGrupo = function(titulo, l){
+    var s = sec(titulo);
+    barras(s, l.map(function(g){ return [g.k, g.sal, compacto(g.sal)+' · '+g.aut+' de '+g.ops, g.aut+' de '+g.ops+' operaciones autorizadas, por '+f$(g.sal)+' de saldo y '+f$(g.ce)+' de costo para la empresa']; }));
+    s.appendChild(el('p','tab-n','Saldo autorizado y, al lado, operaciones autorizadas sobre las cotizadas.'));
+  };
+  porGrupo('Por vendedor', T.vend); porGrupo('Por empresa que factura', T.emp);
+  caja.appendChild(el('p','tab-n','Falta para comparar contra el margen: el sistema no conoce el margen de cada unidad. Hoy ese control lo hace la Gerencia Comercial al autorizar, con el costo para la empresa a la vista.'));
+}
+function verTablero(){
+  var d = deIso($('tab-desde').value), h = deIso($('tab-hasta').value);
+  if (!d || !h){ toast('Elegí las fechas desde y hasta del tablero.', true); return; }
+  if (h < d){ toast('La fecha «hasta» no puede ser anterior a «desde».', true); return; }
+  if (difDias(d, h) > 366){ toast('El tablero puede abarcar un año como máximo.', true); return; }
+  var ini = new Date(d.getFullYear(), d.getMonth(), d.getDate(), 0, 0, 0, 0), fin = new Date(h.getFullYear(), h.getMonth(), h.getDate(), 23, 59, 59, 999);
+  var b = $('b-tab'), t = $('tab-t'), caja = $('tab');
+  b.disabled = true; t.textContent = 'Leyendo las cotizaciones del período…'; caja.style.opacity = '.5';
+  llama('tc-finanzas', {accion:'cotizaciones', desde:ini.toISOString(), hasta:fin.toISOString()}).then(function(j){
+    b.disabled = false; caja.style.opacity = '';
+    if (j.ok!==true){ t.textContent = 'No se pudo armar el tablero.'; if (!caida(j)) toast(sinRed(j) || j.mensaje || 'No se pudo leer el registro. Probá de nuevo.', true); return; }
+    var lista = (Array.isArray(j.cotizaciones) ? j.cotizaciones : []).filter(function(x){ return x && x.numero; });
+    t.textContent = (lista.length===1 ? '1 cotización emitida' : lista.length+' cotizaciones emitidas')+' del '+fFecha(ini)+' al '+fFecha(fin)+'.'+(j.truncado===true ? ' El período tiene más de 3.000 y el tablero quedó incompleto: acortalo.' : '');
+    pintaTablero(lista);
+  });
+}
+function periodoTablero(cual){
+  var hoy = new Date(), a = hoy.getFullYear(), m = hoy.getMonth();
+  var d = cual==='ant' ? new Date(a, m-1, 1, 12) : cual==='90' ? masDias(hoy0(), -89) : new Date(a, m, 1, 12), h = cual==='ant' ? new Date(a, m, 0, 12) : hoy;
+  $('tab-desde').value = aIso(d); $('tab-hasta').value = aIso(h);
+}
 /* --- Finanzas: usuarios. Altas, cambios, contraseñas provisorias y bajas; todo queda guardado en el sistema (n8n) --- */
+var ROLES = {vendedor:'Vendedor', finanzas:'Finanzas', comercial:'Gerencia Comercial'};
 var usuEdit = null;
 /* Contraseña provisoria fácil de dictar: sin letras ni números que se confundan. La persona la cambia al ingresar por primera vez. */
 function claveNueva(){
@@ -1839,12 +2353,13 @@ function claveNueva(){
 function pintaUsuarios(){
   if (!A.usu) return;
   var c = $('usu'); c.textContent = '';
-  var act = A.usu.filter(function(u){ return u.activo; }).length, fz = A.usu.filter(function(u){ return u.activo && u.rol==='finanzas'; }).length;
-  $('usu-t').textContent = (A.usu.length===1 ? '1 usuario' : A.usu.length+' usuarios')+': '+act+(act===1 ? ' activo' : ' activos')+', '+fz+' de Finanzas. Solo los activos pueden ingresar.';
+  var act = A.usu.filter(function(u){ return u.activo; }).length, fz = A.usu.filter(function(u){ return u.activo && u.rol==='finanzas'; }).length, gc = A.usu.filter(function(u){ return u.activo && u.rol==='comercial'; }).length;
+  $('usu-t').textContent = (A.usu.length===1 ? '1 usuario' : A.usu.length+' usuarios')+': '+act+(act===1 ? ' activo' : ' activos')+', '+fz+' de Finanzas y '+gc+' de la Gerencia Comercial. Solo los activos pueden ingresar.';
   A.usu.forEach(function(u){
     var it = el('div','reg-item'), cab = el('div','reg-cab'), ps = el('div','reg-al'), propio = !!S && u.usuario===S.usuario;
     cab.appendChild(el('b','',u.usuario));
-    ps.appendChild(el('span','pill '+(u.rol==='finanzas' ? 'ok' : 'gris'), u.rol==='finanzas' ? 'Finanzas' : 'Vendedor'));
+    ps.appendChild(el('span','pill '+(u.rol==='vendedor' ? 'gris' : 'ok'), ROLES[u.rol] || 'Vendedor'));
+    if (u.activo && u.rol!=='vendedor' && !u.correo) ps.appendChild(el('span','pill warn','Sin correo: no recibe avisos'));
     if (!u.activo) ps.appendChild(el('span','pill bad','Inactivo'));
     if (u.bloqueado) ps.appendChild(el('span','pill warn','Bloqueado'));
     if (u.debeCambiar && u.activo) ps.appendChild(el('span','pill warn','Contraseña provisoria'));
@@ -1862,7 +2377,7 @@ function cargarUsuarios(){
   $('usu-t').textContent = 'Leyendo usuarios…';
   return llama('tc-finanzas', {accion:'usuarios'}).then(function(j){
     if (j.ok!==true){ $('usu-t').textContent = sinRed(j) || 'No se pudieron leer los usuarios. Probá de nuevo con Actualizar.'; return; }
-    A.usu = Array.isArray(j.usuarios) ? j.usuarios : []; pintaUsuarios();
+    A.usu = Array.isArray(j.usuarios) ? j.usuarios : []; A.usuAviso = usuAvisoDe(A.usu); pintaUsuarios(); pintar();
   });
 }
 function abreUsuario(u, conClave){
@@ -1874,7 +2389,7 @@ function abreUsuario(u, conClave){
   $('u-clave-l').textContent = u ? 'Contraseña provisoria nueva (vacío: no cambia)' : 'Contraseña provisoria';
   ['u-clave','b-usu-gen','u-rol','u-activo'].forEach(function(id){ $(id).disabled = propio; });
   $('usu-form-t').textContent = propio ? 'Es tu usuario: podés cambiar el nombre y el correo. Tu contraseña se cambia con «Cambiar contraseña», arriba.'
-    : 'Vendedor: cotiza y ve sus cotizaciones. Finanzas: además parametriza, revisa las cotizaciones y da usuarios. Pasale a la persona el usuario y la contraseña provisoria: la primera vez que ingrese, el sistema le pide que elija una propia.';
+    : 'Vendedor: cotiza y ve sus cotizaciones. Finanzas: además parametriza, revisa las cotizaciones y da usuarios. Gerencia Comercial: autoriza, desde su propio módulo, las operaciones que Finanzas aprobó. A Finanzas y a la Gerencia Comercial cargales el correo: ahí reciben los avisos. Pasale a la persona el usuario y la contraseña provisoria: la primera vez que ingrese, el sistema le pide que elija una propia.';
   $('usu-form').hidden = false; $('usu-aviso').hidden = true;
   try{ (u ? $('u-nombre') : $('u-usuario')).focus(); }catch(e){}
 }
@@ -1887,7 +2402,7 @@ function mandaUsuario(d, hecho){
   });
 }
 function guardarUsuario(){
-  var d = {usuario:$('u-usuario').value.trim().toLowerCase(), nombre:$('u-nombre').value.trim(), correo:$('u-correo').value.trim(), rol:$('u-rol').value==='finanzas' ? 'finanzas' : 'vendedor', activo:$('u-activo').checked};
+  var d = {usuario:$('u-usuario').value.trim().toLowerCase(), nombre:$('u-nombre').value.trim(), correo:$('u-correo').value.trim(), rol:ROLES[$('u-rol').value] ? $('u-rol').value : 'vendedor', activo:$('u-activo').checked};
   var c = $('u-clave').disabled ? '' : $('u-clave').value.trim(); if (c) d.clave = c;
   if (!/^[a-z0-9][a-z0-9._-]{2,29}$/.test(d.usuario)){ toast('El usuario debe tener entre 3 y 30 caracteres: letras minúsculas, números, punto o guion. Por ejemplo: juan.perez', true); return; }
   if (!d.nombre){ toast('Falta el nombre y apellido de la persona.', true); return; }
@@ -1921,7 +2436,7 @@ function generarPDF(r, emitida){
   var fill=function(c){doc.setFillColor(c[0],c[1],c[2]);}, txt=function(c){doc.setTextColor(c[0],c[1],c[2]);}, traz=function(c){doc.setDrawColor(c[0],c[1],c[2]);};
   var fuente=function(est,t){doc.setFont('helvetica',est);doc.setFontSize(t);};
   var m$=function(n){return '$ '+fInt(n);};
-  var op=r.op, L=limpiaPdf;
+  var op=r.op, L=limpiaPdf, pc=function(x){ return fPct(x, r.par.tasasDec); };
   doc.setProperties({title:'Cotización '+r.numero, subject:'Tasa Compartida - Financiación con cheques', author:'Grupo AGN'});
 
   function cabCont(){
@@ -1955,8 +2470,8 @@ function generarPDF(r, emitida){
     doc.text(s, x, y+4.7);
   };
   var c1=M, w1=CW*0.46-4, c2=M+CW*0.46, w2=CW*0.27-4, c3=M+CW*0.73, w3=CW*0.27;
-  kv('Cliente', op.cliente||'A completar', c1, w1); kv('CUIT o DNI', op.doc, c2, w2); kv('Vendedor', op.vendedor||'A completar', c3, w3); y+=10.5;
-  kv('Unidad o producto', op.detalle, c1, w1); kv('Unidad de negocio', op.unidad, c2, w2); kv('Cheques a la orden de', op.empresa||'A completar', c3, w3); y+=12;
+  kv('Cliente', op.cliente||'A completar', c1, w1); kv('CUIT', op.doc, c2, w2); kv('Vendedor', op.vendedor||'A completar', c3, w3); y+=10.5;
+  kv('Unidad', op.detalle, c1, CW*0.73-4); kv('Cheques a la orden de', op.empresa||'A completar', c3, w3); y+=12;
 
   /* resumen */
   var bw=(CW-8)/3, bh=17;
@@ -1966,31 +2481,18 @@ function generarPDF(r, emitida){
     if(sub){ doc.text(sub,x+bw-4,y+5.6,{align:'right'}); }
     txt(osc?C.white:C.ink); fuente('bold',12.5); doc.text(val,x+4,y+12.2);
   };
-  caja(0,'Importe total a pagar',m$(r.P)); caja(1,'Anticipo',m$(r.A), r.P>0?fPct(r.A/r.P,1):''); caja(2,'Saldo a financiar con cheques',m$(r.S),'',true);
+  caja(0,'Importe total a pagar',m$(r.P)); caja(1,'Anticipo',m$(r.A), r.P>0?fPctA(r.A/r.P):''); caja(2,'Saldo a financiar con cheques',m$(r.S),'',true);
   y+=bh+9;
-  var aparte=r.forma==='aparte', hayImp=r.iva+r.perc>0;
+  var aparte=r.forma==='aparte', imp=r.iva+r.perc, hayImp=imp>0;
   if (aparte && r.n>0){
     y-=5; fill(C.soft); doc.rect(M,y,CW,10,'F'); txt(C.navy); fuente('normal',8.5);
     doc.text('A pagar el día de la operación: anticipo '+m$(r.A)+' + costo financiero '+m$(r.pagoAparte), M+4, y+6.3);
     fuente('bold',10.5); doc.text(m$(r.pagoHoy), W-M-4, y+6.4, {align:'right'}); y+=16;
   }
 
-  /* tasa compartida */
-  titulo('Tasa compartida');
-  var wc=CW*acota(r.sh,0.05,0.95);
-  fill(C.blue); doc.rect(M,y,wc,9,'F'); fill(C.sky); doc.rect(M+wc,y,CW-wc,9,'F');
-  var tCli='Usted paga '+fPct(r.rc)+' TNA', tAgn='Grupo AGN bonifica '+fPct(r.rb-r.rc)+' TNA';
-  fuente('bold',9);
-  if (wc>=64 && CW-wc>=64){ txt(C.white); doc.text(tCli,M+3,y+5.9); txt(C.navy); doc.text(tAgn,W-M-3,y+5.9,{align:'right'}); y+=13; }
-  else { y+=13.5; txt(C.ink); doc.text(tCli+'  ·  '+tAgn, M, y); y+=5; }
-  txt(C.muted); fuente('normal',7.8);
-  doc.text('Tasa de descuento de cheques de referencia: '+fPct(r.rb)+' TNA adelantada. La diferencia la bonifica Grupo AGN: '+m$(r.ahorro)+' en esta operación.', M, y); y+=9;
-
-  /* plan de cheques */
+  /* plan de cheques: fecha, plazo e importe de cada uno */
   titulo('Plan de cheques');
-  var din = aparte ? ['Importe del cheque'] : ['Capital','Costo financiero'].concat(hayImp ? [r.perc>0 ? 'IVA y perc.' : 'IVA'] : []).concat(['Importe del cheque']);
-  var wD=(CW-55)/din.length, tam=8.8;
-  var cols=[['N°',10,'l'],['Fecha de pago',26,'l'],['Plazo',19,'l']].concat(din.map(function(t){ return [t,wD,'r']; }));
+  var tam=8.8, cols=[['N°',14,'l'],['Fecha de pago',46,'l'],['Plazo',40,'l'],['Importe del cheque',CW-100,'r']];
   var renglon=function(vals,alto,est,fondo,color){
     if(fondo){ fill(fondo); doc.rect(M,y,CW,alto,'F'); }
     txt(color||C.ink); fuente(est, est==='bold'?tam-0.4:tam);
@@ -1998,17 +2500,16 @@ function generarPDF(r, emitida){
     cols.forEach(function(c,i){ var v=vals[i]; if(v!==''){ if(c[2]==='r') doc.text(v,x+c[1]-2.5,y+alto*0.68,{align:'right'}); else doc.text(v,x+2.5,y+alto*0.68); } x+=c[1]; });
     y+=alto;
   };
-  var celdas=function(k,ne,im,n){ if (aparte) return [m$(n)]; var q=[m$(k),m$(ne)]; if (hayImp) q.push(m$(im)); q.push(m$(n)); return q; };
   renglon(cols.map(function(c){return c[0];}),7,'bold',C.navy,C.white);
   r.filas.forEach(function(f,i){
     lugar(6);
-    renglon([String(i+1), fFecha(f.fecha), f.dias+' días'].concat(celdas(f.capital,f.neto,f.imp,f.cheque)),5.6,'normal', i%2?C.gris:null);
+    renglon([String(i+1), fFecha(f.fecha), f.dias+' días', m$(f.cheque)],5.6,'normal', i%2?C.gris:null);
   });
   lugar(8);
-  renglon(['Total','',''].concat(celdas(r.S,r.neto,r.iva+r.perc,r.totalCheques)),6.8,'bold',C.soft,C.navy);
+  renglon(['Total','','',m$(r.totalCheques)],6.8,'bold',C.soft,C.navy);
   y+=3.6; txt(C.muted); fuente('normal',7);
   doc.text(aparte ? 'Los cheques cubren solo el capital. El costo financiero se paga el día de la operación, junto con el anticipo.'
-    : 'Costo financiero: interés a tasa bonificada, sellos y gastos bancarios e impuestos'+(hayImp?', neto de IVA.':'.'), M, y); y+=5.5;
+    : 'Cada cheque incluye capital y costo financiero.', M, y); y+=5.5;
 
   /* costo financiero */
   lugar(22);
@@ -2018,27 +2519,18 @@ function generarPDF(r, emitida){
     txt(azul?C.blue:C.ink); fuente('bold',12); doc.text(val,x+4,y+11.4);
     txt(C.ink2); fuente('normal',7); doc.text(sub,x+4,y+15.4);
   };
-  fig(0,'Costo financiero total',m$(r.costoCliente),(r.S>0?fPct(r.costoCliente/r.S):'-')+' del saldo financiado');
-  fig(1,'Bonificación de Grupo AGN',m$(r.ahorro),'respecto de la tasa de referencia',true);
+  fig(0,'Costo financiero total',m$(r.costoCliente),(r.S>0?pc(r.costoCliente/r.S):'-')+' del saldo financiado');
+  fig(1,'Tasa Compartida',pc(r.rc),'nominal anual adelantada',true);
   fig(2,'Total de la operación',m$(r.totalOperacion), aparte ? 'anticipo + costo financiero + cheques' : 'anticipo + cheques');
   y+=24;
 
-  /* detalle de la financiación */
-  var izq=[['Importe total a pagar',m$(r.P)],['Anticipo',m$(r.A)],['Monto financiado',m$(r.S)],['Interés a tasa bonificada',m$(r.interes)]];
-  if (r.gastos>0) izq.push(['Sellos y gastos bancarios',m$(r.gastos)]);
-  if (r.margen>0) izq.push(['Cargo administrativo',m$(r.margen)]);
-  if (r.iibb>0) izq.push(['Ingresos Brutos',m$(r.iibb)]);
-  if (r.tem>0) izq.push(['TEM (tributo municipal)',m$(r.tem)]);
-  if (r.debcred>0) izq.push(['Impuesto a los débitos y créditos',m$(r.debcred)]);
-  if (hayImp) izq.push(['Factura por intereses y gastos, neto de IVA',m$(r.neto),1]);
-  if (r.iva>0) izq.push(['IVA ('+fPct(r.ivaT,1)+')',m$(r.iva)]);
-  if (r.perc>0) izq.push(['Percepción de Ingresos Brutos',m$(r.perc)]);
+  /* detalle de la financiación: el costo financiero va en una línea y los impuestos, en otra */
+  var izq=[['Importe total a pagar',m$(r.P)],['Anticipo',m$(r.A)],['Monto financiado',m$(r.S)],['Intereses y otros costos financieros',m$(r.neto)]];
+  if (hayImp) izq.push([r.perc>0 ? 'Impuestos (IVA y percepciones)' : 'Impuestos (IVA)',m$(imp)]);
   izq.push(['Costo financiero total',m$(r.costoCliente),1]);
   if (aparte) izq.push(['A pagar el día de la operación, con el anticipo',m$(r.pagoAparte)]);
   izq.push(['Total a pagar en cheques',m$(r.totalCheques),1]);
-  var der=[['Tasa nominal anual que paga, adelantada',fPct(r.rc)],['Tasa efectiva anual (TEA)',fPct(r.tea)],['Costo financiero total efectivo anual',fPct(r.cft),1]];
-  if (r.impuestos>0) der.push(['Costo financiero total sin impuestos',fPct(r.cftSin)]);
-  der.push(['Sistema de pago',r.sistema],['Pagos',r.pagos],['Plazo promedio',Math.round(r.plazoProm)+' días']);
+  var der=[['Tasa Compartida, nominal anual adelantada',pc(r.rc)],['Tasa efectiva anual (TEA)',pc(r.tea)],['Costo financiero total (CFT), efectivo anual',pc(r.cft),1],['Sistema de pago',r.sistema],['Pagos',r.pagos]];
   var nf=Math.max(izq.length,der.length), wcol=(CW-8)/2;
   lugar(12+nf*4.7+4);
   titulo('Detalle de la financiación');
@@ -2053,10 +2545,10 @@ function generarPDF(r, emitida){
   par2(izq,M); par2(der,M+wcol+8);
   y+=nf*4.7+4;
 
-  /* condiciones sujetas a validación */
+  /* cheques de terceros: sujetos al análisis de cada librador */
   if (r.especiales.length){
     fuente('bold',8.2);
-    var le=doc.splitTextToSize('Condiciones sujetas a validación expresa de Finanzas: '+r.especiales.join('; ')+'.', CW-7);
+    var le=doc.splitTextToSize('Cheques de terceros: la operación queda sujeta al análisis crediticio de cada librador.', CW-7);
     lugar(le.length*3.8+8);
     fill(C.ambar); doc.rect(M,y,CW,le.length*3.8+4.4,'F'); txt(C.ambarT); doc.text(le, M+3.5, y+5.2);
     y+=le.length*3.8+8.4;
@@ -2110,6 +2602,18 @@ function bajaDirecto(nombre, data){
 function guardaArchivo(nombre, data){
   return bajaDirecto(nombre, data);
 }
+/* Antes de emitir: la unidad del listado, el cliente con su CUIT y, si los cheques son de terceros, cada librador. */
+function avisaFalta(r){
+  var f = (r.faltan||[])[0]; if (!f) return false;
+  toast('Para emitir la cotización falta '+f[1]+'.', true);
+  try{
+    if (f[0]==='terceros'){
+      var filas = document.querySelectorAll('#terceros .tercero'), k, a, b;
+      for (k=0;k<filas.length;k++){ a = filas[k].querySelector('[data-t="n"]'); b = filas[k].querySelector('[data-t="c"]'); if (!a.value.trim()){ a.focus(); break; } if (!M.cuitOk(b.value)){ b.focus(); break; } }
+    } else $(f[0]).focus();
+  }catch(e){}
+  return true;
+}
 function avisaFallo(e, que){
   var c = e && e.code;
   if (c==='declined') toast('Descarga cancelada. '+que+' sigue en pantalla.');
@@ -2118,6 +2622,7 @@ function avisaFallo(e, que){
 }
 function alPdf(){
   var r=ultimo; if(!r || r.bloqueado || vista==='sin') return;
+  if (avisaFalta(r)) return;
   var bp=$('b-pdf'); bp.disabled=true; bp.textContent='Preparando…';
   var fin=function(){ bp.textContent='Descargar PDF'; pintar(); };
   if(!window.jspdf){ fin(); toast('No se pudo cargar el generador de PDF. Recargá la página y probá de nuevo.', true); return; }
@@ -2148,7 +2653,7 @@ function publicar(){
   llama('tc-finanzas', {accion:'publicar', config:pub, interno:int}).then(function(j){
     on(false);
     if (j.ok!==true || !j.config || j.config.v!==3){ if (!caida(j)) toast(sinRed(j) || j.mensaje || 'No se pudo publicar. Probá de nuevo.', true); return; }
-    A.pub = j.config; A.int = j.interno && typeof j.interno==='object' ? j.interno : int; A.previa = null; tocado = false; tnaVista = p.tna;
+    A.pub = j.config; A.int = j.interno && typeof j.interno==='object' ? j.interno : int; A.previa = null; tocado = false; tnaVista = p.tna; A.migra = false;
     var h = new Date(j.config.publicada);
     /* El sistema avisa a los cotizadores abiertos que hay una publicación nueva. Si ese aviso falla, la tasa igual quedó publicada:
        los vendedores la reciben al ingresar, al emitir o al tocar «Actualizar», y ninguna cotización sale con la tasa anterior. */
@@ -2156,13 +2661,19 @@ function publicar(){
     A.sync = 'Publicada a las '+p2(h.getHours())+':'+p2(h.getMinutes())+' hs por '+(j.publicadaPor || (S && S.usuario) || 'Finanzas')+'. Desde ahora ninguna cotización se puede emitir con los valores anteriores.'
       + (avisoFallo ? ' Atención: no se pudo avisar a los cotizadores que ya estaban abiertos'+(j.avisoError ? ' ('+String(j.avisoError).slice(0,80)+')' : '')+'. Esos vendedores verán la tasa nueva al ingresar, al emitir o al tocar «Actualizar». Si se repite, avisá a quien mantiene el sistema.' : '');
     ponerParamsForm(parPublicado()); cambio(); pintar();
-    toast('Tasa del día publicada: '+fPct(p.tna/100)+' TNA.'+(avisoFallo ? ' No se pudo avisar a los cotizadores abiertos: mirá el detalle en el módulo.' : ''), avisoFallo);
+    var sinStock = !p.stock.length;
+    toast('Tasa del día publicada: '+fPct(p.tna/100)+' TNA.'+(sinStock ? ' Atención: no hay unidades habilitadas, así que los vendedores no pueden emitir. Cargá los listados y publicá de nuevo.' : '')+(avisoFallo ? ' No se pudo avisar a los cotizadores abiertos: mirá el detalle en el módulo.' : ''), avisoFallo || sinStock);
   });
 }
-function descartar(){ tocado = false; ponerParamsForm(parPublicado() || sugeridosDesde(A.previa)); cambio(); pintar(); toast('Se descartaron los cambios sin publicar.'); }
+function descartar(){ tocado = false; A.migra = false; ponerParamsForm(parPublicado() || sugeridosDesde(A.previa)); cambio(); pintar(); toast('Se descartaron los cambios sin publicar.'); }
 function tomaPub(d){ if (d && d.v===3){ A.pub = d; A.previa = null; } else { A.pub = null; A.previa = d || null; } }
 function alLlegarConfig(){
-  if (A.editable && !tocado) ponerParamsForm(parPublicado() || sugeridosDesde(A.previa));
+  if (A.editable && !tocado){
+    var pp = parPublicado();
+    ponerParamsForm(pp || sugeridosDesde(A.previa));
+    /* Publicación anterior a la versión 3.5: lo que era «sin validación especial» pasa a ser el tope. Queda como cambio sin publicar, para que Finanzas lo revise. */
+    if (pp && (pp.cuotasSinVal<pp.cuotasMax || pp.plazoSinVal<pp.plazoMax)){ $('p-cuotasmax').value = pp.cuotasSinVal; $('p-plazomax').value = pp.plazoSinVal; tocado = true; A.migra = true; }
+  }
   var t = pubOk() ? norm(A.pub).tna : null;
   if (t !== null) tnaVista = t;
   pintar();
@@ -2179,12 +2690,14 @@ function cargarConfigFin(){
     }
     A.modo = 'n8n'; tomaPub(j.config); A.int = j.interno && typeof j.interno==='object' ? j.interno : null;
     A.sync = j.config && j.publicadaPor ? 'Última publicación hecha por '+j.publicadaPor+'.' : '';
+    A.usuAviso = j.usuarios && typeof j.usuarios==='object' ? j.usuarios : null;
     A.listo = true; alLlegarConfig();
   });
 }
 function iniciarDatos(){
-  A.modo = 'n8n'; A.esFin = true; A.editable = true; A.listo = false; A.reg = null; A.usu = null; tocado = false;
-  $('usu-form').hidden = true; $('usu-aviso').hidden = true; $('usu').textContent = ''; $('reg').textContent = '';
+  if (MODO_COM){ A.modo = 'n8n'; A.listo = true; A.com = null; $('com-l').textContent = ''; cargarComercial(); return; }
+  A.modo = 'n8n'; A.esFin = true; A.editable = true; A.listo = false; A.reg = null; A.usu = null; A.usuAviso = null; A.migra = false; tocado = false;
+  $('usu-form').hidden = true; $('usu-aviso').hidden = true; $('usu').textContent = ''; $('reg').textContent = ''; $('tab').hidden = true; $('tab').textContent = '';
   cargarConfigFin();
   if ($('g-reg').open) cargarRegistro();
   if ($('g-usu').open) cargarUsuarios();
@@ -2219,6 +2732,7 @@ function iniciar(){
   $('carga').addEventListener('submit', function(e){ e.preventDefault(); });
   $('carga').addEventListener('input', function(e){
     var id=e.target.id;
+    if (id==='veh-busca'){ pintar(); return; }   /* buscar en el listado no cambia la cotización */
     editado=true; cambio();
     if(id==='precio'||id==='antPct') sincronizaAnticipo('pct');
     else if(id==='antMonto') sincronizaAnticipo('monto');
@@ -2227,8 +2741,18 @@ function iniciar(){
     else if(id==='vendedor') guarda(LS_VEND, e.target.value.trim());
     pintar();
   });
-  $('carga').addEventListener('change', function(){ pintar(); });
-  document.querySelectorAll('.chips').forEach(function(g){
+  $('carga').addEventListener('change', function(e){
+    var id = e.target && e.target.id, par = parActual();
+    if ((id==='antPct' || id==='antMonto' || id==='precio') && ajustaAnticipo()){ cambio(); toast('El anticipo mínimo es '+fNum(par.anticipoMin)+'% del importe. Se llevó al mínimo: '+f$(nEnt($('antMonto')))+'.'); }
+    pintar();
+  });
+  /* unidad del listado y libradores de cheques de terceros */
+  $('veh-l').addEventListener('click', function(e){ var b = e.target.closest('button[data-veh]'); if (b) eligeVeh(b.dataset.veh); });
+  $('veh-grupos').addEventListener('click', function(e){ var b = e.target.closest('button[data-g]'); if (!b) return; vehGrupo = b.dataset.g || ''; pintar(); });
+  $('b-veh-cambiar').addEventListener('click', function(){ vehSel = null; vehGrupo = ''; $('veh-busca').value = ''; stockStr = null; editado = true; cambio(); pintar(); try{ $('veh-busca').focus(); }catch(e){} });
+  $('b-tercero').addEventListener('click', function(){ var i = agregaTercero(); editado = true; cambio(); pintar(); try{ if (i) i.focus(); }catch(e){} });
+  $('terceros').addEventListener('click', function(e){ var b = e.target.closest('button[data-quita]'); if (!b) return; b.closest('.tercero').remove(); editado = true; cambio(); pintar(); });
+  document.querySelectorAll('.chips[data-para]').forEach(function(g){
     g.addEventListener('click', function(e){
       var c=e.target.closest('.chip'); if(!c) return;
       var inp=$(g.dataset.para); inp.value=c.dataset.v; editado=true; cambio();
@@ -2248,7 +2772,36 @@ function iniciar(){
   $('b-publicar').addEventListener('click', publicar);
   $('b-publicar2').addEventListener('click', publicar);
   $('b-descartar').addEventListener('click', descartar);
-  $('b-reset').addEventListener('click', function(){ var s = norm(SUG), a = parForm(); s.tna = a.tna; s.unidades = a.unidades; ponerParamsForm(s); tocado = true; pintar(); toast('Valores sugeridos cargados, sin tocar la tasa ni las unidades. Revisalos y publicá.'); });
+  $('b-reset').addEventListener('click', function(){ var s = norm(SUG), a = parForm(); s.tna = a.tna; s.stock = a.stock; s.cupo = a.cupo; ponerParamsForm(s); tocado = true; pintar(); toast('Valores sugeridos cargados, sin tocar la tasa ni las unidades habilitadas. Revisalos y publicá.'); });
+  miles($('p-cupo'));
+  /* unidades habilitadas */
+  $('b-stock-arch').addEventListener('click', function(){ $('stock-arch').click(); });
+  $('stock-arch').addEventListener('change', function(){ var inp = this; cargaStock(inp.files).then(function(){ inp.value = ''; }, function(){ inp.value = ''; toast('No se pudieron leer los archivos. Probá de nuevo.', true); }); });
+  $('b-stock-vaciar').addEventListener('click', function(){ stockForm = []; tocado = true; pintaStock(); pintar(); toast('Se quitaron todas las unidades. Falta publicar; mientras tanto los vendedores siguen viendo el listado publicado.'); });
+  $('stock-l').addEventListener('click', function(e){
+    var b = e.target.closest('button[data-quita]'); if (!b) return;
+    var abiertos = Array.prototype.map.call(document.querySelectorAll('#stock-l details'), function(d){ return d.open; });
+    stockForm = stockForm.filter(function(v){ return v.i!==b.dataset.quita; }); tocado = true; pintaStock();
+    Array.prototype.forEach.call(document.querySelectorAll('#stock-l details'), function(d,i){ d.open = !!abiertos[i]; }); pintar();
+  });
+  $('stock-l').addEventListener('change', function(e){
+    var t = e.target; if (!t || !t.dataset || t.dataset.grupo===undefined) return;
+    var nom = t.value.replace(/\s+/g,' ').trim().slice(0,60); if (!nom){ pintaStock(); return; }
+    stockForm.forEach(function(v){ if (v.g===t.dataset.grupo) v.e = nom; }); tocado = true; pintaStock(); pintar(); toast('Empresa que factura actualizada para ese listado. Falta publicar.');
+  });
+  /* tablero de gestión */
+  $('g-tab').addEventListener('toggle', function(){ if (this.open && !$('tab-desde').value) periodoTablero('mes'); });
+  $('tab-pre').addEventListener('click', function(e){ var b = e.target.closest('button[data-pre]'); if (!b) return; periodoTablero(b.dataset.pre); verTablero(); });
+  $('b-tab').addEventListener('click', verTablero);
+  /* Gerencia Comercial */
+  $('b-com-act').addEventListener('click', function(){ cargarComercial(); });
+  $('b-com-mas').addEventListener('click', function(){ A.comVer = (A.comVer||REG_PASO)+REG_PASO; pintaComercial(); });
+  $('com-l').addEventListener('click', function(e){ var b = e.target.closest('button[data-com]'); if (b) autorizar(b.dataset.num, b.dataset.com); });
+  if (MODO_COM){
+    document.body.classList.add('comercial'); document.title = 'Tasa Compartida · Autorización comercial';
+    $('marca-sub').textContent = 'Grupo AGN · Autorización comercial';
+    $('ing-pie-t').textContent = 'Tasa Compartida · Grupo AGN · Módulo de la Gerencia Comercial. Solo usuarios de la Gerencia Comercial.';
+  }
   $('b-textos-sug').addEventListener('click', function(){ $('p-textos').value = TEXTOS_SUG.join('\n'); tocado = true; pintar(); toast('Textos sugeridos cargados. Falta publicarlos.'); });
   $('b-fin').addEventListener('click', function(){ $('finanzas').scrollIntoView({block:'start'}); try{ $('p-tna').focus({preventScroll:true}); }catch(e){} });
   $('g-reg').addEventListener('toggle', function(){
@@ -2286,13 +2839,15 @@ function iniciar(){
     var on=!document.body.classList.contains('cliente');
     document.body.classList.toggle('cliente', on);
     this.setAttribute('aria-pressed', String(on)); this.textContent = on ? 'Volver a editar' : 'Mostrar al cliente';
+    if (on && vista!=='con'){ vista = 'con'; pintar(); }   /* al cliente se le muestra siempre la cotización válida, con impuestos */
     window.scrollTo(0,0);
   });
   $('b-nueva').addEventListener('click', function(){
-    ['cliente','doc','detalle','precio'].forEach(function(id){ $(id).value=''; });
-    $('nosis-pend').checked=true; $('origen-propios').checked=true; $('forma-dentro').checked=true; vista='con'; numero=nuevoNumero(); emitidaFija=null; fija=null; base=null; abierta=null; rev++; editado=true;
+    ['cliente','doc','precio','veh-busca'].forEach(function(id){ $(id).value=''; });
+    vehSel = null; vehGrupo = ''; stockStr = null; ponTerceros([]);
+    $('origen-propios').checked=true; $('forma-dentro').checked=true; vista='con'; numero=nuevoNumero(); emitidaFija=null; fija=null; base=null; abierta=null; rev++; editado=true;
     sincronizaAnticipo('pct'); pintar(); $('cliente').focus();
-    toast('Nueva cotización '+numero+'. Cargá el cliente y el importe.');
+    toast('Nueva cotización '+numero+'. Elegí la unidad y cargá el cliente y el importe.');
   });
   /* sesión */
   $('ing-ver').textContent = VERSION;
@@ -2307,7 +2862,7 @@ function iniciar(){
   document.addEventListener('visibilitychange', function(){ if (!document.hidden) revisaInactividad(); });
   pintar();
   var s0 = sesionGuardada(), resuelto = false;
-  if (s0 && s0.rol!=='finanzas'){ resuelto = true; abreIngreso('ingresar'); }
+  if (s0 && s0.rol!==ROL_PAGINA){ resuelto = true; abreIngreso('ingresar'); }
   if (!resuelto){
     if (s0){ S = s0; pintaQuien(); if (S.debe) abreIngreso('cambiar'); else alEntrar(null, false); }
     else abreIngreso('ingresar');
